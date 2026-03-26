@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission Art — ZorvEx</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Mono:wght@300;400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f5f0e8;--ink:#0d0d0d;--gold:#c9a84c;--gl:#e8c97a;--dp:#141210;--bd:rgba(245,240,232,.08);--tdim:rgba(245,240,232,.5);--tf:rgba(245,240,232,.22);--err:#e05c5c;--ok:#22c55e;--nav:70px;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--cream);font-family:"DM Mono",monospace;overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.11;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");}
+/* NAV */
+.nav{position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,4vw,48px);background:rgba(13,13,13,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd);}
+.logo{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:5px;color:var(--gold);text-decoration:none;}
+.logo span{color:var(--cream);}
+.nav-r{display:flex;align-items:center;gap:10px;}
+.nav-link{font-size:.54rem;letter-spacing:2px;text-transform:uppercase;color:var(--tdim);text-decoration:none;transition:color .3s;}
+.nav-link:hover{color:var(--gold);}
+/* PAGE */
+.page{padding-top:calc(var(--nav) + clamp(28px,4vw,52px));padding-bottom:clamp(40px,6vw,80px);padding-left:clamp(14px,6vw,80px);padding-right:clamp(14px,6vw,80px);position:relative;z-index:1;max-width:820px;margin:0 auto;}
+.page-title{font-family:"Cormorant Garamond",serif;font-size:clamp(1.7rem,4vw,2.8rem);font-weight:300;margin-bottom:6px;}
+.page-title em{font-style:italic;color:var(--gold);}
+.page-sub{font-size:.6rem;color:var(--tdim);line-height:1.8;margin-bottom:clamp(22px,3vw,36px);}
+/* ARTIST LOCK BANNER */
+.artist-lock{display:none;padding:14px 18px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.2);border-left:3px solid var(--gold);margin-bottom:clamp(18px,3vw,28px);}
+.artist-lock.show{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.al-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#9a7330);display:flex;align-items:center;justify-content:center;font-size:.8rem;color:var(--ink);font-weight:700;flex-shrink:0;}
+.al-info{flex:1;}
+.al-name{font-size:.68rem;color:var(--cream);margin-bottom:2px;}
+.al-sub{font-size:.52rem;color:var(--tdim);}
+.al-lock-ic{font-size:.54rem;color:var(--gold);padding:4px 9px;border:1px solid rgba(201,168,76,.3);}
+/* FORM */
+.section{background:var(--dp);border:1px solid var(--bd);margin-bottom:2px;}
+.sec-head{padding:13px 18px;border-bottom:1px solid var(--bd);}
+.sec-title{font-size:.54rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+.sec-body{padding:18px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.fg{margin-bottom:0;}
+.fg.full{grid-column:1/-1;}
+.fg label{display:block;font-size:.48rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);margin-bottom:6px;}
+.fg label span{color:var(--err);}
+.fg input,.fg select,.fg textarea{width:100%;padding:10px 13px;background:rgba(245,240,232,.04);border:1px solid var(--bd);color:var(--cream);font-family:"DM Mono",monospace;font-size:.64rem;outline:none;transition:border-color .3s;-webkit-appearance:none;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:rgba(201,168,76,.35);}
+.fg input.err,.fg select.err,.fg textarea.err{border-color:var(--err);}
+.fg textarea{resize:vertical;min-height:80px;}
+.fg select option{background:#1a1710;}
+.fg-hint{font-size:.48rem;color:var(--tf);margin-top:4px;line-height:1.6;}
+/* PRICING PICKER */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:2px;}
+.pkg-opt{padding:14px;border:1px solid var(--bd);cursor:pointer;transition:all .3s;position:relative;}
+.pkg-opt:hover{border-color:rgba(201,168,76,.3);}
+.pkg-opt.selected{border-color:var(--gold);background:rgba(201,168,76,.06);}
+.pkg-opt input[type=radio]{display:none;}
+.pkg-name{font-size:.64rem;color:var(--cream);margin-bottom:4px;}
+.pkg-price{font-family:"Cormorant Garamond",serif;font-size:1.4rem;font-weight:300;color:var(--gold);line-height:1;}
+.pkg-del{font-size:.5rem;color:var(--tf);margin-top:3px;}
+.pkg-sel-ic{position:absolute;top:8px;right:8px;width:16px;height:16px;border-radius:50%;background:var(--gold);display:none;align-items:center;justify-content:center;font-size:.5rem;color:var(--ink);}
+.pkg-opt.selected .pkg-sel-ic{display:flex;}
+/* DELIVERY FEE BOX */
+.fee-box{padding:12px 14px;background:rgba(245,240,232,.03);border:1px solid var(--bd);margin-top:10px;font-size:.58rem;line-height:1.8;}
+.fee-calculating{color:var(--tf);}
+.fee-result{color:var(--cream);}
+.fee-val{color:var(--gold);font-family:"Cormorant Garamond",serif;font-size:1rem;}
+/* PRICING SUMMARY */
+.price-summary{padding:16px;background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.14);margin-top:14px;}
+.ps-row{display:flex;justify-content:space-between;font-size:.58rem;padding:4px 0;border-bottom:1px solid var(--bd);}
+.ps-row:last-child{border-bottom:none;padding-top:8px;margin-top:4px;}
+.ps-label{color:var(--tdim);}
+.ps-val{color:var(--cream);}
+.ps-total .ps-label{color:var(--cream);font-size:.62rem;}
+.ps-total .ps-val{color:var(--gold);font-family:"Cormorant Garamond",serif;font-size:1.2rem;}
+.ps-advance{padding:10px 12px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.14);margin-top:10px;font-size:.58rem;color:var(--ok);}
+/* UPLOAD */
+.upload-zone{border:1px dashed rgba(201,168,76,.22);padding:20px;text-align:center;cursor:pointer;transition:border-color .3s;}
+.upload-zone:hover{border-color:var(--gold);}
+.upload-preview{margin-top:10px;display:none;}
+.upload-preview img{max-width:100%;max-height:160px;border:1px solid var(--bd);display:block;}
+/* SUBMIT */
+.submit-wrap{display:flex;align-items:center;gap:12px;margin-top:16px;flex-wrap:wrap;}
+.submit-btn{padding:14px 32px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.6rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .3s;}
+.submit-btn:hover{background:var(--gl);}
+.submit-btn:disabled{opacity:.5;cursor:not-allowed;}
+.submit-note{font-size:.52rem;color:var(--tf);line-height:1.7;}
+/* ALERT */
+.form-alert{padding:11px 14px;border-left:3px solid;font-size:.56rem;line-height:1.7;margin-bottom:14px;display:none;}
+.form-alert.show{display:block;}
+.fa-err{background:rgba(224,92,92,.05);border-color:var(--err);color:var(--err);}
+.fa-ok{background:rgba(34,197,94,.05);border-color:var(--ok);color:var(--ok);}
+/* NOTICE */
+.notice{padding:10px 13px;font-size:.54rem;line-height:1.7;margin-bottom:14px;}
+.notice-email{background:rgba(201,168,76,.05);border:1px solid rgba(201,168,76,.12);color:rgba(245,240,232,.65);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:13px;height:13px;border:2px solid rgba(13,13,13,.3);border-top-color:var(--ink);border-radius:50%;display:inline-block;animation:spin .7s linear infinite;margin-right:7px;vertical-align:middle;}
+@media(max-width:640px){
+  .form-grid{grid-template-columns:1fr;}
+  .fg.full{grid-column:1;}
+}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="/index.html">ZORV<span>EX</span></a>
+  <div class="nav-r">
+    <a href="/browse.html" class="nav-link">← Browse Artists</a>
+    <div id="navAuth"></div>
+  </div>
+</nav>
+
+<div class="page">
+  <div class="page-title">Place a <em>Commission</em></div>
+  <p class="page-sub">Fill in your requirements. Your request will be reviewed by admin and forwarded to the artist.</p>
+
+  <!-- Artist Lock Banner -->
+  <div class="artist-lock" id="artistLock">
+    <div class="al-av" id="alAv">?</div>
+    <div class="al-info">
+      <div class="al-name" id="alName">Loading artist…</div>
+      <div class="al-sub" id="alSub">Commission will go to this artist only</div>
+    </div>
+    <span class="al-lock-ic">🔒 Locked to this artist</span>
+  </div>
+
+  <div class="form-alert fa-err" id="formErr"></div>
+  <div class="form-alert fa-ok" id="formOk"></div>
+
+  <!-- 1. SELECT PACKAGE -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-title">1. Select Package</div></div>
+    <div class="sec-body">
+      <div id="pkgLoading" style="font-size:.58rem;color:var(--tf);">Loading artist packages…</div>
+      <div class="pkg-grid" id="pkgGrid" style="display:none;"></div>
+      <div id="noPkgMsg" style="display:none;font-size:.58rem;color:var(--tf);">This artist hasn't set up pricing yet. Contact them via their profile.</div>
+    </div>
+  </div>
+
+  <!-- 2. COMMISSION DETAILS -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-title">2. Commission Details</div></div>
+    <div class="sec-body">
+      <div class="form-grid">
+        <div class="fg">
+          <label>Category <span>*</span></label>
+          <select id="catSelect">
+            <option value="">Select category…</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Subcategory</label>
+          <input type="text" id="subcat" placeholder="e.g. Pencil Portrait, Landscape…">
+        </div>
+        <div class="fg full">
+          <label>Description <span>*</span></label>
+          <textarea id="desc" rows="4" placeholder="Describe your commission in detail — reference style, mood, colours, occasion, any specific requirements…"></textarea>
+        </div>
+        <div class="fg">
+          <label>Deadline <span>*</span></label>
+          <input type="date" id="deadline" min="">
+        </div>
+        <div class="fg">
+          <label>Delivery Type <span>*</span></label>
+          <select id="delivType" onchange="onDelivTypeChange()">
+            <option value="digital">Digital (file delivery)</option>
+            <option value="physical">Physical (shipped to you)</option>
+          </select>
+        </div>
+        <div class="fg full">
+          <label>Reference Image (optional)</label>
+          <div class="upload-zone" onclick="document.getElementById('refFileIn').click()">
+            <input type="file" id="refFileIn" accept="image/*" style="display:none" onchange="onRefFile(event)">
+            <div style="font-size:1.6rem;margin-bottom:6px;">🖼</div>
+            <div style="font-size:.56rem;color:var(--tf);">Click to upload reference image (JPG, PNG)</div>
+          </div>
+          <div class="upload-preview" id="refPreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. DELIVERY ADDRESS (shown for physical) -->
+  <div class="section" id="delivSection" style="display:none;">
+    <div class="sec-head"><div class="sec-title">3. Delivery Address</div></div>
+    <div class="sec-body">
+      <div class="form-grid">
+        <div class="fg"><label>Recipient Name <span>*</span></label><input type="text" id="dName" placeholder="Full name"></div>
+        <div class="fg"><label>Phone <span>*</span></label><input type="tel" id="dPhone" placeholder="10-digit number" maxlength="10"></div>
+        <div class="fg full"><label>Address Line <span>*</span></label><input type="text" id="dAddr" placeholder="House / Building / Street"></div>
+        <div class="fg"><label>City <span>*</span></label><input type="text" id="dCity" placeholder="City"></div>
+        <div class="fg"><label>State <span>*</span></label><input type="text" id="dState" placeholder="State"></div>
+        <div class="fg">
+          <label>Pincode <span>*</span></label>
+          <input type="text" id="dPin" placeholder="6-digit pincode" maxlength="6" oninput="onPincodeChange()">
+          <div class="fg-hint">Used to calculate delivery fee</div>
+        </div>
+      </div>
+      <div class="fee-box" id="feeBox">
+        <div class="fee-calculating" id="feeCalc">Enter pincode to calculate delivery fee…</div>
+        <div id="feeResult" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. BUYER PHONE -->
+  <div class="section">
+    <div class="sec-head"><div class="sec-title" id="secNum">3. Contact</div></div>
+    <div class="sec-body">
+      <div class="fg" style="max-width:320px;">
+        <label>Your Phone Number <span>*</span></label>
+        <input type="tel" id="bPhone" placeholder="10-digit mobile number" maxlength="10">
+        <div class="fg-hint">🔒 Hidden from artist. Admin-only access.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRICE SUMMARY -->
+  <div class="price-summary" id="priceSummary" style="display:none;">
+    <div class="ps-row"><span class="ps-label">Base Price</span><span class="ps-val" id="psBase">—</span></div>
+    <div class="ps-row"><span class="ps-label">Platform Commission (10%)</span><span class="ps-val" id="psComm">—</span></div>
+    <div class="ps-row" id="psDelRow" style="display:none;"><span class="ps-label">Delivery Fee</span><span class="ps-val" id="psDel">—</span></div>
+    <div class="ps-row ps-total"><span class="ps-label">Total</span><span class="ps-val" id="psTotal">—</span></div>
+    <div class="ps-advance" id="psAdvance">Advance required (50%): ₹—</div>
+  </div>
+
+  <!-- EMAIL NOTICE -->
+  <div class="notice notice-email">
+    📧 <strong style="color:var(--gold)">Note:</strong> Notifications & updates will be informed through email after order placement.
+  </div>
+
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
+      <span id="submitText">Send Commission Request</span>
+    </button>
+    <div class="submit-note">By submitting, you agree to pay 50% advance after artist acceptance. No cancellation after advance payment.</div>
+  </div>
+</div>
+
+<script src="/zorvex-api.js"></script>
+<script>
+// ── Auth Check ────────────────────────────────────────────────────────────
+const user = ZX.auth.getUser();
+if (!ZX.auth.isLoggedIn()) {
+  window.location.href = "/login.html?redirect=" + encodeURIComponent(window.location.href);
+}
+if (user?.role === "artist" || user?.role === "admin") {
+  window.location.href = user.role === "artist" ? "/dashboard-artist.html" : "/dashboard-admin.html";
+}
+ZX.buildNavAuth("navAuth");
+
+// ── URL Params ─────────────────────────────────────────────────────────────
+const params    = new URLSearchParams(window.location.search);
+const artistId  = params.get("artist");
+
+// ── Set minimum deadline to tomorrow ─────────────────────────────────────
+const minDate = new Date(); minDate.setDate(minDate.getDate()+1);
+document.getElementById("deadline").min = minDate.toISOString().split("T")[0];
+
+// ── State ─────────────────────────────────────────────────────────────────
+let _artistProfile   = null;
+let _selectedPkgId   = null;
+let _selectedPkgPrice = 0;
+let _refImageData    = null;
+let _deliveryFee     = 0;
+let _feeTimeout      = null;
+
+// ── Load Artist & Packages ────────────────────────────────────────────────
+async function init() {
+  if (!artistId) {
+    document.getElementById("pkgLoading").textContent = "No artist selected. Please choose an artist from the browse page.";
+    document.getElementById("submitBtn").disabled = true;
+    return;
+  }
+  try {
+    const data = await ZX.artists.get(artistId);
+    _artistProfile = data.profile;
+
+    // Show lock banner
+    const lock = document.getElementById("artistLock");
+    lock.classList.add("show");
+    document.getElementById("alAv").textContent = (_artistProfile.displayName || _artistProfile.user?.name || "A")[0].toUpperCase();
+    document.getElementById("alName").textContent = _artistProfile.displayName || _artistProfile.user?.name || "Artist";
+    document.getElementById("alSub").textContent = (_artistProfile.speciality || "") + " · " + (_artistProfile.location?.city || "Kerala");
+
+    // Load pricing packages
+    const tiers = _artistProfile.pricingTiers || [];
+    const pkgGrid = document.getElementById("pkgGrid");
+    const pkgLoading = document.getElementById("pkgLoading");
+    pkgLoading.style.display = "none";
+
+    if (!tiers.length) {
+      document.getElementById("noPkgMsg").style.display = "block";
+      document.getElementById("submitBtn").disabled = true;
+      return;
+    }
+    pkgGrid.style.display = "grid";
+    pkgGrid.innerHTML = tiers.map(t => `
+      <div class="pkg-opt" id="pkg_${t._id}" onclick="selectPkg('${t._id}',${t.price},'${(t.name||"").replace(/'/g,"\'")}')">
+        <input type="radio" name="pkg" value="${t._id}">
+        <div class="pkg-sel-ic">✓</div>
+        <div class="pkg-name">${t.name}</div>
+        <div class="pkg-price">₹${t.price}</div>
+        <div class="pkg-del">⏱ ${t.delivery||"—"}</div>
+      </div>`).join("");
+
+    // Auto-select first
+    if (tiers.length) selectPkg(tiers[0]._id, tiers[0].price, tiers[0].name);
+
+    // Load categories into dropdown
+    const cats = _artistProfile.categories || [];
+    const catSel = document.getElementById("catSelect");
+    if (cats.length) {
+      catSel.innerHTML = `<option value="">Select category…</option>` + cats.map(c => `<option value="${c.name}">${c.name}</option>`).join("");
+    }
+
+    // Pre-fill phone
+    if (user?.phone) document.getElementById("bPhone").value = user.phone;
+
+  } catch(e) {
+    document.getElementById("pkgLoading").textContent = "Failed to load artist: " + e.message;
+    document.getElementById("submitBtn").disabled = true;
+  }
+}
+
+function selectPkg(id, price, name) {
+  document.querySelectorAll(".pkg-opt").forEach(el => el.classList.remove("selected"));
+  document.getElementById("pkg_" + id)?.classList.add("selected");
+  _selectedPkgId   = id;
+  _selectedPkgPrice = price;
+  updatePriceSummary();
+}
+
+function updatePriceSummary() {
+  if (!_selectedPkgPrice) return;
+  const base  = _selectedPkgPrice;
+  const comm  = Math.round(base * 0.1);
+  const total = base + comm + _deliveryFee;
+  const adv   = Math.round(total * 0.5);
+
+  document.getElementById("priceSummary").style.display = "block";
+  document.getElementById("psBase").textContent  = "₹" + base;
+  document.getElementById("psComm").textContent  = "₹" + comm;
+  document.getElementById("psTotal").textContent = "₹" + total;
+  document.getElementById("psAdvance").textContent = "Advance required (50%): ₹" + adv;
+  if (_deliveryFee > 0) {
+    document.getElementById("psDelRow").style.display = "flex";
+    document.getElementById("psDel").textContent = "₹" + _deliveryFee;
+  } else {
+    document.getElementById("psDelRow").style.display = "none";
+  }
+}
+
+// ── Delivery Type Toggle ──────────────────────────────────────────────────
+function onDelivTypeChange() {
+  const isPhysical = document.getElementById("delivType").value === "physical";
+  document.getElementById("delivSection").style.display = isPhysical ? "block" : "none";
+  document.getElementById("secNum").textContent = isPhysical ? "4. Contact" : "3. Contact";
+  if (!isPhysical) { _deliveryFee = 0; updatePriceSummary(); }
+}
+
+// ── Pincode → Live Delivery Fee ───────────────────────────────────────────
+function onPincodeChange() {
+  const pin = document.getElementById("dPin").value.trim();
+  if (pin.length !== 6 || !_artistProfile) return;
+  clearTimeout(_feeTimeout);
+  _feeTimeout = setTimeout(async () => {
+    const feeCalc = document.getElementById("feeCalc");
+    const feeResult = document.getElementById("feeResult");
+    feeCalc.style.display = "block";
+    feeCalc.textContent = "Calculating delivery fee…";
+    feeResult.style.display = "none";
+    try {
+      const data = await ZX.orders.getDeliveryFee(pin, artistId);
+      _deliveryFee = data.fee || 0;
+      feeCalc.style.display = "none";
+      feeResult.style.display = "block";
+      feeResult.innerHTML = `<div class="fee-result">Estimated delivery fee: <span class="fee-val">₹${_deliveryFee}</span><br><span style="font-size:.48rem;color:var(--tf);">${data.note||""} · ${data.disclaimer||""}</span></div>`;
+      updatePriceSummary();
+    } catch(e) {
+      feeCalc.textContent = "Could not calculate fee. Standard rate will apply.";
+      _deliveryFee = 60;
+      updatePriceSummary();
+    }
+  }, 700);
+}
+
+// ── Reference Image Upload ────────────────────────────────────────────────
+function onRefFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _refImageData = ev.target.result;
+    const prev = document.getElementById("refPreview");
+    prev.style.display = "block";
+    prev.innerHTML = `<img src="${_refImageData}" style="max-width:100%;max-height:160px;border:1px solid var(--bd);display:block;margin-top:8px;">`;
+  };
+  reader.readAsDataURL(f);
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────
+function showErr(msg) {
+  const el = document.getElementById("formErr");
+  el.textContent = msg; el.classList.add("show");
+  document.getElementById("formOk").classList.remove("show");
+  el.scrollIntoView({ behavior: "smooth", block: "center" });
+}
+function showOk(msg) {
+  const el = document.getElementById("formOk");
+  el.textContent = msg; el.classList.add("show");
+  document.getElementById("formErr").classList.remove("show");
+}
+
+async function submitOrder() {
+  // Validation
+  if (!artistId || !_artistProfile) return showErr("No artist selected. Please go back and choose an artist.");
+  if (!_selectedPkgId) return showErr("Please select a package.");
+  const category = document.getElementById("catSelect").value;
+  if (!category) return showErr("Please select a category.");
+  const desc = document.getElementById("desc").value.trim();
+  if (!desc || desc.length < 20) return showErr("Please provide a detailed description (min 20 characters).");
+  const deadline = document.getElementById("deadline").value;
+  if (!deadline) return showErr("Please select a deadline.");
+  const delivType = document.getElementById("delivType").value;
+  const bPhone = document.getElementById("bPhone").value.trim();
+  if (!bPhone || !/^[6-9]\d{9}$/.test(bPhone)) return showErr("Please enter a valid 10-digit Indian mobile number.");
+
+  let deliveryAddress = undefined;
+  if (delivType === "physical") {
+    const dName  = document.getElementById("dName").value.trim();
+    const dPhone = document.getElementById("dPhone").value.trim();
+    const dAddr  = document.getElementById("dAddr").value.trim();
+    const dCity  = document.getElementById("dCity").value.trim();
+    const dState = document.getElementById("dState").value.trim();
+    const dPin   = document.getElementById("dPin").value.trim();
+    if (!dName || !dPhone || !dAddr || !dCity || !dState || !dPin) return showErr("Please fill in all delivery address fields.");
+    if (!/^\d{6}$/.test(dPin)) return showErr("Please enter a valid 6-digit pincode.");
+    deliveryAddress = { recipientName:dName, phone:dPhone, addressLine:dAddr, city:dCity, state:dState, pincode:dPin };
+  }
+
+  const btn  = document.getElementById("submitBtn");
+  const txt  = document.getElementById("submitText");
+  btn.disabled = true;
+  txt.innerHTML = `<span class="spin"></span>Sending…`;
+
+  try {
+    const payload = {
+      artistProfileId: artistId,
+      category,
+      subcategory: document.getElementById("subcat").value.trim(),
+      pricingTierId: _selectedPkgId,
+      description: desc,
+      deadline,
+      deliveryType: delivType,
+      referenceImageUrl: _refImageData || "",
+      buyerPhone: bPhone,
+      deliveryAddress,
+    };
+    const data = await ZX.orders.create(payload);
+    showOk("✅ Commission request sent! Order ID: " + data.order.orderId + ". You will be notified by email.");
+    btn.disabled = true;
+    txt.textContent = "Request Sent ✓";
+    setTimeout(() => { window.location.href = "/dashboard-buyer.html"; }, 2200);
+  } catch(e) {
+    showErr(e.message || "Failed to submit order. Please try again.");
+    btn.disabled = false;
+    txt.textContent = "Send Commission Request";
+  }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>

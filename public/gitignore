@@ -1,0 +1,30 @@
+# ========================
+# ZorvEx — .gitignore
+# ========================
+
+# Dependencies
+node_modules/
+
+# Environment Variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# File Uploads (user-uploaded artwork, etc.)
+public/uploads/
+
+# OS & Editor Junk
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build / Misc
+dist/
+coverage/

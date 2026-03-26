@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Profile — ZorvEx</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f5f0e8;--ink:#0d0d0d;--gold:#c9a84c;--gl:#e8c97a;--dp:#141210;--bd:rgba(245,240,232,.08);--tdim:rgba(245,240,232,.5);--tf:rgba(245,240,232,.22);--nav:70px;--err:#e05c5c;--ok:#22c55e;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--cream);font-family:"DM Mono",monospace;overflow-x:hidden;-webkit-font-smoothing:antialiased;}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.06'/%3E%3C/svg%3E");}
+.nav{position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,4vw,48px);background:rgba(13,13,13,.97);backdrop-filter:blur(10px);border-bottom:1px solid var(--bd);}
+.logo{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:5px;color:var(--gold);text-decoration:none;}
+.logo span{color:var(--cream);}
+.nav-links{display:flex;align-items:center;gap:clamp(10px,2vw,24px);}
+.nav-link{font-size:.54rem;letter-spacing:2px;text-transform:uppercase;color:var(--tdim);text-decoration:none;transition:color .3s;}
+.nav-link:hover{color:var(--gold);}
+.nav-btn{padding:7px 15px;border:1px solid rgba(201,168,76,.3);background:transparent;color:var(--gold);font-family:"DM Mono",monospace;font-size:.52rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:all .3s;display:inline-block;}
+.nav-btn:hover,.nav-btn.fill{background:var(--gold);color:var(--ink);}
+.ham{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+.ham span{width:20px;height:1.5px;background:var(--cream);display:block;transition:all .3s;}
+.ham.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+.ham.open span:nth-child(2){opacity:0;}
+.ham.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+.mob-menu{display:none;position:fixed;top:var(--nav);left:0;right:0;z-index:800;background:rgba(13,13,13,.99);border-bottom:1px solid var(--bd);flex-direction:column;padding:14px clamp(14px,4vw,40px) 20px;gap:2px;}
+.mob-menu.open{display:flex;}
+.mob-menu a{padding:11px 0;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;color:var(--tdim);text-decoration:none;border-bottom:1px solid var(--bd);transition:color .25s;}
+.mob-menu a:last-child{border-bottom:none;}
+.mob-menu a:hover{color:var(--gold);}
+/* COVER */
+.cover{position:relative;height:clamp(150px,22vw,280px);margin-top:var(--nav);overflow:hidden;background:linear-gradient(135deg,#1a1510,#0d0b08);}
+.cover-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.cover-ov{position:absolute;inset:0;background:linear-gradient(180deg,rgba(13,13,13,.1) 0%,rgba(13,13,13,.5) 55%,rgba(13,13,13,.9) 100%),linear-gradient(135deg,rgba(201,168,76,.07) 0%,transparent 55%);}
+/* HERO */
+.hero{padding:clamp(16px,3vw,32px) clamp(14px,6vw,80px) clamp(22px,3vw,40px);position:relative;z-index:1;}
+.back-link{display:inline-flex;align-items:center;gap:7px;font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);text-decoration:none;margin-bottom:20px;transition:color .25s;}
+.back-link:hover{color:var(--gold);}
+.hero-grid{display:grid;grid-template-columns:auto 1fr auto;gap:clamp(14px,3vw,36px);align-items:start;}
+.av-wrap{position:relative;flex-shrink:0;}
+.artist-av{width:clamp(70px,10vw,120px);height:clamp(70px,10vw,120px);border-radius:50%;background:linear-gradient(135deg,#2a2218,#1a1710);border:2px solid var(--bd);display:flex;align-items:center;justify-content:center;font-family:"Cormorant Garamond",serif;font-size:clamp(1.5rem,4vw,3rem);font-weight:300;color:var(--gold);overflow:hidden;}
+.artist-av img{width:100%;height:100%;object-fit:cover;display:none;border-radius:50%;}
+.artist-av img.loaded{display:block;}
+.verified{position:absolute;bottom:2px;right:2px;width:20px;height:20px;background:var(--gold);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;border:2px solid var(--ink);}
+.hero-info{padding-top:2px;}
+.artist-name{font-family:"Cormorant Garamond",serif;font-size:clamp(1.5rem,4vw,2.8rem);font-weight:300;line-height:1.1;margin-bottom:4px;}
+.artist-name em{font-style:italic;color:var(--gold);}
+.artist-loc{font-size:.5rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);margin-bottom:11px;}
+.artist-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:11px;}
+.atag{padding:3px 8px;border:1px solid var(--bd);font-size:.44rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+.artist-bio{font-size:.58rem;color:var(--tdim);line-height:1.9;max-width:480px;}
+.avail-row{display:flex;align-items:center;gap:6px;margin-top:10px;}
+.av-dot-big{width:7px;height:7px;border-radius:50%;display:inline-block;}
+.av-lbl{font-size:.5rem;letter-spacing:1px;color:var(--tdim);}
+.cta-row{display:flex;gap:8px;margin-top:16px;flex-wrap:wrap;}
+.btn-comm{padding:11px 24px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.56rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .25s;text-decoration:none;display:inline-block;}
+.btn-comm:hover{background:var(--gl);}
+.btn-sec{padding:11px 18px;background:transparent;border:1px solid rgba(201,168,76,.3);color:var(--gold);font-family:"DM Mono",monospace;font-size:.56rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .25s;}
+.btn-sec:hover{background:rgba(201,168,76,.06);}
+.hero-stats{display:flex;flex-direction:column;gap:12px;min-width:115px;align-items:flex-end;}
+.s-v{font-family:"Cormorant Garamond",serif;font-size:1.5rem;font-weight:300;color:var(--gold);line-height:1;}
+.s-l{font-size:.42rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);}
+.rating-r{display:flex;align-items:center;gap:4px;justify-content:flex-end;}
+.stars{color:var(--gold);font-size:.75rem;letter-spacing:-1px;}
+/* INFO BAR */
+.info-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(145px,1fr));background:var(--dp);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);position:relative;z-index:1;}
+.ic{padding:14px clamp(12px,3vw,24px);border-right:1px solid var(--bd);}
+.ic:last-child{border-right:none;}
+.ic-l{font-size:.42rem;letter-spacing:3px;text-transform:uppercase;color:var(--tf);margin-bottom:4px;}
+.ic-v{font-size:.62rem;color:var(--cream);}
+.ic-v.g{color:var(--gold);}
+/* SECTION */
+.prof-sec{padding:clamp(24px,4vw,48px) clamp(14px,6vw,80px);position:relative;z-index:1;border-top:1px solid var(--bd);}
+.sec-lbl{font-size:.46rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:7px;}
+.sec-title{font-family:"Cormorant Garamond",serif;font-size:clamp(1.2rem,2.8vw,1.8rem);font-weight:300;margin-bottom:clamp(14px,2.5vw,24px);}
+.sec-title em{font-style:italic;color:var(--gold);}
+/* PRICING */
+.pkg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:2px;}
+.pkg-card{background:var(--dp);border:1px solid var(--bd);padding:clamp(14px,2.5vw,22px);transition:border-color .25s;}
+.pkg-card:hover{border-color:var(--bd);}
+.pkg-card.feat{border-color:rgba(201,168,76,.28);background:#16140f;}
+.pkg-badge{font-size:.4rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);min-height:12px;margin-bottom:7px;}
+.pkg-name{font-family:"Cormorant Garamond",serif;font-size:1.15rem;font-weight:300;margin-bottom:4px;}
+.pkg-del{font-size:.46rem;color:var(--tf);margin-bottom:10px;}
+.pkg-price{font-family:"Cormorant Garamond",serif;font-size:1.7rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:12px;}
+.pkg-price span{font-size:.5rem;color:var(--tf);font-family:"DM Mono",monospace;}
+.pkg-btn{width:100%;padding:10px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.52rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .25s;}
+.pkg-btn:hover{background:var(--gl);}
+.pkg-btn.ghost{background:transparent;border:1px solid rgba(201,168,76,.28);color:var(--gold);}
+.pkg-btn.ghost:hover{background:rgba(201,168,76,.06);}
+/* REVIEWS */
+.reviews-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:2px;}
+.rv-card{background:var(--dp);border:1px solid var(--bd);padding:17px;}
+.rv-head{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
+.rv-av{width:28px;height:28px;border-radius:50%;background:rgba(201,168,76,.1);display:flex;align-items:center;justify-content:center;font-size:.66rem;color:var(--gold);font-weight:600;flex-shrink:0;}
+.rv-name{font-size:.54rem;color:var(--cream);margin-bottom:1px;}
+.rv-date{font-size:.44rem;color:var(--tf);}
+.rv-stars{color:var(--gold);font-size:.7rem;letter-spacing:-1px;margin-bottom:6px;}
+.rv-text{font-size:.56rem;color:var(--tdim);line-height:1.8;}
+.rv-tag{margin-top:8px;display:inline-block;padding:2px 7px;border:1px solid var(--bd);font-size:.4rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);}
+/* STICKY CTA */
+.sticky{position:fixed;bottom:0;left:0;right:0;z-index:700;background:rgba(13,13,13,.97);backdrop-filter:blur(12px);border-top:1px solid var(--bd);padding:10px clamp(14px,4vw,46px);display:flex;align-items:center;justify-content:space-between;gap:11px;transform:translateY(100%);transition:transform .3s;}
+.sticky.up{transform:translateY(0);}
+.sticky-l{display:flex;align-items:center;gap:10px;}
+.sticky-av{width:30px;height:30px;border-radius:50%;background:rgba(201,168,76,.1);display:flex;align-items:center;justify-content:center;font-size:.62rem;color:var(--gold);overflow:hidden;flex-shrink:0;}
+.sticky-av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:none;}
+.sticky-av img.loaded{display:block;}
+.s-name{font-size:.56rem;color:var(--cream);}
+.s-from{font-size:.46rem;color:var(--tf);}
+.sticky-cta{padding:9px 20px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.52rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .25s;text-decoration:none;display:inline-block;}
+.sticky-cta:hover{background:var(--gl);}
+/* MODAL */
+.m-ov{display:none;position:fixed;inset:0;z-index:2000;background:rgba(10,9,7,.95);backdrop-filter:blur(14px);overflow-y:auto;}
+.m-ov.open{display:block;}
+.modal{max-width:560px;margin:clamp(16px,3vw,52px) auto;background:var(--dp);border:1px solid var(--bd);}
+.mh{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.mt{font-family:"Cormorant Garamond",serif;font-size:1.3rem;font-weight:400;}
+.mc{width:28px;height:28px;background:none;border:1px solid var(--bd);color:var(--cream);cursor:pointer;font-size:.8rem;transition:all .25s;}
+.mc:hover{border-color:var(--gold);color:var(--gold);}
+.mb{padding:17px 20px;}
+.info-box{padding:11px 13px;border-left:3px solid;font-size:.54rem;line-height:1.8;margin-bottom:11px;}
+.ib-gold{background:rgba(201,168,76,.05);border-color:var(--gold);color:rgba(245,240,232,.72);}
+.ib-err{background:rgba(224,92,92,.05);border-color:var(--err);color:var(--err);display:none;}
+.full-btn{width:100%;padding:12px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.58rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:background .25s;margin-top:9px;}
+.full-btn:hover{background:var(--gl);}
+.ghost-btn{width:100%;padding:10px;background:transparent;border:1px solid var(--bd);color:var(--tdim);font-family:"DM Mono",monospace;font-size:.54rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:border-color .25s;margin-top:7px;}
+.ghost-btn:hover{border-color:var(--gold);color:var(--gold);}
+/* FOOTER */
+footer{background:#090807;border-top:1px solid var(--bd);padding:clamp(24px,4vw,48px) clamp(14px,6vw,80px);position:relative;z-index:1;}
+.f-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:clamp(18px,4vw,42px);margin-bottom:22px;}
+.f-logo{font-family:"Bebas Neue",sans-serif;font-size:1.4rem;letter-spacing:5px;color:var(--gold);}
+.f-logo span{color:var(--cream);}
+.f-tagline{font-size:.5rem;color:var(--tf);line-height:1.9;margin-top:7px;max-width:190px;}
+.f-col h4{font-size:.44rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;}
+.f-col a{display:block;font-size:.5rem;color:var(--tf);text-decoration:none;margin-bottom:6px;transition:color .25s;}
+.f-col a:hover{color:var(--cream);}
+.f-btm{border-top:1px solid var(--bd);padding-top:15px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:.44rem;color:var(--tf);}
+@media(max-width:900px){.hero-grid{grid-template-columns:auto 1fr;grid-template-rows:auto auto;}.hero-stats{flex-direction:row;flex-wrap:wrap;grid-column:1/-1;min-width:0;align-items:center;justify-content:flex-start;gap:16px;}.s-v{font-size:1.3rem;}.rating-r{justify-content:flex-start;}}
+@media(max-width:640px){.nav-links{display:none;}.ham{display:flex;}.hero-grid{grid-template-columns:1fr;}.pkg-grid{grid-template-columns:1fr;}.reviews-grid{grid-template-columns:1fr;}.f-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:400px){.f-grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" href="/index.html">ZORV<span>EX</span></a>
+  <div class="nav-links">
+    <a href="/index.html" class="nav-link">Home</a>
+    <a href="/browse.html" class="nav-link">Browse</a>
+    <a href="#services" class="nav-link">Services</a>
+    <div id="navAuth"></div>
+  </div>
+  <button class="ham" id="hamBtn"><span></span><span></span><span></span></button>
+</nav>
+<div class="mob-menu" id="mobMenu">
+  <a href="/index.html">Home</a>
+  <a href="/browse.html">Browse Artists</a>
+  <a href="/order.html">Commission Art</a>
+  <a href="#services" onclick="closeMob()">Services</a>
+  <a href="#reviews" onclick="closeMob()">Reviews</a>
+  <a href="/login.html" id="mobLogin">Sign In</a>
+</div>
+
+<div class="cover" id="coverEl">
+  <img id="coverImg" class="cover-bg" src="" alt="">
+  <div class="cover-ov"></div>
+</div>
+
+<section class="hero">
+  <a href="/browse.html" class="back-link">← Back to Artists</a>
+  <div class="hero-grid">
+    <div class="av-wrap">
+      <div class="artist-av" id="artistAv">
+        <span id="avInitials">A</span>
+        <img id="avImg" src="" alt="">
+      </div>
+      <div class="verified" title="Verified Artist">✓</div>
+    </div>
+    <div class="hero-info">
+      <div class="artist-name" id="artistName">Loading…</div>
+      <div class="artist-loc" id="artistLoc">Kerala, India</div>
+      <div class="artist-tags" id="artistTags"></div>
+      <div class="artist-bio" id="artistBio">Loading artist bio…</div>
+      <div class="avail-row"><span class="av-dot-big" id="avDot"></span><span class="av-lbl" id="avLbl">—</span></div>
+      <div class="cta-row">
+        <a href="#" class="btn-comm" id="mainCommBtn" onclick="openCommModal(event)">Commission This Artist</a>
+        <button class="btn-sec" onclick="document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">See Reviews ↓</button>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div><div class="s-v" id="statOrds">0</div><div class="s-l">Completed</div></div>
+      <div><div class="s-v" id="statResp">—</div><div class="s-l">Response</div></div>
+      <div class="rating-r">
+        <span class="stars" id="starsEl">★★★★★</span>
+        <span style="font-size:.56rem;color:var(--cream);" id="rNum">5.0</span>
+        <span style="font-size:.5rem;color:var(--tf);" id="rCnt">(0)</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="info-bar">
+  <div class="ic"><div class="ic-l">Speciality</div><div class="ic-v g" id="iSpec">—</div></div>
+  <div class="ic"><div class="ic-l">Starting From</div><div class="ic-v g" id="iFrom">₹—</div></div>
+  <div class="ic"><div class="ic-l">Avg. Delivery</div><div class="ic-v" id="iDel">—</div></div>
+  <div class="ic"><div class="ic-l">Member Since</div><div class="ic-v" id="iSince">—</div></div>
+</div>
+
+<section class="prof-sec" id="services">
+  <div class="sec-lbl">Services & Pricing</div>
+  <div class="sec-title">Commission <em>Packages</em></div>
+  <div class="pkg-grid" id="pkgGrid"><div style="font-size:.56rem;color:var(--tf);">Loading packages…</div></div>
+</section>
+
+<section class="prof-sec" id="reviews">
+  <div class="sec-lbl">Reviews</div>
+  <div class="sec-title">Buyer <em>Feedback</em></div>
+  <div class="reviews-grid" id="reviewsGrid"><div style="font-size:.56rem;color:var(--tf);">Loading reviews…</div></div>
+</section>
+
+<footer>
+  <div class="f-grid">
+    <div><div class="f-logo">ZORV<span>EX</span></div><p class="f-tagline">India's premium art marketplace.</p></div>
+    <div class="f-col"><h4>Platform</h4><a href="/browse.html">Browse Artists</a><a href="/order.html">Commission Art</a><a href="/login.html">Sign In</a></div>
+    <div class="f-col"><h4>Contact</h4><a href="https://instagram.com/zorve.xe" target="_blank">@zorve.xe</a><a href="tel:+919946301939">+91 9946301939</a><a href="mailto:zorvexinfo@gmail.com">zorvexinfo@gmail.com</a></div>
+  </div>
+  <div class="f-btm"><span>© 2025 ZorvEx.</span><span>India Post · Razorpay · Secure</span></div>
+</footer>
+
+<div class="sticky" id="stickyCta">
+  <div class="sticky-l">
+    <div class="sticky-av" id="stickyAv"><span id="stickyAvInit">A</span><img id="stickyAvImg" src="" alt=""></div>
+    <div><div class="s-name" id="stickyName">Artist</div><div class="s-from">From <span id="stickyFrom">₹—</span></div></div>
+  </div>
+  <a href="#" class="sticky-cta" onclick="openCommModal(event)">Commission Now</a>
+</div>
+
+<!-- COMMISSION MODAL -->
+<div class="m-ov" id="commModal">
+  <div class="modal">
+    <div class="mh"><div class="mt">Commission <em style="font-style:italic;color:var(--gold)" id="modName">Artist</em></div><button class="mc" onclick="closeModal()">✕</button></div>
+    <div class="mb">
+      <div class="info-box ib-gold">
+        💡 <strong style="color:var(--gold)">How it works</strong><br>
+        1. Fill the order form below with your requirements<br>
+        2. Admin reviews and forwards it <strong>to this specific artist only</strong><br>
+        3. Artist accepts → Pay 50% advance → Work begins
+      </div>
+      <div class="info-box ib-err" id="commErr">⚠️ Please sign in to place a commission request.</div>
+      <button class="full-btn" id="commGoBtn" onclick="goToOrder()">Proceed to Order Form →</button>
+      <button class="ghost-btn" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script src="/zorvex-api.js"></script>
+<script>
+const urlP = new URLSearchParams(window.location.search);
+const artistId = urlP.get("id");
+if (!artistId) window.location.href = "/browse.html";
+
+ZX.buildNavAuth("navAuth");
+const hamBtn = document.getElementById("hamBtn");
+const mobMenu = document.getElementById("mobMenu");
+hamBtn.addEventListener("click",()=>{hamBtn.classList.toggle("open");mobMenu.classList.toggle("open");});
+document.addEventListener("click",e=>{if(mobMenu.classList.contains("open")&&!mobMenu.contains(e.target)&&e.target!==hamBtn){hamBtn.classList.remove("open");mobMenu.classList.remove("open");}});
+function closeMob(){hamBtn.classList.remove("open");mobMenu.classList.remove("open");}
+
+async function loadProfile() {
+  try {
+    const data = await ZX.artists.get(artistId);
+    const p = data.profile;
+    document.title = (p.displayName||p.user?.name||"Artist") + " — ZorvEx";
+
+    // Avatar
+    if (p.avatarUrl) {
+      const img = document.getElementById("avImg"); img.src=p.avatarUrl; img.classList.add("loaded");
+      document.getElementById("avInitials").style.display="none";
+      const si = document.getElementById("stickyAvImg"); si.src=p.avatarUrl; si.classList.add("loaded");
+      document.getElementById("stickyAvInit").style.display="none";
+    } else {
+      const init = (p.displayName||p.user?.name||"A").split(" ").map(w=>w[0]).join("").substring(0,2).toUpperCase();
+      document.getElementById("avInitials").textContent = init;
+      document.getElementById("stickyAvInit").textContent = init[0];
+    }
+    // Cover
+    if (p.coverUrl) { const ci=document.getElementById("coverImg"); ci.src=p.coverUrl; ci.style.display="block"; }
+
+    // Name
+    const nameParts = (p.displayName||p.user?.name||"Artist").trim().split(" ");
+    document.getElementById("artistName").innerHTML = nameParts.slice(0,-1).join(" ") + " <em>" + nameParts[nameParts.length-1] + "</em>";
+    document.getElementById("artistLoc").textContent = [p.location?.city, p.location?.state].filter(Boolean).join(", ") || "Kerala, India";
+    document.getElementById("artistBio").textContent = p.bio || "Artist on ZorvEx.";
+    document.getElementById("artistTags").innerHTML = (p.tags||[]).map(t=>`<span class="atag">${t}</span>`).join("");
+
+    // Stats
+    document.getElementById("statOrds").textContent = p.completedOrders||0;
+    document.getElementById("statResp").textContent = p.responseTime||"—";
+    document.getElementById("rNum").textContent     = p.avgRating||"New";
+    document.getElementById("rCnt").textContent     = "("+( p.totalReviews||0)+")";
+    const r = Math.round(p.avgRating||0);
+    document.getElementById("starsEl").textContent  = "★".repeat(r)+"☆".repeat(5-r);
+
+    // Info bar
+    document.getElementById("iSpec").textContent  = p.speciality||"—";
+    document.getElementById("iDel").textContent   = p.responseTime||"—";
+    document.getElementById("iSince").textContent = p.memberSince ? new Date(p.memberSince).toLocaleDateString("en-IN",{month:"short",year:"numeric"}) : "2024";
+
+    // Availability
+    const av=p.availability||"open";
+    const avDot=document.getElementById("avDot");
+    const avLbl=document.getElementById("avLbl");
+    const avCls={open:"background:#22c55e",busy:"background:#f59e0b",closed:"background:#e05c5c"};
+    const avTxt={open:"Open for commissions",busy:"Limited availability",closed:"Currently unavailable"};
+    avDot.style.cssText=`display:inline-block;width:7px;height:7px;border-radius:50%;${avCls[av]}`;
+    avLbl.textContent = avTxt[av];
+
+    // Modals
+    document.getElementById("modName").textContent = p.displayName||p.user?.name||"Artist";
+    document.getElementById("stickyName").textContent = p.displayName||p.user?.name||"Artist";
+
+    // Pricing
+    const tiers = p.pricingTiers||[];
+    if (tiers.length) {
+      const min = Math.min(...tiers.map(t=>t.price));
+      document.getElementById("iFrom").textContent = "₹"+min;
+      document.getElementById("stickyFrom").textContent = "₹"+min;
+      document.getElementById("pkgGrid").innerHTML = tiers.map(t=>`
+        <div class="pkg-card ${t.isPopular?"feat":""}">
+          <div class="pkg-badge">${t.isPopular?"★ Most Popular":""}</div>
+          <div class="pkg-name">${t.name}</div>
+          <div class="pkg-del">⏱ ${t.delivery||"—"}</div>
+          <div class="pkg-price">₹${t.price} <span>fixed</span></div>
+          <button class="${t.isPopular?"pkg-btn":"pkg-btn ghost"}" onclick="openCommModal(event)">Commission — ₹${t.price}</button>
+        </div>`).join("");
+    } else {
+      document.getElementById("pkgGrid").innerHTML = `<div style="font-size:.56rem;color:var(--tf);">No packages set yet. Contact the artist.</div>`;
+    }
+
+    // Reviews from API
+    const revs = data.reviews||[];
+    document.getElementById("reviewsGrid").innerHTML = revs.length
+      ? revs.map(r=>`<div class="rv-card">
+          <div class="rv-head"><div class="rv-av">${(r.buyer?.name||"B")[0]}</div><div><div class="rv-name">${r.buyer?.name||"Buyer"}</div><div class="rv-date">${new Date(r.createdAt).toLocaleDateString("en-IN",{month:"short",year:"numeric"})}</div></div></div>
+          <div class="rv-stars">${"★".repeat(r.rating)}${"☆".repeat(5-r.rating)}</div>
+          <div class="rv-text">${r.text}</div>
+          ${r.tag?`<span class="rv-tag">${r.tag}</span>`:""}
+        </div>`).join("")
+      : `<div style="font-size:.56rem;color:var(--tf);padding:20px;">No reviews yet. Be the first to commission this artist!</div>`;
+
+  } catch(e) {
+    document.getElementById("artistName").textContent = "Artist not found";
+    document.getElementById("artistBio").textContent = e.message;
+  }
+}
+
+function openCommModal(e) {
+  e.preventDefault();
+  const user = ZX.auth.getUser();
+  const errBox = document.getElementById("commErr");
+  const goBtn  = document.getElementById("commGoBtn");
+  if (!user) {
+    errBox.style.display = "block";
+    goBtn.textContent = "Sign In to Commission →";
+    goBtn.onclick = () => { window.location.href = "/login.html?redirect=" + encodeURIComponent("/order.html?artist="+artistId); };
+  } else if (user.role !== "buyer") {
+    errBox.style.display = "block";
+    errBox.textContent = "⚠️ Only buyers can place commission requests.";
+    goBtn.style.display = "none";
+    document.getElementById("commModal").classList.add("open");
+    document.body.style.overflow = "hidden";
+    return;
+  } else {
+    errBox.style.display = "none";
+    goBtn.style.display = "block";
+    goBtn.textContent = "Proceed to Order Form →";
+    goBtn.onclick = goToOrder;
+  }
+  document.getElementById("commModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function goToOrder() {
+  window.location.href = "/order.html?artist=" + encodeURIComponent(artistId);
+}
+function closeModal() {
+  document.getElementById("commModal").classList.remove("open");
+  document.body.style.overflow = "";
+}
+document.getElementById("commModal").addEventListener("click",e=>{ if(e.target===document.getElementById("commModal"))closeModal(); });
+
+// Sticky CTA
+const stickyEl   = document.getElementById("stickyCta");
+const coverEl    = document.getElementById("coverEl");
+window.addEventListener("scroll",()=>{
+  if(coverEl.getBoundingClientRect().bottom<0)stickyEl.classList.add("up");
+  else stickyEl.classList.remove("up");
+},{passive:true});
+
+loadProfile();
+</script>
+</body>
+</html>

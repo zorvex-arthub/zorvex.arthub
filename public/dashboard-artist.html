@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Studio — ZorvEx</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+:root{--cream:#f5f0e8;--ink:#0d0d0d;--gold:#c9a84c;--gl:#e8c97a;--dp:#141210;--bd:rgba(245,240,232,.08);--tdim:rgba(245,240,232,.5);--tf:rgba(245,240,232,.22);--err:#e05c5c;--ok:#22c55e;--blue:#3b82f6;--warn:#f59e0b;--nav:70px;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:#0a0906;color:var(--cream);font-family:"DM Mono",monospace;overflow-x:hidden;min-height:100vh;-webkit-font-smoothing:antialiased;}
+/* grain overlay */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.1;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.07'/%3E%3C/svg%3E");}
+/* ── TOP BAR ── */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:800;height:var(--nav);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(14px,3vw,36px);background:rgba(10,9,6,.97);backdrop-filter:blur(12px);border-bottom:1px solid var(--bd);}
+.logo{font-family:"Bebas Neue",sans-serif;font-size:1.5rem;letter-spacing:5px;color:var(--gold);text-decoration:none;}
+.logo span{color:var(--cream);}
+.studio-tag{padding:3px 9px;background:rgba(201,168,76,.1);border:1px solid rgba(201,168,76,.25);font-size:.46rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+.tb-r{display:flex;align-items:center;gap:12px;}
+.av-btn{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--gold),#9a7330);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--ink);font-weight:700;cursor:pointer;border:none;}
+.tb-name{font-size:.58rem;color:var(--cream);}
+.sign-out{padding:7px 13px;border:1px solid rgba(201,168,76,.2);background:transparent;color:var(--gold);font-family:"DM Mono",monospace;font-size:.5rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;}
+.sign-out:hover{background:var(--gold);color:var(--ink);}
+.ham{display:none;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:4px;}
+.ham span{width:20px;height:1.5px;background:var(--cream);display:block;transition:all .3s;}
+.ham.open span:nth-child(1){transform:translateY(5.5px) rotate(45deg);}
+.ham.open span:nth-child(2){opacity:0;}
+.ham.open span:nth-child(3){transform:translateY(-5.5px) rotate(-45deg);}
+/* ── LAYOUT: sidebar + main ── */
+.shell{display:flex;min-height:100vh;padding-top:var(--nav);}
+/* ── LEFT SIDEBAR ── */
+.lsb{width:200px;flex-shrink:0;background:#0c0a07;border-right:1px solid var(--bd);position:fixed;top:var(--nav);left:0;height:calc(100vh - var(--nav));overflow-y:auto;transition:transform .3s;z-index:200;padding:24px 0;}
+.lsb-label{font-size:.42rem;letter-spacing:3px;text-transform:uppercase;color:var(--tf);padding:0 16px;margin:18px 0 6px;}
+.lsb-nav{list-style:none;}
+.lsb-nav li a,.lsb-nav li button{display:flex;align-items:center;gap:8px;padding:9px 16px;color:var(--tdim);text-decoration:none;font-size:.56rem;letter-spacing:1px;text-transform:uppercase;transition:all .3s;width:100%;background:none;border:none;cursor:pointer;font-family:"DM Mono",monospace;}
+.lsb-nav li a:hover,.lsb-nav li button:hover{color:var(--cream);background:rgba(245,240,232,.03);}
+.lsb-nav li.on a{color:var(--gold);background:rgba(201,168,76,.06);border-left:2px solid var(--gold);}
+.lsb-ic{font-size:.8rem;width:15px;text-align:center;}
+.lsb-badge{margin-left:auto;padding:2px 5px;background:var(--err);color:#fff;font-size:.4rem;border-radius:2px;}
+/* ── MAIN CANVAS ── */
+.canvas{flex:1;margin-left:200px;padding:clamp(18px,2.5vw,32px);}
+.view{display:none;}
+.view.on{display:block;}
+/* ── PAGE HEADER ── */
+.ph-wrap{margin-bottom:clamp(16px,2.5vw,26px);display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.ph-title{font-family:"Cormorant Garamond",serif;font-size:clamp(1.4rem,3vw,2.1rem);font-weight:300;line-height:1.1;}
+.ph-title em{font-style:italic;color:var(--gold);}
+.ph-sub{font-size:.56rem;color:var(--tdim);margin-top:3px;}
+/* ── KPI STRIP ── */
+.kpi-strip{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:2px;margin-bottom:clamp(14px,2vw,22px);}
+.kpi{background:var(--dp);border:1px solid var(--bd);padding:14px;transition:border-color .3s;}
+.kpi:hover{border-color:rgba(201,168,76,.15);}
+.kpi-ic{font-size:1rem;margin-bottom:6px;}
+.kpi-v{font-family:"Cormorant Garamond",serif;font-size:1.7rem;font-weight:300;color:var(--gold);line-height:1;margin-bottom:2px;}
+.kpi-l{font-size:.46rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);}
+/* ── CARD ── */
+.card{background:var(--dp);border:1px solid var(--bd);margin-bottom:clamp(12px,2vw,18px);}
+.ch{padding:13px 17px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.ct{font-size:.56rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);}
+.ca{font-size:.52rem;color:var(--tf);background:none;border:none;cursor:pointer;font-family:inherit;transition:color .3s;}
+.ca:hover{color:var(--gold);}
+/* ── ORDER ROW ── */
+.or{padding:13px 17px;border-bottom:1px solid var(--bd);display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;cursor:pointer;transition:background .25s;}
+.or:last-child{border-bottom:none;}
+.or:hover{background:rgba(245,240,232,.018);}
+.or-id{font-size:.46rem;color:var(--tf);margin-bottom:2px;}
+.or-name{font-size:.62rem;color:var(--cream);margin-bottom:2px;}
+.or-meta{font-size:.5rem;color:var(--tdim);}
+.pill{padding:3px 8px;font-size:.42rem;letter-spacing:2px;text-transform:uppercase;border:1px solid;white-space:nowrap;}
+/* ── BUTTONS ── */
+.btn{padding:7px 14px;border:none;font-family:"DM Mono",monospace;font-size:.5rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:all .3s;white-space:nowrap;}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-gold:hover{background:var(--gl);}
+.btn-ghost{background:transparent;border:1px solid rgba(201,168,76,.25);color:var(--gold);}
+.btn-ghost:hover{background:rgba(201,168,76,.07);}
+.btn-red{background:transparent;border:1px solid rgba(224,92,92,.3);color:var(--err);}
+.btn-red:hover{background:rgba(224,92,92,.06);}
+/* ── PROFILE EDITOR ── */
+.pe-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.fg{margin-bottom:12px;}
+.fg label{display:block;font-size:.46rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);margin-bottom:5px;}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 11px;background:rgba(245,240,232,.04);border:1px solid var(--bd);color:var(--cream);font-family:"DM Mono",monospace;font-size:.62rem;outline:none;transition:border-color .3s;-webkit-appearance:none;}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:rgba(201,168,76,.35);}
+.fg textarea{resize:vertical;min-height:70px;}
+.fg select option{background:#1a1710;}
+/* ── PRICING TABLE ── */
+.pkg-row{display:grid;grid-template-columns:2fr 1fr 1.2fr auto;gap:8px;margin-bottom:8px;align-items:center;}
+.pkg-head{display:grid;grid-template-columns:2fr 1fr 1.2fr auto;gap:8px;font-size:.44rem;letter-spacing:2px;text-transform:uppercase;color:var(--tf);padding:0 2px;margin-bottom:6px;}
+.pi{padding:8px 10px;background:rgba(245,240,232,.04);border:1px solid var(--bd);color:var(--cream);font-family:"DM Mono",monospace;font-size:.6rem;outline:none;transition:border-color .3s;width:100%;}
+.pi:focus{border-color:rgba(201,168,76,.3);}
+.pi::placeholder{color:var(--tf);}
+.del-pkg{width:28px;height:28px;background:transparent;border:1px solid rgba(224,92,92,.25);color:var(--err);cursor:pointer;font-size:.75rem;flex-shrink:0;transition:all .3s;}
+.del-pkg:hover{background:rgba(224,92,92,.07);}
+.add-pkg{width:100%;padding:8px;background:transparent;border:1px dashed rgba(201,168,76,.25);color:var(--gold);font-family:"DM Mono",monospace;font-size:.5rem;letter-spacing:2px;text-transform:uppercase;cursor:pointer;transition:all .3s;margin-top:4px;}
+.add-pkg:hover{background:rgba(201,168,76,.05);}
+/* ── AVAILABILITY SWITCH ── */
+.avail-row{display:flex;gap:8px;flex-wrap:wrap;}
+.avail-opt{padding:8px 14px;border:1px solid var(--bd);font-family:"DM Mono",monospace;font-size:.5rem;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:transparent;color:var(--tdim);transition:all .3s;}
+.avail-opt.on-open{border-color:rgba(34,197,94,.4);color:var(--ok);background:rgba(34,197,94,.06);}
+.avail-opt.on-busy{border-color:rgba(245,158,11,.4);color:var(--warn);background:rgba(245,158,11,.06);}
+.avail-opt.on-closed{border-color:rgba(224,92,92,.4);color:var(--err);background:rgba(224,92,92,.06);}
+/* ── UPLOAD ZONE ── */
+.upload-zone{border:1px dashed rgba(201,168,76,.25);padding:20px;text-align:center;cursor:pointer;transition:border-color .3s;}
+.upload-zone:hover{border-color:var(--gold);}
+.upload-zone input{display:none;}
+/* ── CHAT ── */
+.chat-wrap{border:1px solid var(--bd);display:flex;flex-direction:column;height:clamp(280px,42vh,420px);}
+.chat-warn{padding:8px 12px;background:rgba(201,168,76,.05);border-bottom:1px solid rgba(201,168,76,.1);font-size:.48rem;color:rgba(201,168,76,.65);}
+.chat-msgs{flex:1;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:8px;}
+.chat-msgs::-webkit-scrollbar{width:3px;}
+.chat-msgs::-webkit-scrollbar-thumb{background:rgba(201,168,76,.2);border-radius:2px;}
+.msg{max-width:72%;padding:8px 10px;}
+.msg-me{align-self:flex-end;background:rgba(201,168,76,.09);border:1px solid rgba(201,168,76,.13);}
+.msg-them{align-self:flex-start;background:rgba(245,240,232,.04);border:1px solid var(--bd);}
+.msg-text{font-size:.58rem;line-height:1.6;word-break:break-word;}
+.msg-time{font-size:.42rem;color:var(--tf);margin-top:3px;text-align:right;}
+.chat-in{padding:8px;border-top:1px solid var(--bd);display:flex;gap:6px;}
+.chat-input{flex:1;padding:8px 10px;background:rgba(245,240,232,.04);border:1px solid var(--bd);color:var(--cream);font-family:"DM Mono",monospace;font-size:.6rem;outline:none;transition:border-color .3s;}
+.chat-input:focus{border-color:rgba(201,168,76,.3);}
+.chat-send{padding:8px 14px;background:var(--gold);color:var(--ink);border:none;font-family:"DM Mono",monospace;font-size:.52rem;cursor:pointer;}
+.chat-send:hover{background:var(--gl);}
+/* ── EARNINGS ── */
+.earn-row{display:flex;align-items:center;justify-content:space-between;padding:11px 17px;border-bottom:1px solid var(--bd);font-size:.6rem;}
+.earn-row:last-child{border-bottom:none;}
+.earn-label{color:var(--tdim);}
+.earn-amt{font-family:"Cormorant Garamond",serif;font-size:1.05rem;color:var(--gold);}
+/* ── MODAL ── */
+.m-ov{display:none;position:fixed;inset:0;z-index:2000;background:rgba(8,7,5,.95);backdrop-filter:blur(14px);overflow-y:auto;}
+.m-ov.open{display:block;}
+.modal{max-width:660px;margin:clamp(14px,3vw,50px) auto;background:var(--dp);border:1px solid var(--bd);}
+.modal.wide{max-width:740px;}
+.mh{padding:16px 20px;border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;}
+.mt{font-family:"Cormorant Garamond",serif;font-size:1.3rem;font-weight:400;}
+.mc{width:28px;height:28px;background:none;border:1px solid var(--bd);color:var(--cream);cursor:pointer;font-size:.8rem;transition:all .3s;}
+.mc:hover{border-color:var(--gold);color:var(--gold);}
+.mb{padding:18px 20px;}
+/* ── ARTWORK UPLOAD ── */
+.art-preview-img{max-width:100%;max-height:280px;display:block;border:1px solid var(--bd);margin-bottom:10px;}
+.view-once-warn{padding:9px 12px;background:rgba(224,92,92,.05);border:1px solid rgba(224,92,92,.15);font-size:.54rem;color:var(--err);margin-bottom:10px;}
+/* ── ALERT ── */
+.alert{padding:10px 13px;border-left:3px solid;font-size:.54rem;line-height:1.7;margin-bottom:12px;display:none;}
+.alert.show{display:block;}
+.alert-ok{background:rgba(34,197,94,.05);border-color:var(--ok);color:var(--ok);}
+.alert-err{background:rgba(224,92,92,.05);border-color:var(--err);color:var(--err);}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{width:12px;height:12px;border:2px solid rgba(13,13,13,.3);border-top-color:var(--ink);border-radius:50%;display:inline-block;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;}
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .shell{flex-direction:column;}
+  .canvas{margin-left:0;}
+  .lsb{transform:translateX(-100%);}
+  .lsb.open{transform:translateX(0);}
+  .ham{display:flex;}
+  .tb-name,.studio-tag{display:none;}
+  .kpi-strip{grid-template-columns:1fr 1fr;}
+  .pe-grid{grid-template-columns:1fr;}
+  .pkg-row,.pkg-head{grid-template-columns:1fr 80px auto;}
+  .pkg-head span:nth-child(3),.pkg-row input:nth-child(3){display:none;}
+}
+@media(max-width:480px){
+  .or{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<nav class="topbar">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a class="logo" href="/index.html">ZORV<span>EX</span></a>
+    <span class="studio-tag">Artist Studio</span>
+  </div>
+  <div class="tb-r">
+    <button class="av-btn" id="avBtn">A</button>
+    <span class="tb-name" id="tbName">Artist</span>
+    <button class="sign-out" onclick="ZX.auth.logout()">Sign Out</button>
+    <button class="ham" id="hamBtn"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="shell">
+<aside class="lsb" id="lsb">
+  <div class="lsb-label">Studio</div>
+  <ul class="lsb-nav">
+    <li class="on" id="ln-dash"><a onclick="show('dash')"><span class="lsb-ic">⊞</span>Dashboard</a></li>
+    <li id="ln-requests"><a onclick="show('requests')"><span class="lsb-ic">📨</span>Requests<span class="lsb-badge" id="reqBadge" style="display:none">0</span></a></li>
+    <li id="ln-active"><a onclick="show('active')"><span class="lsb-ic">🎨</span>Active Orders</a></li>
+    <li id="ln-done"><a onclick="show('done')"><span class="lsb-ic">✅</span>Completed</a></li>
+    <li id="ln-chat"><a onclick="show('chat')"><span class="lsb-ic">💬</span>Messages</a></li>
+  </ul>
+  <div class="lsb-label">Profile</div>
+  <ul class="lsb-nav">
+    <li id="ln-profile"><a onclick="show('profile')"><span class="lsb-ic">✎</span>Edit Profile</a></li>
+    <li id="ln-earn"><a onclick="show('earn')"><span class="lsb-ic">₹</span>Earnings</a></li>
+    <li><button onclick="ZX.auth.logout()"><span class="lsb-ic">→</span>Sign Out</button></li>
+  </ul>
+</aside>
+
+<main class="canvas">
+
+<!-- DASHBOARD -->
+<div class="view on" id="view-dash">
+  <div class="ph-wrap">
+    <div><div class="ph-title">Studio <em>Dashboard</em></div><div class="ph-sub">Your commissions and earnings.</div></div>
+    <button class="btn btn-ghost" onclick="show('profile')">✎ Edit Profile</button>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi"><div class="kpi-ic">📨</div><div class="kpi-v" id="kReq">0</div><div class="kpi-l">New Requests</div></div>
+    <div class="kpi"><div class="kpi-ic">🎨</div><div class="kpi-v" id="kActive">0</div><div class="kpi-l">Active Orders</div></div>
+    <div class="kpi"><div class="kpi-ic">✅</div><div class="kpi-v" id="kDone">0</div><div class="kpi-l">Completed</div></div>
+    <div class="kpi"><div class="kpi-ic">₹</div><div class="kpi-v" id="kEarn">0</div><div class="kpi-l">Earned</div></div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin-bottom:clamp(12px,2vw,18px);">
+    <div class="card">
+      <div class="ch"><span class="ct">Pending Requests</span><button class="ca" onclick="show('requests')">View all →</button></div>
+      <div id="dashReqs"></div>
+    </div>
+    <div class="card">
+      <div class="ch"><span class="ct">Active Orders</span><button class="ca" onclick="show('active')">View all →</button></div>
+      <div id="dashActive"></div>
+    </div>
+  </div>
+</div>
+
+<!-- REQUESTS -->
+<div class="view" id="view-requests">
+  <div class="ph-wrap"><div><div class="ph-title">New <em>Requests</em></div><div class="ph-sub">Forwarded by admin. Accept or decline.</div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Incoming Requests</span></div><div id="reqList"></div></div>
+</div>
+
+<!-- ACTIVE -->
+<div class="view" id="view-active">
+  <div class="ph-wrap"><div><div class="ph-title">Active <em>Orders</em></div><div class="ph-sub">Upload finished artwork to complete.</div></div></div>
+  <div class="card"><div class="ch"><span class="ct">In Progress</span></div><div id="activeList"></div></div>
+</div>
+
+<!-- COMPLETED -->
+<div class="view" id="view-done">
+  <div class="ph-wrap"><div><div class="ph-title">Completed <em>Orders</em></div><div class="ph-sub">Finished commissions.</div></div></div>
+  <div class="card"><div class="ch"><span class="ct">All Completed</span></div><div id="doneList"></div></div>
+</div>
+
+<!-- CHAT -->
+<div class="view" id="view-chat">
+  <div class="ph-wrap"><div><div class="ph-title">Order <em>Messages</em></div><div class="ph-sub">Chat with buyers. Contact details are blocked.</div></div></div>
+  <div id="chatPicker" class="card"><div class="ch"><span class="ct">Select Order</span></div><div id="chatOrdList"></div></div>
+  <div id="activeChatWrap" style="display:none;">
+    <div style="background:var(--dp);border:1px solid var(--bd);padding:11px 17px;display:flex;align-items:center;gap:9px;">
+      <button onclick="closeChat()" style="background:none;border:none;color:var(--tdim);cursor:pointer;font-size:.64rem;font-family:inherit;">← Back</button>
+      <span class="ct" id="chatOrdTitle">Chat</span>
+    </div>
+    <div class="chat-wrap">
+      <div class="chat-warn">⚠️ Do not share phone numbers, emails, or social handles.</div>
+      <div class="chat-msgs" id="chatMsgs"></div>
+      <div class="chat-in">
+        <input class="chat-input" id="chatInp" type="text" placeholder="Message buyer…" onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">Send</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PROFILE EDITOR -->
+<div class="view" id="view-profile">
+  <div class="ph-wrap">
+    <div><div class="ph-title">Edit <em>Profile</em></div><div class="ph-sub">Your public artist profile. Pricing tiers show on your page and in order forms.</div></div>
+  </div>
+  <div class="alert alert-ok" id="profOk"></div>
+  <div class="alert alert-err" id="profErr"></div>
+  <div class="card" style="margin-bottom:2px;">
+    <div class="ch"><span class="ct">Basic Info</span></div>
+    <div style="padding:16px;">
+      <div class="pe-grid">
+        <div class="fg"><label>Display Name</label><input id="pName" type="text" placeholder="Your artist name"></div>
+        <div class="fg"><label>Speciality</label><input id="pSpec" type="text" placeholder="e.g. Pencil Portrait, Digital Art"></div>
+        <div class="fg" style="grid-column:1/-1;"><label>Bio (max 800 chars)</label><textarea id="pBio" rows="3" placeholder="Tell buyers about your art style and experience…"></textarea></div>
+        <div class="fg"><label>Tags (comma separated)</label><input id="pTags" type="text" placeholder="e.g. Portrait, Watercolour, Realism"></div>
+        <div class="fg"><label>Avg. Response Time</label><input id="pResp" type="text" placeholder="e.g. &lt; 4 hrs"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:2px;">
+    <div class="ch"><span class="ct">Location (for Shiprocket pickup)</span></div>
+    <div style="padding:16px;">
+      <div class="pe-grid">
+        <div class="fg"><label>City</label><input id="pCity" type="text" placeholder="e.g. Kozhikode"></div>
+        <div class="fg"><label>State</label><input id="pState" type="text" placeholder="e.g. Kerala"></div>
+        <div class="fg"><label>Pincode ✱</label><input id="pPin" type="text" placeholder="6-digit pincode" maxlength="6"></div>
+        <div class="fg"><label>Full Address</label><input id="pAddr" type="text" placeholder="Street / Area for pickup"></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:2px;">
+    <div class="ch"><span class="ct">Availability</span></div>
+    <div style="padding:14px;">
+      <div class="avail-row" id="availRow">
+        <button class="avail-opt" data-v="open"   onclick="pickAvail('open')">🟢 Open</button>
+        <button class="avail-opt" data-v="busy"   onclick="pickAvail('busy')">🟡 Busy</button>
+        <button class="avail-opt" data-v="closed" onclick="pickAvail('closed')">🔴 Closed</button>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:2px;">
+    <div class="ch"><span class="ct">Custom Pricing Packages</span></div>
+    <div style="padding:16px;">
+      <p style="font-size:.54rem;color:var(--tdim);line-height:1.8;margin-bottom:12px;">Add your packages. These appear on your public profile AND in the buyer's order form — no hardcoded A4/A5 sizes. Buyers pick from your custom tiers.</p>
+      <div class="pkg-head"><span>Package Name</span><span>Price ₹</span><span>Delivery</span><span></span></div>
+      <div id="pkgRows"></div>
+      <button class="add-pkg" onclick="addPkg()">+ Add Package</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Art Categories You Offer</span></div>
+    <div style="padding:16px;">
+      <p style="font-size:.54rem;color:var(--tdim);line-height:1.8;margin-bottom:10px;">These categories appear in the buyer's order form when they choose you.</p>
+      <div id="catRows"></div>
+      <button class="add-pkg" onclick="addCat()" style="margin-top:4px;">+ Add Category</button>
+    </div>
+  </div>
+  <div style="padding:16px 0;display:flex;gap:10px;">
+    <button class="btn btn-gold" onclick="saveProfile()">Save Profile</button>
+    <button class="btn btn-ghost" onclick="show('dash')">Cancel</button>
+  </div>
+</div>
+
+<!-- EARNINGS -->
+<div class="view" id="view-earn">
+  <div class="ph-wrap"><div><div class="ph-title">My <em>Earnings</em></div><div class="ph-sub">Revenue from completed commissions.</div></div></div>
+  <div class="kpi-strip" style="margin-bottom:2px;">
+    <div class="kpi"><div class="kpi-ic">💰</div><div class="kpi-v" id="eTot">₹0</div><div class="kpi-l">Total</div></div>
+    <div class="kpi"><div class="kpi-ic">⏳</div><div class="kpi-v" id="ePend">₹0</div><div class="kpi-l">Pending</div></div>
+    <div class="kpi"><div class="kpi-ic">📊</div><div class="kpi-v" id="eOrds">0</div><div class="kpi-l">Paid Orders</div></div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Breakdown</span></div>
+    <div id="earnList"></div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="m-ov" id="ordModal">
+  <div class="modal">
+    <div class="mh"><div class="mt" id="ordModalTitle">Order</div><button class="mc" onclick="closeOrdModal()">✕</button></div>
+    <div class="mb" id="ordModalBody"></div>
+  </div>
+</div>
+
+<!-- ARTWORK UPLOAD MODAL -->
+<div class="m-ov" id="artModal">
+  <div class="modal">
+    <div class="mh"><div class="mt">Upload <em style="font-style:italic;color:var(--gold)">Artwork</em></div><button class="mc" onclick="closeArtModal()">✕</button></div>
+    <div class="mb">
+      <p style="font-size:.58rem;color:var(--tdim);line-height:1.8;margin-bottom:14px;">Upload the final artwork. For digital orders: buyer sees it once. For physical: admin handles shipping.</p>
+      <div class="view-once-warn">⚠️ View-once delivery. Download is disabled for buyers.</div>
+      <div class="upload-zone" onclick="document.getElementById('artFileIn').click()">
+        <input type="file" id="artFileIn" accept="image/*,.pdf" onchange="onArtFile(event)">
+        <div style="font-size:2rem;margin-bottom:8px;">📁</div>
+        <div style="font-size:.56rem;color:var(--tdim);">Click to select file (JPG, PNG, PDF)</div>
+      </div>
+      <div id="artPreview" style="display:none;margin-top:10px;"></div>
+      <div style="display:flex;gap:9px;margin-top:14px;">
+        <button class="btn btn-gold" id="artUploadBtn" onclick="confirmArtUpload()">Upload & Mark Complete</button>
+        <button class="btn btn-ghost" onclick="closeArtModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/zorvex-api.js"></script>
+<script>
+if (!ZX.guardRoute("artist")) { /* redirects */ }
+const user = ZX.auth.getUser();
+document.getElementById("avBtn").textContent = (user?.name||"A")[0].toUpperCase();
+document.getElementById("tbName").textContent = user?.name || "Artist";
+
+const hamBtn = document.getElementById("hamBtn");
+const lsbEl  = document.getElementById("lsb");
+hamBtn.addEventListener("click", () => { hamBtn.classList.toggle("open"); lsbEl.classList.toggle("open"); });
+
+function show(id) {
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("on"));
+  document.querySelectorAll(".lsb-nav li").forEach(l => l.classList.remove("on"));
+  document.getElementById("view-" + id)?.classList.add("on");
+  document.getElementById("ln-" + id)?.classList.add("on");
+  if (window.innerWidth <= 768) { lsbEl.classList.remove("open"); hamBtn.classList.remove("open"); }
+  const fn = { requests: loadRequests, active: loadActive, done: loadDone, chat: loadChatPicker, profile: loadProfile, earn: loadEarnings };
+  if (fn[id]) fn[id]();
+}
+
+const SL = ZX.STATUS_LABEL;
+const SC = ZX.STATUS_COLOR;
+function pill(s) {
+  const c = SC[s] || "var(--gold)";
+  return `<span class="pill" style="color:${c};border-color:${c}30;background:${c}12;">${SL[s]||s}</span>`;
+}
+
+let _orders = [];
+
+// ── Dashboard ────────────────────────────────────────────────────────────
+async function loadDash() {
+  try {
+    const data = await ZX.orders.artistOrders({ limit: 50 });
+    _orders = data.orders || [];
+    const reqs   = _orders.filter(o => o.status === "waiting");
+    const active = _orders.filter(o => ["advance_paid","in_progress"].includes(o.status));
+    const done   = _orders.filter(o => ["completed","shipped","delivered"].includes(o.status));
+    const earned = done.reduce((a,o) => a + (o.pricing?.advance||0), 0);
+    document.getElementById("kReq").textContent   = reqs.length;
+    document.getElementById("kActive").textContent = active.length;
+    document.getElementById("kDone").textContent   = done.length;
+    document.getElementById("kEarn").textContent   = "₹" + earned;
+    if (reqs.length) { document.getElementById("reqBadge").textContent = reqs.length; document.getElementById("reqBadge").style.display = "inline"; }
+    document.getElementById("dashReqs").innerHTML   = reqs.length ? reqs.slice(0,2).map(o => ordRow(o,"req")).join("") : emptySmall("No pending requests");
+    document.getElementById("dashActive").innerHTML = active.length ? active.slice(0,2).map(o => ordRow(o,"active")).join("") : emptySmall("No active orders");
+  } catch(e) { console.error(e); }
+}
+
+function emptySmall(t) { return `<div style="padding:18px;text-align:center;font-size:.56rem;color:var(--tf);">${t}</div>`; }
+
+function ordRow(o, type) {
+  let btn = "";
+  if (type === "req") btn = `<div style="display:flex;gap:5px;"><button class="btn btn-gold" style="padding:5px 10px;font-size:.46rem;" onclick="event.stopPropagation();doAction('${o._id}','accept')">Accept</button><button class="btn btn-red" style="padding:5px 10px;font-size:.46rem;" onclick="event.stopPropagation();doAction('${o._id}','reject')">Decline</button></div>`;
+  else if (type === "active") btn = o.status === "advance_paid"
+    ? `<button class="btn btn-gold" style="padding:5px 10px;font-size:.46rem;" onclick="event.stopPropagation();doStart('${o._id}')">Start Work</button>`
+    : `<button class="btn btn-gold" style="padding:5px 10px;font-size:.46rem;" onclick="event.stopPropagation();openArtModal('${o._id}')">Upload Work</button>`;
+  else btn = `<button class="btn btn-ghost" style="padding:5px 10px;font-size:.46rem;" onclick="event.stopPropagation();openOrdModal('${o._id}')">View →</button>`;
+  return `<div class="or" onclick="openOrdModal('${o._id}')">
+    <div><div class="or-id">${o.orderId}</div><div class="or-name">${o.pricingTierName||o.category} — ${(o.description||"").substring(0,40)}…</div><div class="or-meta">Deadline: ${new Date(o.deadline).toLocaleDateString("en-IN")} · ₹${o.pricing?.advance||0} advance</div></div>
+    ${pill(o.status)}<div>${btn}</div></div>`;
+}
+
+async function loadRequests() {
+  const el = document.getElementById("reqList");
+  el.innerHTML = `<div style="padding:16px;text-align:center;font-size:.58rem;color:var(--tf);">Loading…</div>`;
+  try {
+    const data = await ZX.orders.artistOrders({ status: "waiting", limit: 30 });
+    _orders = [..._orders.filter(o => o.status !== "waiting"), ...(data.orders||[])];
+    el.innerHTML = (data.orders||[]).length ? data.orders.map(o => ordRow(o,"req")).join("") : emptySmall("No pending requests");
+  } catch(e) { el.innerHTML = `<div style="font-size:.6rem;color:var(--err);padding:14px;">${e.message}</div>`; }
+}
+async function loadActive() {
+  const el = document.getElementById("activeList");
+  el.innerHTML = `<div style="padding:16px;text-align:center;font-size:.58rem;color:var(--tf);">Loading…</div>`;
+  try {
+    const d1 = await ZX.orders.artistOrders({ status: "advance_paid", limit: 30 });
+    const d2 = await ZX.orders.artistOrders({ status: "in_progress", limit: 30 });
+    const orders = [...(d1.orders||[]), ...(d2.orders||[])];
+    el.innerHTML = orders.length ? orders.map(o => ordRow(o,"active")).join("") : emptySmall("No active orders");
+  } catch(e) { el.innerHTML = `<div style="font-size:.6rem;color:var(--err);padding:14px;">${e.message}</div>`; }
+}
+async function loadDone() {
+  const el = document.getElementById("doneList");
+  el.innerHTML = `<div style="padding:16px;text-align:center;font-size:.58rem;color:var(--tf);">Loading…</div>`;
+  try {
+    const data = await ZX.orders.artistOrders({ status: "completed", limit: 30 });
+    el.innerHTML = (data.orders||[]).length ? data.orders.map(o => ordRow(o,"done")).join("") : emptySmall("No completed orders");
+  } catch(e) { el.innerHTML = `<div style="font-size:.6rem;color:var(--err);padding:14px;">${e.message}</div>`; }
+}
+
+async function doAction(id, action) {
+  const reason = action === "reject" ? (prompt("Optional: reason for declining") || "") : "";
+  if (action === "reject" && !confirm("Decline this commission?")) return;
+  try {
+    await ZX.orders.artistAction(id, action, reason);
+    alert(action === "accept" ? "✅ Accepted! Buyer will be prompted to pay." : "Declined.");
+    loadDash(); loadRequests();
+  } catch(e) { alert(e.message); }
+}
+async function doStart(id) {
+  try { await ZX.orders.startWork(id); alert("✅ Marked as In Progress!"); loadDash(); loadActive(); }
+  catch(e) { alert(e.message); }
+}
+
+// ── Order Modal ──────────────────────────────────────────────────────────
+async function openOrdModal(id) {
+  document.getElementById("ordModal").classList.add("open");
+  document.body.style.overflow = "hidden";
+  document.getElementById("ordModalBody").innerHTML = `<div style="padding:20px;text-align:center;font-size:.58rem;color:var(--tf);">Loading…</div>`;
+  try {
+    const { order } = await ZX.orders.get(id);
+    document.getElementById("ordModalTitle").innerHTML = `Order <span style="color:var(--gold)">${order.orderId}</span>`;
+    let actionBar = "";
+    if (order.status === "waiting") actionBar = `<div style="display:flex;gap:8px;padding-top:12px;border-top:1px solid var(--bd);margin-top:12px;"><button class="btn btn-gold" onclick="closeOrdModal();doAction('${order._id}','accept')">Accept</button><button class="btn btn-red" onclick="closeOrdModal();doAction('${order._id}','reject')">Decline</button></div>`;
+    else if (order.status === "advance_paid") actionBar = `<div style="padding-top:12px;border-top:1px solid var(--bd);margin-top:12px;"><button class="btn btn-gold" onclick="closeOrdModal();doStart('${order._id}')">Start Work</button></div>`;
+    else if (order.status === "in_progress") actionBar = `<div style="padding-top:12px;border-top:1px solid var(--bd);margin-top:12px;"><button class="btn btn-gold" onclick="closeOrdModal();openArtModal('${order._id}')">Upload Final Artwork</button></div>`;
+
+    const canChat = ["accepted","advance_paid","in_progress","completed"].includes(order.status);
+    let chatSection = "";
+    if (canChat) {
+      const md = await ZX.chat.load(order._id);
+      const msgs = (md.messages||[]).map(m => {
+        const isMe = m.sender?._id === user._id || m.sender === user._id;
+        return `<div class="msg ${isMe?"msg-me":"msg-them"}"><div class="msg-text">${m.text}</div><div class="msg-time">${new Date(m.createdAt).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div></div>`;
+      }).join("");
+      chatSection = `<div style="margin-top:14px;"><div style="font-size:.48rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Chat with Buyer</div>
+        <div class="chat-wrap"><div class="chat-warn">⚠️ Do not share personal contact details.</div>
+          <div class="chat-msgs" id="mChat">${msgs||"<div style='text-align:center;font-size:.54rem;color:var(--tf);margin:auto;'>No messages yet</div>"}</div>
+          <div class="chat-in"><input class="chat-input" id="mChatInp" placeholder="Message buyer…" onkeydown="if(event.key==='Enter')sendMChat('${order._id}')">
+          <button class="chat-send" onclick="sendMChat('${order._id}')">Send</button></div></div></div>`;
+    }
+    document.getElementById("ordModalBody").innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;">
+        <div><div style="font-size:.46rem;letter-spacing:2px;color:var(--tf);text-transform:uppercase;margin-bottom:3px;">Package</div><div style="font-size:.64rem;">${order.pricingTierName||order.category}</div></div>
+        <div><div style="font-size:.46rem;letter-spacing:2px;color:var(--tf);text-transform:uppercase;margin-bottom:3px;">Deadline</div><div style="font-size:.64rem;">${new Date(order.deadline).toLocaleDateString("en-IN")}</div></div>
+        <div><div style="font-size:.46rem;letter-spacing:2px;color:var(--tf);text-transform:uppercase;margin-bottom:3px;">Delivery</div><div style="font-size:.64rem;">${order.deliveryType}</div></div>
+        <div><div style="font-size:.46rem;letter-spacing:2px;color:var(--tf);text-transform:uppercase;margin-bottom:3px;">Your Advance</div><div style="font-size:.64rem;color:var(--gold);">₹${order.pricing?.advance||0}</div></div>
+      </div>
+      <div style="font-size:.56rem;color:var(--tdim);line-height:1.8;margin-bottom:12px;"><em style="color:var(--tf);font-size:.46rem;letter-spacing:2px;text-transform:uppercase;">Description</em><br>${order.description}</div>
+      <div style="font-size:.5rem;color:rgba(201,168,76,.5);padding:9px 11px;background:rgba(201,168,76,.04);border:1px solid rgba(201,168,76,.1);margin-bottom:12px;">🔒 Buyer's delivery address and phone are hidden for privacy.</div>
+      ${actionBar}${chatSection}`;
+    setTimeout(()=>{ const mc=document.getElementById("mChat"); if(mc)mc.scrollTop=mc.scrollHeight; },50);
+  } catch(e) { document.getElementById("ordModalBody").innerHTML = `<div style="font-size:.6rem;color:var(--err);padding:14px;">${e.message}</div>`; }
+}
+function closeOrdModal() { document.getElementById("ordModal").classList.remove("open"); document.body.style.overflow = ""; loadDash(); }
+async function sendMChat(ordId) {
+  const inp = document.getElementById("mChatInp");
+  const text = inp?.value.trim(); if (!text) return; inp.value = "";
+  try {
+    const res = await ZX.chat.send(ordId, text);
+    const msgs = document.getElementById("mChat");
+    if (msgs) { msgs.innerHTML += `<div class="msg msg-me"><div class="msg-text">${res.message.text}</div><div class="msg-time">now</div></div>`; msgs.scrollTop = msgs.scrollHeight; }
+    if (res.warning) alert(res.warning);
+  } catch(e) { alert(e.message); }
+}
+
+// ── Artwork Upload ────────────────────────────────────────────────────────
+let _artOrderId = null, _artFileData = null;
+function openArtModal(id) { _artOrderId = id; _artFileData = null; document.getElementById("artPreview").style.display = "none"; document.getElementById("artModal").classList.add("open"); document.body.style.overflow = "hidden"; }
+function closeArtModal() { document.getElementById("artModal").classList.remove("open"); document.body.style.overflow = ""; }
+function onArtFile(e) {
+  const f = e.target.files[0]; if (!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _artFileData = ev.target.result;
+    const prev = document.getElementById("artPreview");
+    prev.style.display = "block";
+    prev.innerHTML = f.type.startsWith("image/")
+      ? `<img class="art-preview-img" src="${_artFileData}"><div style="font-size:.54rem;color:var(--ok);">✓ ${f.name}</div>`
+      : `<div style="padding:12px;background:rgba(34,197,94,.05);border:1px solid rgba(34,197,94,.15);font-size:.56rem;color:var(--ok);">✓ ${f.name} selected</div>`;
+  };
+  reader.readAsDataURL(f);
+}
+async function confirmArtUpload() {
+  if (!_artFileData) { alert("Please select a file."); return; }
+  const btn = document.getElementById("artUploadBtn");
+  btn.innerHTML = `<span class="spin"></span>Uploading…`; btn.disabled = true;
+  try {
+    await ZX.orders.complete(_artOrderId, _artFileData);
+    closeArtModal();
+    alert("✅ Artwork uploaded! Admin will arrange shipping/delivery.");
+    loadDash(); loadActive();
+  } catch(e) { alert(e.message); }
+  finally { btn.innerHTML = "Upload & Mark Complete"; btn.disabled = false; }
+}
+
+// ── Chat View ─────────────────────────────────────────────────────────────
+let _activeChatId = null;
+async function loadChatPicker() {
+  const el = document.getElementById("chatOrdList");
+  const chatOrds = _orders.filter(o => ["accepted","advance_paid","in_progress","completed"].includes(o.status));
+  el.innerHTML = chatOrds.length ? chatOrds.map(o => `<div class="or" onclick="openChat('${o._id}','${o.pricingTierName||o.category}')"><div><div class="or-id">${o.orderId}</div><div class="or-name">${o.pricingTierName||o.category}</div></div>${pill(o.status)}<button class="btn btn-ghost" style="padding:5px 10px;font-size:.46rem;">Open →</button></div>`).join("")
+    : `<div style="padding:18px;text-align:center;font-size:.56rem;color:var(--tf);">No active orders to chat about.</div>`;
+}
+async function openChat(ordId, title) {
+  _activeChatId = ordId;
+  document.getElementById("chatPicker").style.display = "none";
+  document.getElementById("activeChatWrap").style.display = "block";
+  document.getElementById("chatOrdTitle").textContent = title;
+  const msgs = document.getElementById("chatMsgs");
+  msgs.innerHTML = `<div style="text-align:center;font-size:.54rem;color:var(--tf);margin:auto;">Loading…</div>`;
+  try {
+    const data = await ZX.chat.load(ordId);
+    renderMsgs(data.messages||[], msgs);
+  } catch(e) { msgs.innerHTML = `<div style="color:var(--err);font-size:.58rem;">Failed to load.</div>`; }
+}
+function renderMsgs(msgs, el) {
+  el.innerHTML = msgs.length ? msgs.map(m => { const isMe = m.sender?._id === user._id || m.sender === user._id; return `<div class="msg ${isMe?"msg-me":"msg-them"}"><div class="msg-text">${m.text}</div><div class="msg-time">${new Date(m.createdAt).toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}</div></div>`; }).join("")
+    : `<div style="text-align:center;font-size:.54rem;color:var(--tf);margin:auto;">Start the conversation</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+async function sendMsg() {
+  const inp = document.getElementById("chatInp"); const text = inp.value.trim();
+  if (!text || !_activeChatId) return; inp.value = "";
+  try { const res = await ZX.chat.send(_activeChatId, text); const el = document.getElementById("chatMsgs"); el.innerHTML += `<div class="msg msg-me"><div class="msg-text">${res.message.text}</div><div class="msg-time">now</div></div>`; el.scrollTop = el.scrollHeight; if (res.warning) alert(res.warning); }
+  catch(e) { alert(e.message); }
+}
+function closeChat() { _activeChatId = null; document.getElementById("chatPicker").style.display = "block"; document.getElementById("activeChatWrap").style.display = "none"; loadChatPicker(); }
+
+// ── Profile Editor ────────────────────────────────────────────────────────
+let _profile = null, _tempPkgs = [], _tempCats = [], _selectedAvail = "open";
+async function loadProfile() {
+  try {
+    const data = await ZX.artists.myProfile();
+    _profile = data.profile;
+    const p = _profile;
+    document.getElementById("pName").value  = p.displayName || "";
+    document.getElementById("pSpec").value  = p.speciality || "";
+    document.getElementById("pBio").value   = p.bio || "";
+    document.getElementById("pTags").value  = (p.tags||[]).join(", ");
+    document.getElementById("pResp").value  = p.responseTime || "";
+    document.getElementById("pCity").value  = p.location?.city || "";
+    document.getElementById("pState").value = p.location?.state || "";
+    document.getElementById("pPin").value   = p.location?.pincode || "";
+    document.getElementById("pAddr").value  = p.location?.fullAddress || "";
+    pickAvail(p.availability || "open");
+    _tempPkgs = JSON.parse(JSON.stringify(p.pricingTiers||[]));
+    _tempCats = JSON.parse(JSON.stringify(p.categories||[]));
+    renderPkgs(); renderCats();
+  } catch(e) { console.error(e); }
+}
+function pickAvail(v) {
+  _selectedAvail = v;
+  document.querySelectorAll(".avail-opt").forEach(b => { b.className = "avail-opt"; });
+  const btn = document.querySelector(`.avail-opt[data-v="${v}"]`);
+  if (btn) btn.classList.add(`on-${v}`);
+}
+function renderPkgs() {
+  document.getElementById("pkgRows").innerHTML = _tempPkgs.map((p,i) => `
+    <div class="pkg-row">
+      <input class="pi" type="text" placeholder="e.g. A4 Portrait, Digital Logo…" value="${p.name||""}" oninput="_tempPkgs[${i}].name=this.value">
+      <input class="pi" type="number" placeholder="₹" value="${p.price||""}" min="1" oninput="_tempPkgs[${i}].price=parseInt(this.value)||0">
+      <input class="pi" type="text" placeholder="e.g. 7-10 days" value="${p.delivery||""}" oninput="_tempPkgs[${i}].delivery=this.value">
+      <button class="del-pkg" onclick="_tempPkgs.splice(${i},1);renderPkgs()">✕</button>
+    </div>`).join("");
+}
+function addPkg() { _tempPkgs.push({name:"",price:0,delivery:"7 days",isPopular:false}); renderPkgs(); }
+function renderCats() {
+  document.getElementById("catRows").innerHTML = _tempCats.map((c,i) => `
+    <div style="margin-bottom:8px;display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;">
+      <input class="pi" type="text" placeholder="Category e.g. Pencil Portrait, Digital Art" value="${c.name||""}" oninput="_tempCats[${i}].name=this.value">
+      <button class="del-pkg" onclick="_tempCats.splice(${i},1);renderCats()">✕</button>
+    </div>`).join("");
+}
+function addCat() { _tempCats.push({name:"",subcategories:[]}); renderCats(); }
+async function saveProfile() {
+  const validPkgs = _tempPkgs.filter(p => p.name.trim() && p.price > 0);
+  const payload = {
+    displayName:  document.getElementById("pName").value.trim(),
+    speciality:   document.getElementById("pSpec").value.trim(),
+    bio:          document.getElementById("pBio").value.trim(),
+    tags:         document.getElementById("pTags").value.split(",").map(t=>t.trim()).filter(Boolean),
+    responseTime: document.getElementById("pResp").value.trim(),
+    availability: _selectedAvail,
+    location: {
+      city:        document.getElementById("pCity").value.trim(),
+      state:       document.getElementById("pState").value.trim(),
+      pincode:     document.getElementById("pPin").value.trim(),
+      fullAddress: document.getElementById("pAddr").value.trim(),
+    },
+    pricingTiers: validPkgs,
+    categories:   _tempCats.filter(c => c.name.trim()),
+  };
+  try {
+    await ZX.artists.updateProfile(payload);
+    const ok = document.getElementById("profOk");
+    ok.textContent = "✅ Profile saved successfully!"; ok.classList.add("show");
+    setTimeout(() => ok.classList.remove("show"), 3000);
+  } catch(e) {
+    const err = document.getElementById("profErr");
+    err.textContent = e.message; err.classList.add("show");
+    setTimeout(() => err.classList.remove("show"), 4000);
+  }
+}
+
+// ── Earnings ──────────────────────────────────────────────────────────────
+async function loadEarnings() {
+  try {
+    const data = await ZX.orders.artistOrders({ limit: 100 });
+    const orders = (data.orders||[]).filter(o => ["advance_paid","in_progress","completed","shipped","delivered"].includes(o.status));
+    const total  = orders.reduce((a,o)=>a+(o.pricing?.advance||0),0);
+    const pend   = orders.filter(o=>o.status==="in_progress").reduce((a,o)=>a+(o.pricing?.advance||0),0);
+    document.getElementById("eTot").textContent  = "₹" + total;
+    document.getElementById("ePend").textContent = "₹" + pend;
+    document.getElementById("eOrds").textContent = orders.length;
+    document.getElementById("earnList").innerHTML = orders.length
+      ? orders.map(o=>`<div class="earn-row"><div><div style="font-size:.6rem;color:var(--cream);">${o.pricingTierName||o.category}</div><div style="font-size:.5rem;color:var(--tf);">${o.orderId} · ${SL[o.status]}</div></div><div class="earn-amt">₹${o.pricing?.advance||0}</div></div>`).join("")
+      : `<div style="padding:18px;text-align:center;font-size:.56rem;color:var(--tf);">No earnings yet.</div>`;
+  } catch(e) { console.error(e); }
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadDash();
+</script>
+</body>
+</html>
