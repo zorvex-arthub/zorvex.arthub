@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join ZorvEx — Begin Your Journey</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════
+   EMPIRE DESIGN SYSTEM — ZorvEx Onboarding
+══════════════════════════════════════════════ */
+:root {
+  --void:        #07080c;
+  --surface:     #0e1018;
+  --surface-2:   #141620;
+  --surface-3:   #1a1d2a;
+  --rose:        #c8915a;
+  --rose-light:  #e0ae7f;
+  --rose-dim:    rgba(200,145,90,.12);
+  --rose-glow:   rgba(200,145,90,.06);
+  --cream:       #f0ebe3;
+  --text:        rgba(240,235,227,.88);
+  --text-dim:    rgba(240,235,227,.48);
+  --text-faint:  rgba(240,235,227,.22);
+  --border:      rgba(200,145,90,.18);
+  --border-soft: rgba(240,235,227,.07);
+  --ok:          #22c55e;
+  --err:         #e05c5c;
+  --ease:        cubic-bezier(.25,.46,.45,.94);
+  --ease-out:    cubic-bezier(0,0,.2,1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 16px; scroll-behavior: smooth; }
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Film-grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 9997; opacity: .032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Custom cursor */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width:8px; height:8px; background:var(--rose); border-radius:50%;
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    transform:translate(-50%,-50%);
+    transition:transform .1s, width .2s, height .2s;
+    mix-blend-mode:difference;
+  }
+  .cur-ring {
+    width:38px; height:38px; border:1px solid rgba(200,145,90,.5); border-radius:50%;
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9998;
+    transform:translate(-50%,-50%);
+    transition:transform .32s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover { width:14px; height:14px; }
+  .cur-ring.hover { width:54px; height:54px; opacity:.5; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes floatY      { 0%,100%{transform:translateY(0)}          50%{transform:translateY(-10px)} }
+@keyframes floatYSlow  { 0%,100%{transform:translateY(0) rotate(-2deg)} 50%{transform:translateY(-14px) rotate(2deg)} }
+@keyframes goldPulse   { 0%,100%{box-shadow:0 0 0 0 rgba(200,145,90,0)} 50%{box-shadow:0 0 40px 8px rgba(200,145,90,.2)} }
+@keyframes shimmer     { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes rotateSlow  { to{transform:rotate(360deg)} }
+@keyframes rotateCcw   { to{transform:rotate(-360deg)} }
+@keyframes brickFall   { 0%{opacity:0;transform:translateY(-40px) scale(.8)} 60%{transform:translateY(4px) scale(1.02)} 100%{opacity:1;transform:translateY(0) scale(1)} }
+@keyframes fadeUp      { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeDown    { from{opacity:0;transform:translateY(-24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn      { from{opacity:0} to{opacity:1} }
+@keyframes glowPulse   { 0%,100%{opacity:.5;transform:scale(1)} 50%{opacity:1;transform:scale(1.08)} }
+@keyframes lineFill    { from{stroke-dashoffset:var(--dl,1000)} to{stroke-dashoffset:0} }
+@keyframes buildPulse  { 0%,100%{opacity:.7} 50%{opacity:1} }
+@keyframes phoneFloat  { 0%,100%{transform:translateY(0) rotate(-3deg)} 50%{transform:translateY(-12px) rotate(-3deg)} }
+@keyframes phoneFloatR { 0%,100%{transform:translateY(-8px) rotate(3deg)} 50%{transform:translateY(4px) rotate(3deg)} }
+@keyframes phoneFloatC { 0%,100%{transform:translateY(-4px) scale(1.01)} 50%{transform:translateY(-16px) scale(1.01)} }
+@keyframes particleDrift { 0%{transform:translateY(0) translateX(0); opacity:0} 10%{opacity:1} 90%{opacity:.3} 100%{transform:translateY(-120px) translateX(20px); opacity:0} }
+@keyframes scanLine    { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
+@keyframes revealWidth { from{width:0} to{width:100%} }
+@keyframes orbitDot    { from{transform:rotate(0deg) translateX(60px) rotate(0deg)} to{transform:rotate(360deg) translateX(60px) rotate(-360deg)} }
+
+/* ═══════════════════════════════════════════
+   WELCOME SCREEN (Step 0 / Full-Bleed Mobile)
+═══════════════════════════════════════════ */
+.welcome-screen {
+  display: none;
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--void);
+  overflow: hidden;
+}
+.welcome-screen.active { display: flex; }
+
+/* Ambient background layers */
+.ws-ambient {
+  position: absolute; inset: 0; pointer-events: none;
+  overflow: hidden;
+}
+.ws-ambient-orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(80px); pointer-events: none;
+}
+.ws-ambient-orb-1 {
+  width: 500px; height: 500px;
+  background: radial-gradient(circle, rgba(200,145,90,.12) 0%, transparent 70%);
+  top: -100px; right: -100px;
+  animation: glowPulse 6s ease-in-out infinite;
+}
+.ws-ambient-orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(200,145,90,.07) 0%, transparent 70%);
+  bottom: 0; left: -80px;
+  animation: glowPulse 8s ease-in-out infinite reverse;
+}
+.ws-orbit-ring-1 {
+  position: absolute;
+  width: 700px; height: 700px; border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.05);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: rotateSlow 80s linear infinite;
+}
+.ws-orbit-ring-2 {
+  position: absolute;
+  width: 500px; height: 500px; border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.08);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: rotateCcw 55s linear infinite;
+}
+.ws-orbit-ring-3 {
+  position: absolute;
+  width: 300px; height: 300px; border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.06);
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: rotateSlow 35s linear infinite;
+}
+
+/* Scan line effect */
+.ws-scanline {
+  position: absolute; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(200,145,90,.15) 50%, transparent 100%);
+  animation: scanLine 8s linear infinite;
+  pointer-events: none; z-index: 1;
+}
+
+/* Gold particles */
+.ws-particles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.ws-particle {
+  position: absolute; width: 2px; height: 2px;
+  background: var(--rose); border-radius: 50%;
+  animation: particleDrift linear infinite;
+}
+
+/* ── WELCOME LAYOUT ── */
+.ws-layout {
+  display: flex;
+  flex-direction: column;
+  width: 100%; height: 100%;
+  position: relative; z-index: 2;
+}
+
+/* Top bar with logo */
+.ws-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(28px,5vh,50px) 24px 0;
+  opacity: 0;
+}
+.ws-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.5rem,4vw,2rem);
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: .06em;
+  text-decoration: none;
+  position: relative;
+}
+.ws-logo span { color: var(--rose); }
+.ws-logo::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  animation: shimmer 3s linear infinite;
+  background-size: 200% auto;
+}
+
+/* Phone mockup cluster — hidden on mobile, shown only on desktop */
+.ws-visual {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 20px 24px 0;
+  opacity: 0;
+}
+
+.ws-phones {
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+
+/* Individual phone mockups */
+.ws-phone {
+  position: absolute;
+  background: #0a0b10;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(200,145,90,.25);
+  box-shadow:
+    0 30px 80px rgba(0,0,0,.8),
+    0 0 0 1px rgba(255,255,255,.04) inset,
+    0 0 40px rgba(200,145,90,.08);
+}
+
+/* Left phone */
+.ws-phone-left {
+  width: 115px; height: 200px;
+  left: 0; top: 40px;
+  transform: rotate(-6deg);
+  animation: phoneFloat 5s ease-in-out infinite;
+  z-index: 1;
+  border-color: rgba(200,145,90,.15);
+}
+/* Center phone */
+.ws-phone-center {
+  width: 132px; height: 230px;
+  left: 50%; top: 10px;
+  transform: translateX(-50%);
+  animation: phoneFloatC 6s ease-in-out infinite;
+  z-index: 3;
+  border-color: rgba(200,145,90,.35);
+  box-shadow:
+    0 40px 100px rgba(0,0,0,.9),
+    0 0 0 1px rgba(255,255,255,.06) inset,
+    0 0 60px rgba(200,145,90,.15);
+}
+/* Right phone */
+.ws-phone-right {
+  width: 115px; height: 200px;
+  right: 0; top: 50px;
+  transform: rotate(6deg);
+  animation: phoneFloatR 5.5s ease-in-out infinite;
+  z-index: 2;
+  border-color: rgba(200,145,90,.15);
+}
+
+/* Phone inner screen */
+.ws-phone-screen {
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Notch */
+.ws-phone-notch {
+  width: 40%; height: 12px;
+  background: #07080c;
+  border-radius: 0 0 8px 8px;
+  margin: 6px auto 0;
+  flex-shrink: 0;
+  position: relative; z-index: 2;
+}
+
+/* Fake screen content */
+.ws-screen-content {
+  flex: 1; padding: 6px 7px;
+  display: flex; flex-direction: column; gap: 4px;
+  overflow: hidden;
+}
+
+/* Screen UI elements */
+.ws-sc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 4px;
+}
+.ws-sc-logo-dot {
+  width: 22px; height: 6px;
+  background: linear-gradient(90deg, var(--rose), var(--rose-light));
+  border-radius: 3px;
+}
+.ws-sc-icon {
+  width: 12px; height: 12px;
+  border: 1px solid rgba(200,145,90,.4); border-radius: 2px;
+}
+.ws-sc-search {
+  height: 10px; background: var(--surface-2);
+  border: 1px solid var(--border-soft); border-radius: 2px;
+  margin-bottom: 5px;
+}
+.ws-sc-tabs {
+  display: flex; gap: 4px; margin-bottom: 5px;
+}
+.ws-sc-tab {
+  height: 7px; border-radius: 2px;
+  background: var(--surface-3);
+}
+.ws-sc-tab.active { background: var(--rose); flex: 1.5; }
+.ws-sc-tab { flex: 1; }
+
+/* Artwork grid on side phones */
+.ws-sc-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px; flex: 1;
+}
+.ws-sc-art {
+  border-radius: 3px;
+  background: linear-gradient(135deg, var(--surface-3) 0%, rgba(200,145,90,.1) 100%);
+  position: relative; overflow: hidden;
+}
+.ws-sc-art::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(200,145,90,.08), transparent);
+}
+
+/* Center phone — featured artwork view */
+.ws-sc-artwork-hero {
+  width: 100%; height: 55%;
+  border-radius: 4px;
+  background: linear-gradient(160deg, rgba(200,145,90,.15) 0%, rgba(200,145,90,.04) 60%, transparent 100%);
+  position: relative; overflow: hidden; margin-bottom: 6px;
+}
+.ws-sc-artwork-hero::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse at 60% 40%, rgba(200,145,90,.2), transparent 60%),
+    linear-gradient(180deg, rgba(14,16,24,.2) 0%, rgba(14,16,24,.7) 100%);
+}
+/* Decorative abstract lines in hero */
+.ws-sc-artwork-hero::after {
+  content: '';
+  position: absolute;
+  width: 60px; height: 60px;
+  border: 1px solid rgba(200,145,90,.3);
+  border-radius: 50%;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+}
+.ws-sc-artwork-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 5.5px; font-weight: 700;
+  color: var(--cream); line-height: 1.3;
+  margin-bottom: 3px;
+}
+.ws-sc-artwork-sub {
+  font-size: 4px; color: var(--text-dim); margin-bottom: 5px;
+}
+.ws-sc-price-row {
+  display: flex; align-items: center; gap: 4px;
+}
+.ws-sc-price {
+  font-size: 5px; color: var(--rose); font-weight: 600;
+}
+.ws-sc-price-old {
+  font-size: 4px; color: var(--text-faint); text-decoration: line-through;
+}
+.ws-sc-badge {
+  font-size: 3.5px; padding: 1.5px 3px;
+  background: var(--rose); color: var(--void);
+  border-radius: 1px; font-weight: 700; letter-spacing: .03em;
+}
+.ws-sc-btn {
+  margin-top: 5px; width: 100%; height: 12px;
+  background: var(--rose); border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 4px; font-weight: 700; color: var(--void); letter-spacing: .05em;
+}
+
+/* Gold glow halo under center phone */
+.ws-phone-glow {
+  position: absolute;
+  width: 140px; height: 40px;
+  background: radial-gradient(ellipse, rgba(200,145,90,.35) 0%, transparent 70%);
+  bottom: -20px;
+  left: 50%; transform: translateX(-50%);
+  filter: blur(12px);
+  pointer-events: none;
+}
+
+/* ── WELCOME TEXT AREA ── */
+.ws-text {
+  padding: clamp(16px,3vh,32px) clamp(24px,6vw,40px) 0;
+  text-align: center;
+  opacity: 0;
+}
+
+.ws-eyebrow {
+  font-size: .58rem; font-weight: 600;
+  letter-spacing: .26em; text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 14px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+}
+.ws-eyebrow::before, .ws-eyebrow::after {
+  content: ''; display: block;
+  width: 24px; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose));
+}
+.ws-eyebrow::after { background: linear-gradient(90deg, var(--rose), transparent); }
+
+.ws-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.9rem, 7vw, 3.2rem);
+  font-weight: 700; line-height: 1.1;
+  color: var(--cream);
+  margin-bottom: 14px;
+  letter-spacing: -.01em;
+}
+.ws-headline em {
+  font-style: italic; font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-light) 45%, #f5c88a 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+
+/* Decorative underline rule */
+.ws-rule {
+  display: flex; align-items: center; justify-content: center;
+  gap: 10px; margin: 0 auto 14px;
+  width: 160px;
+}
+.ws-rule-line {
+  flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,145,90,.4));
+}
+.ws-rule-line:last-child { background: linear-gradient(90deg, rgba(200,145,90,.4), transparent); }
+.ws-rule-diamond {
+  width: 5px; height: 5px;
+  background: var(--rose);
+  transform: rotate(45deg);
+  flex-shrink: 0;
+}
+
+.ws-desc {
+  font-size: clamp(.78rem,.9vw + .5rem,.88rem);
+  color: var(--text-dim);
+  line-height: 1.75;
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ── FEATURE LIST ── */
+.ws-features {
+  padding: clamp(16px,2.5vh,24px) clamp(24px,6vw,40px) 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  opacity: 0;
+}
+
+.ws-feature {
+  display: flex; align-items: flex-start; gap: 14px;
+  text-align: left;
+}
+.ws-feature-icon {
+  width: 36px; height: 36px; flex-shrink: 0;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  background: var(--surface-2);
+  transition: border-color .3s, box-shadow .3s;
+}
+.ws-feature-icon svg { color: var(--rose); }
+.ws-feature:hover .ws-feature-icon {
+  border-color: var(--rose);
+  box-shadow: 0 0 16px rgba(200,145,90,.2);
+}
+.ws-feature-text {}
+.ws-feature-title {
+  font-size: .78rem; font-weight: 600;
+  color: var(--cream); margin-bottom: 2px;
+  letter-spacing: .02em;
+}
+.ws-feature-desc {
+  font-size: .68rem; color: var(--text-faint);
+  line-height: 1.5;
+}
+
+/* ── WELCOME CTA ── */
+.ws-cta {
+  padding: clamp(20px,3vh,32px) clamp(24px,6vw,40px) clamp(32px,6vh,56px);
+  opacity: 0;
+}
+
+.ws-btn-get-started {
+  width: 100%; padding: 16px 24px;
+  background: var(--rose);
+  color: var(--void);
+  font-family: 'Outfit', sans-serif;
+  font-size: .8rem; font-weight: 700;
+  letter-spacing: .15em; text-transform: uppercase;
+  border: none; cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  transition: background .3s, transform .2s, box-shadow .3s;
+  position: relative; overflow: hidden;
+}
+.ws-btn-get-started::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.12), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.ws-btn-get-started::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transform: translateX(-100%); transition: transform .7s;
+}
+.ws-btn-get-started:hover {
+  background: var(--rose-light);
+  box-shadow: 0 8px 40px rgba(200,145,90,.4);
+  transform: translateY(-1px);
+}
+.ws-btn-get-started:hover::before { opacity: 1; }
+.ws-btn-get-started:hover::after { transform: translateX(100%); }
+.ws-btn-get-started:active { transform: scale(.98) translateY(0); }
+
+.ws-signin-row {
+  text-align: center; margin-top: 16px;
+  font-size: .72rem; color: var(--text-faint);
+}
+.ws-signin-row a { color: var(--rose); text-decoration: none; }
+.ws-signin-row a:hover { text-decoration: underline; }
+
+/* ── DESKTOP VARIANT — two-col layout ── */
+@media (min-width: 900px) {
+  .welcome-screen .ws-layout {
+    flex-direction: row;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 40px;
+    align-items: center;
+    justify-content: center;
+    gap: 60px;
+    height: 100%;
+  }
+
+  .ws-topbar { display: none; } /* logo shown in left col */
+
+  .ws-left-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    max-width: 480px;
+    padding: 60px 0;
+  }
+  .ws-right-col {
+    flex: 0 0 380px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+
+  .ws-desktop-logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem; font-weight: 700;
+    color: var(--cream); letter-spacing: .05em;
+    margin-bottom: clamp(36px,5vh,56px);
+    display: inline-block;
+  }
+  .ws-desktop-logo span { color: var(--rose); }
+
+  .ws-text {
+    text-align: left;
+    padding: 0 0 24px;
+  }
+  .ws-eyebrow { justify-content: flex-start; }
+  .ws-eyebrow::before { display: none; }
+  .ws-eyebrow::after { display: none; }
+  .ws-rule { margin: 0 0 14px; }
+  .ws-rule-line { background: linear-gradient(90deg, rgba(200,145,90,.4), transparent); }
+  .ws-rule-line:last-child { background: linear-gradient(90deg, transparent, rgba(200,145,90,.4)); }
+  .ws-desc { margin: 0; }
+
+  .ws-features { padding: 0 0 0; max-width: 420px; }
+
+  .ws-cta { padding: 0; max-width: 340px; }
+
+  .ws-visual {
+    display: flex; /* show on desktop */
+    opacity: 1 !important;
+    position: relative;
+    width: 380px; height: 460px;
+    max-height: none;
+    flex: none;
+    padding: 0;
+  }
+  .ws-phones {
+    width: 320px; height: 380px;
+  }
+  .ws-phone-left  { width: 128px; height: 230px; }
+  .ws-phone-center{ width: 150px; height: 265px; }
+  .ws-phone-right { width: 128px; height: 230px; }
+}
+
+@media (max-width: 899px) {
+  .ws-desktop-logo { display: none; }
+  .ws-left-col, .ws-right-col { display: contents; }
+}
+
+
+
+/* ═══════════════════════════
+   LAYOUT (main two-col)
+═══════════════════════════ */
+.page {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+}
+@media (max-width: 900px) { .page { grid-template-columns: 1fr; } }
+
+/* ── LEFT PANEL ── */
+.left-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px,6vw,80px) clamp(32px,5vw,70px);
+  overflow: hidden;
+}
+.left-panel::before {
+  content: '';
+  position: absolute;
+  width: 600px; height: 600px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.06);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.left-panel::after {
+  content: '';
+  position: absolute;
+  width: 400px; height: 400px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.1);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+.orbit-ring {
+  position: absolute;
+  width: 800px; height: 800px;
+  border-radius: 50%;
+  border: 1px solid rgba(200,145,90,.04);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  animation: rotateSlow 60s linear infinite;
+}
+.panel-logo {
+  position: relative; z-index: 2;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem,2.5vw,1.8rem);
+  font-weight: 700; color: var(--cream);
+  letter-spacing: .05em; text-decoration: none;
+  margin-bottom: clamp(50px,8vh,90px);
+  display: inline-block;
+}
+.panel-logo span { color: var(--rose); }
+.panel-eyebrow {
+  position: relative; z-index: 2;
+  font-size: .62rem; font-weight: 600;
+  letter-spacing: .28em; text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 18px;
+  display: flex; align-items: center; gap: 10px;
+  opacity: 0;
+}
+.panel-eyebrow::before {
+  content: ''; display: block;
+  width: 28px; height: 1px;
+  background: var(--rose);
+}
+.panel-headline {
+  position: relative; z-index: 2;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem,4.5vw,3.8rem);
+  font-weight: 700; line-height: 1.08;
+  color: var(--cream);
+  margin-bottom: 22px;
+  opacity: 0;
+}
+.panel-headline em {
+  font-style: italic; font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-light) 50%, #f5c88a 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+.panel-body {
+  position: relative; z-index: 2;
+  font-size: .88rem; line-height: 1.8;
+  color: var(--text-dim);
+  max-width: 380px;
+  margin-bottom: 50px;
+  opacity: 0;
+}
+.trust-row {
+  position: relative; z-index: 2;
+  display: flex; gap: 24px; flex-wrap: wrap;
+  opacity: 0;
+}
+.trust-item {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .7rem; color: var(--text-faint);
+  letter-spacing: .04em;
+}
+.trust-item svg { color: var(--rose); flex-shrink: 0; }
+@media (max-width: 900px) { .left-panel { display: none; } }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  background: var(--surface);
+  border-left: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(32px,5vw,70px) clamp(24px,4vw,60px);
+  position: relative;
+  overflow: hidden;
+}
+
+/* ═══════════════════════════
+   STEP SYSTEM
+═══════════════════════════ */
+.step { display: none; }
+.step.active { display: block; animation: fadeUp .5s var(--ease-out) both; }
+
+.step-label {
+  font-size: .58rem; font-weight: 600;
+  letter-spacing: .2em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.step-dots { display: flex; gap: 5px; margin-left: auto; }
+.step-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--border);
+  transition: background .3s, width .3s;
+}
+.step-dot.on { background: var(--rose); width: 16px; border-radius: 3px; }
+
+.step-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,3vw,2.2rem);
+  font-weight: 700; color: var(--cream);
+  line-height: 1.15; margin-bottom: 10px;
+}
+.step-title em { font-style: italic; color: var(--rose); font-weight: 400; }
+
+.step-sub {
+  font-size: .8rem; color: var(--text-dim);
+  line-height: 1.7; margin-bottom: 30px;
+}
+
+/* ═══════════════════════════
+   ROLE CARDS
+═══════════════════════════ */
+.role-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 28px; }
+
+.role-card {
+  position: relative; overflow: hidden;
+  padding: 28px 22px;
+  border: 1px solid var(--border-soft);
+  cursor: pointer;
+  transition: border-color .4s var(--ease), background .4s;
+  background: var(--surface-2);
+  transform-style: preserve-3d; perspective: 600px;
+}
+.role-card::before {
+  content: '';
+  position: absolute; inset: 0;
+  opacity: 0;
+  transition: opacity .4s;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 0%, rgba(200,145,90,.18) 0%, transparent 70%);
+}
+.role-card::after {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  opacity: 0; transition: opacity .4s;
+}
+.role-card:hover { border-color: rgba(200,145,90,.35); }
+.role-card:hover::before, .role-card:hover::after { opacity: 1; }
+.role-card.selected {
+  border-color: var(--rose);
+  background: rgba(200,145,90,.06);
+  animation: goldPulse 2s ease-in-out infinite;
+}
+.role-card.selected::before, .role-card.selected::after { opacity: 1; }
+
+.role-icon-wrap {
+  width: 52px; height: 52px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 16px;
+  transition: border-color .3s, box-shadow .3s;
+  position: relative; z-index: 1;
+}
+.role-card.selected .role-icon-wrap {
+  border-color: var(--rose);
+  box-shadow: 0 0 20px rgba(200,145,90,.25);
+}
+.role-icon { width: 24px; height: 24px; color: var(--text-dim); transition: color .3s; }
+.role-card.selected .role-icon { color: var(--rose); }
+.role-card:hover .role-icon { color: var(--rose-light); }
+
+.role-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.05rem; font-weight: 500;
+  color: var(--cream); margin-bottom: 6px;
+  position: relative; z-index: 1;
+}
+.role-desc {
+  font-size: .7rem; color: var(--text-faint);
+  line-height: 1.6; position: relative; z-index: 1;
+}
+.role-check {
+  position: absolute; top: 14px; right: 14px;
+  width: 18px; height: 18px; border-radius: 50%;
+  background: var(--rose);
+  display: none; align-items: center; justify-content: center;
+  color: var(--void);
+}
+.role-card.selected .role-check { display: flex; }
+
+/* ═══════════════════════════
+   FORM ELEMENTS
+═══════════════════════════ */
+.fg { margin-bottom: 18px; }
+.fg-label {
+  font-size: .6rem; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: 8px;
+  display: block;
+}
+.fg input {
+  width: 100%; padding: 13px 16px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .82rem;
+  outline: none;
+  transition: border-color .3s, background .3s, box-shadow .3s;
+  -webkit-appearance: none;
+}
+.fg input:focus {
+  border-color: rgba(200,145,90,.5);
+  background: var(--surface-3);
+  box-shadow: 0 0 0 3px rgba(200,145,90,.06);
+}
+.fg input::placeholder { color: var(--text-faint); }
+.fg input.error { border-color: rgba(224,92,92,.5); }
+
+.input-hint {
+  font-size: .65rem; color: var(--text-faint);
+  margin-top: 5px; line-height: 1.5;
+}
+.input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .input-row { grid-template-columns: 1fr; } }
+
+.pwd-strength { height: 2px; background: var(--surface-3); margin-top: 6px; overflow: hidden; }
+.pwd-bar { height: 100%; width: 0%; transition: width .4s var(--ease), background .4s; }
+
+/* ═══════════════════════════
+   TERMS
+═══════════════════════════ */
+.terms-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 22px;
+}
+.custom-check {
+  width: 16px; height: 16px; flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: transparent; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .25s; margin-top: 2px;
+}
+.custom-check.checked { background: var(--rose); border-color: var(--rose); }
+.custom-check svg { opacity: 0; transition: opacity .2s; }
+.custom-check.checked svg { opacity: 1; }
+.terms-text {
+  font-size: .72rem; color: var(--text-dim); line-height: 1.6;
+}
+.terms-text a { color: var(--rose); text-decoration: none; }
+.terms-text a:hover { text-decoration: underline; }
+
+/* ═══════════════════════════
+   BUTTONS
+═══════════════════════════ */
+.btn-empire {
+  width: 100%; padding: 15px 24px;
+  background: var(--rose);
+  color: var(--void);
+  font-family: 'Outfit', sans-serif;
+  font-size: .72rem; font-weight: 700;
+  letter-spacing: .12em; text-transform: uppercase;
+  border: none; cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: background .3s, transform .2s;
+  position: relative; overflow: hidden;
+}
+.btn-empire:hover { background: var(--rose-light); }
+.btn-empire:active { transform: scale(.98); }
+.btn-empire::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.15) 50%, transparent 100%);
+  transform: translateX(-100%); transition: transform .6s;
+}
+.btn-empire:hover::after { transform: translateX(100%); }
+.btn-empire:disabled { opacity: .5; pointer-events: none; }
+
+.btn-ghost-empire {
+  width: 100%; padding: 13px 24px;
+  background: transparent;
+  color: var(--rose);
+  font-family: 'Outfit', sans-serif;
+  font-size: .7rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  border: 1px solid var(--border);
+  cursor: pointer;
+  transition: all .3s;
+  margin-top: 10px;
+}
+.btn-ghost-empire:hover { border-color: var(--rose); background: var(--rose-dim); }
+
+/* Google sign-in */
+.btn-google {
+  width: 100%; padding: 13px 20px;
+  background: var(--surface-3);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .75rem; font-weight: 500;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: all .3s; margin-bottom: 20px;
+}
+.btn-google:hover { border-color: rgba(200,145,90,.3); background: var(--surface-2); }
+
+.divider {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: 22px;
+}
+.divider::before, .divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border-soft);
+}
+.divider span { font-size: .62rem; color: var(--text-faint); letter-spacing: .1em; white-space: nowrap; }
+
+/* ═══════════════════════════
+   ERROR / ALERT
+═══════════════════════════ */
+.form-err {
+  padding: 11px 14px;
+  background: rgba(224,92,92,.06);
+  border-left: 2px solid var(--err);
+  font-size: .72rem; color: var(--err);
+  margin-bottom: 16px; display: none;
+}
+.form-err.show { display: block; animation: fadeUp .3s both; }
+
+/* ═══════════════════════════
+   LOADING — BRICK BUILDER
+═══════════════════════════ */
+.loading-screen {
+  display: none;
+  position: fixed; inset: 0; z-index: 5000;
+  background: var(--void);
+  flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0;
+}
+.loading-screen.show { display: flex; animation: fadeIn .4s both; }
+
+.brick-stage {
+  width: 280px; height: 220px;
+  position: relative;
+  margin-bottom: 40px;
+}
+.brick-svg { overflow: visible; }
+.brick-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem; font-weight: 500;
+  color: var(--cream); margin-bottom: 8px;
+  text-align: center;
+}
+.brick-sub {
+  font-size: .72rem; color: var(--text-dim);
+  letter-spacing: .08em; text-align: center;
+  animation: buildPulse 1.8s ease-in-out infinite;
+}
+.load-progress-rail {
+  width: 240px; height: 1px;
+  background: var(--surface-2);
+  margin-top: 22px; overflow: hidden;
+}
+.load-progress-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--rose), var(--rose-light));
+  transition: width .5s var(--ease);
+}
+
+/* ═══════════════════════════
+   SIGN-IN LINK
+═══════════════════════════ */
+.signin-row {
+  text-align: center; margin-top: 22px;
+  font-size: .72rem; color: var(--text-faint);
+}
+.signin-row a { color: var(--rose); text-decoration: none; }
+.signin-row a:hover { text-decoration: underline; }
+
+/* Floating logo mark */
+.bg-mark {
+  position: fixed; bottom: -60px; right: -60px;
+  font-family: 'Playfair Display', serif;
+  font-size: 22vw; color: rgba(200,145,90,.018);
+  font-weight: 700; pointer-events: none; z-index: 0;
+  user-select: none; line-height: 1;
+}
+</style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- Background watermark -->
+<div class="bg-mark">Z</div>
+
+<!-- ═══════════════════════════════════════════
+     WELCOME SCREEN — STEP 1
+═══════════════════════════════════════════ -->
+<div class="welcome-screen active" id="welcomeScreen">
+
+  <!-- Ambient BG -->
+  <div class="ws-ambient">
+    <div class="ws-ambient-orb ws-ambient-orb-1"></div>
+    <div class="ws-ambient-orb ws-ambient-orb-2"></div>
+    <div class="ws-orbit-ring-1"></div>
+    <div class="ws-orbit-ring-2"></div>
+    <div class="ws-orbit-ring-3"></div>
+    <div class="ws-scanline"></div>
+    <!-- Particles -->
+    <div class="ws-particles" id="wsParticles"></div>
+  </div>
+
+  <!-- Main layout -->
+  <div class="ws-layout">
+
+    <!-- Mobile: top logo bar -->
+    <div class="ws-topbar" id="wsTopbar">
+      <a href="/index.html" class="ws-logo">Zorv<span>Ex</span></a>
+    </div>
+
+    <!-- Desktop left column wrapper (mobile: display:contents) -->
+    <div class="ws-left-col">
+      <!-- Desktop logo -->
+      <a href="/index.html" class="ws-desktop-logo">Zorv<span style="color:var(--rose)">Ex</span></a>
+
+      <!-- Text -->
+      <div class="ws-text" id="wsText">
+        <div class="ws-eyebrow">India's Premier Art Marketplace</div>
+        <h1 class="ws-headline">
+          Build your<br><em>Empire,</em><br>brick by brick.
+        </h1>
+        <div class="ws-rule">
+          <div class="ws-rule-line"></div>
+          <div class="ws-rule-diamond"></div>
+          <div class="ws-rule-line"></div>
+        </div>
+        <p class="ws-desc">
+          Whether you create or collect — ZorvEx is your platform. Sell your art, commission masterpieces, and grow within India's most premium art community.
+        </p>
+      </div>
+
+      <!-- Feature list -->
+      <div class="ws-features" id="wsFeatures">
+        <div class="ws-feature">
+          <div class="ws-feature-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+            </svg>
+          </div>
+          <div class="ws-feature-text">
+            <div class="ws-feature-title">For artists — sell &amp; grow</div>
+            <div class="ws-feature-desc">List your work, accept commissions, and build a portfolio that serious collectors discover.</div>
+          </div>
+        </div>
+        <div class="ws-feature">
+          <div class="ws-feature-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 12V22H4V12M22 7H2v5h20V7z"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+          <div class="ws-feature-text">
+            <div class="ws-feature-title">For collectors — discover &amp; commission</div>
+            <div class="ws-feature-desc">Browse verified artists across India and commission bespoke works made to last a lifetime.</div>
+          </div>
+        </div>
+        <div class="ws-feature">
+          <div class="ws-feature-icon">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M8 1L1 4v5c0 3.5 3 6.4 7 7 4-.6 7-3.5 7-7V4z"/>
+            </svg>
+          </div>
+          <div class="ws-feature-text">
+            <div class="ws-feature-title">Secure for everyone</div>
+            <div class="ws-feature-desc">Milestone-based payments protect both sides — artists get paid fairly, buyers stay in control.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="ws-cta" id="wsCta">
+        <button class="ws-btn-get-started" onclick="startJourney()">
+          Get Started
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:8px;vertical-align:-2px"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+        </button>
+        <div class="ws-signin-row">
+          Already a member? <a href="/login.html">Sign in</a>
+        </div>
+      </div>
+    </div><!-- /ws-left-col -->
+
+    <!-- Phone mockup cluster (right col on desktop, middle on mobile) -->
+    <div class="ws-right-col">
+      <div class="ws-visual" id="wsVisual">
+        <div class="ws-phones">
+
+          <!-- Left phone: artwork grid -->
+          <div class="ws-phone ws-phone-left">
+            <div class="ws-phone-screen">
+              <div class="ws-phone-notch"></div>
+              <div class="ws-screen-content">
+                <div class="ws-sc-header">
+                  <div class="ws-sc-logo-dot"></div>
+                  <div class="ws-sc-icon"></div>
+                </div>
+                <div class="ws-sc-search"></div>
+                <div class="ws-sc-tabs">
+                  <div class="ws-sc-tab active"></div>
+                  <div class="ws-sc-tab"></div>
+                  <div class="ws-sc-tab"></div>
+                </div>
+                <div class="ws-sc-grid">
+                  <div class="ws-sc-art" style="aspect-ratio:1"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1;background:linear-gradient(135deg,rgba(200,145,90,.12),rgba(200,145,90,.04))"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1;background:linear-gradient(160deg,rgba(200,145,90,.06),rgba(200,145,90,.18))"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Center phone: featured artwork detail -->
+          <div class="ws-phone ws-phone-center">
+            <div class="ws-phone-screen">
+              <div class="ws-phone-notch"></div>
+              <div class="ws-screen-content">
+                <div class="ws-sc-header">
+                  <div class="ws-sc-logo-dot" style="width:28px"></div>
+                  <div class="ws-sc-icon"></div>
+                </div>
+                <div class="ws-sc-artwork-hero"></div>
+                <div class="ws-sc-badge">ORIGINAL</div>
+                <div class="ws-sc-artwork-title" style="margin-top:4px">Monsoon Reverie<br>— Mixed Media on Canvas</div>
+                <div class="ws-sc-artwork-sub" style="margin-top:2px">Arjun Mehta · Mumbai</div>
+                <div class="ws-sc-price-row" style="margin-top:3px">
+                  <span class="ws-sc-price">₹18,000</span>
+                  <span class="ws-sc-price-old">₹24,000</span>
+                  <span class="ws-sc-badge">25% OFF</span>
+                </div>
+                <div class="ws-sc-btn">Commission Now</div>
+              </div>
+            </div>
+            <div class="ws-phone-glow"></div>
+          </div>
+
+          <!-- Right phone: artist portfolio -->
+          <div class="ws-phone ws-phone-right">
+            <div class="ws-phone-screen">
+              <div class="ws-phone-notch"></div>
+              <div class="ws-screen-content">
+                <div class="ws-sc-header">
+                  <div class="ws-sc-logo-dot"></div>
+                  <div class="ws-sc-icon"></div>
+                </div>
+                <div class="ws-sc-search"></div>
+                <div class="ws-sc-tabs">
+                  <div class="ws-sc-tab"></div>
+                  <div class="ws-sc-tab active"></div>
+                  <div class="ws-sc-tab"></div>
+                </div>
+                <div class="ws-sc-grid">
+                  <div class="ws-sc-art" style="aspect-ratio:1;background:linear-gradient(135deg,rgba(200,145,90,.2),rgba(200,145,90,.06))"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1"></div>
+                  <div class="ws-sc-art" style="aspect-ratio:1;background:linear-gradient(160deg,rgba(200,145,90,.14),transparent)"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- /ws-phones -->
+      </div><!-- /ws-visual -->
+    </div><!-- /ws-right-col -->
+
+  </div><!-- /ws-layout -->
+
+
+
+</div><!-- /welcome-screen -->
+
+
+<!-- ═══════ LOADING SCREEN ═══════ -->
+<div class="loading-screen" id="loadingScreen">
+  <div class="brick-stage">
+    <svg class="brick-svg" width="280" height="220" viewBox="0 0 280 220" fill="none" xmlns="http://www.w3.org/2000/svg" id="brickSvg">
+      <!-- Foundation row -->
+      <g class="brick-row" id="brow0">
+        <rect x="20" y="180" width="56" height="24" rx="1" fill="rgba(200,145,90,.15)" stroke="rgba(200,145,90,.35)" stroke-width=".8" class="b"/>
+        <rect x="80" y="180" width="56" height="24" rx="1" fill="rgba(200,145,90,.15)" stroke="rgba(200,145,90,.35)" stroke-width=".8" class="b"/>
+        <rect x="140" y="180" width="56" height="24" rx="1" fill="rgba(200,145,90,.15)" stroke="rgba(200,145,90,.35)" stroke-width=".8" class="b"/>
+        <rect x="200" y="180" width="60" height="24" rx="1" fill="rgba(200,145,90,.15)" stroke="rgba(200,145,90,.35)" stroke-width=".8" class="b"/>
+      </g>
+      <!-- Row 2 -->
+      <g class="brick-row" id="brow1">
+        <rect x="20" y="152" width="70" height="24" rx="1" fill="rgba(200,145,90,.2)" stroke="rgba(200,145,90,.45)" stroke-width=".8" class="b"/>
+        <rect x="94" y="152" width="70" height="24" rx="1" fill="rgba(200,145,90,.2)" stroke="rgba(200,145,90,.45)" stroke-width=".8" class="b"/>
+        <rect x="168" y="152" width="92" height="24" rx="1" fill="rgba(200,145,90,.2)" stroke="rgba(200,145,90,.45)" stroke-width=".8" class="b"/>
+      </g>
+      <!-- Row 3 -->
+      <g class="brick-row" id="brow2">
+        <rect x="20" y="124" width="56" height="24" rx="1" fill="rgba(200,145,90,.28)" stroke="rgba(200,145,90,.55)" stroke-width=".8" class="b"/>
+        <rect x="80" y="124" width="80" height="24" rx="1" fill="rgba(200,145,90,.28)" stroke="rgba(200,145,90,.55)" stroke-width=".8" class="b"/>
+        <rect x="164" y="124" width="96" height="24" rx="1" fill="rgba(200,145,90,.28)" stroke="rgba(200,145,90,.55)" stroke-width=".8" class="b"/>
+      </g>
+      <!-- Row 4 -->
+      <g class="brick-row" id="brow3">
+        <rect x="20" y="96" width="90" height="24" rx="1" fill="rgba(200,145,90,.36)" stroke="rgba(200,145,90,.65)" stroke-width=".8" class="b"/>
+        <rect x="114" y="96" width="70" height="24" rx="1" fill="rgba(200,145,90,.36)" stroke="rgba(200,145,90,.65)" stroke-width=".8" class="b"/>
+        <rect x="188" y="96" width="72" height="24" rx="1" fill="rgba(200,145,90,.36)" stroke="rgba(200,145,90,.65)" stroke-width=".8" class="b"/>
+      </g>
+      <!-- Row 5 (top) -->
+      <g class="brick-row" id="brow4">
+        <rect x="20" y="68" width="116" height="24" rx="1" fill="rgba(200,145,90,.5)" stroke="rgba(200,145,90,.8)" stroke-width=".8" class="b"/>
+        <rect x="140" y="68" width="120" height="24" rx="1" fill="rgba(200,145,90,.5)" stroke="rgba(200,145,90,.8)" stroke-width=".8" class="b"/>
+      </g>
+      <!-- Gold roof line -->
+      <line id="roofLine" x1="20" y1="64" x2="260" y2="64" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="240" stroke-dashoffset="240"/>
+      <!-- ZorvEx lettering -->
+      <text x="140" y="52" text-anchor="middle" font-family="Playfair Display, serif" font-size="28" font-weight="700" fill="rgba(200,145,90,.7)">ZorvEx</text>
+    </svg>
+  </div>
+  <div class="brick-title">Building Your Empire</div>
+  <div class="brick-sub" id="loadMsg">Forging your account…</div>
+  <div class="load-progress-rail"><div class="load-progress-fill" id="loadBar"></div></div>
+</div>
+
+
+<!-- ═══════ MAIN PAGE (Steps 2-4) ═══════ -->
+<div class="page" id="mainPage" style="display:none;">
+
+  <!-- LEFT BRANDING PANEL -->
+  <div class="left-panel">
+    <div class="orbit-ring"></div>
+    <a href="/index.html" class="panel-logo">Zorv<span>Ex</span></a>
+    <div class="panel-eyebrow" id="pe">Where Art Meets Legacy</div>
+    <h1 class="panel-headline" id="ph">
+      Commission Art<br>That <em>Lives Forever.</em>
+    </h1>
+    <p class="panel-body" id="pb">
+      ZorvEx is India's premium art marketplace — connecting collectors with masters. Every commission is a testament to craft, delivered with the reverence it deserves.
+    </p>
+    <div class="trust-row" id="tr">
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1l1.8 3.7 4.1.6-3 2.9.7 4.1L8 10.4l-3.6 1.9.7-4.1-3-2.9 4.1-.6z"/></svg>
+        <span>Verified Artists Only</span>
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 1L1 4v5c0 3.5 3 6.4 7 7 4-.6 7-3.5 7-7V4z"/></svg>
+        <span>Secure Payments</span>
+      </div>
+      <div class="trust-item">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/></svg>
+        <span>Milestone-Based</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT FORM PANEL -->
+  <div class="right-panel">
+
+    <!-- STEP 2: Choose Role -->
+    <div class="step active" id="step2">
+      <div class="step-label">
+        Step 02 of 04 — Your Role
+        <div class="step-dots">
+          <div class="step-dot"></div>
+          <div class="step-dot on"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+        </div>
+      </div>
+      <h2 class="step-title">I am here <em>as…</em></h2>
+      <p class="step-sub">Choose your path. You can always expand your role later.</p>
+
+      <div class="role-grid">
+        <div class="role-card" id="rcBuyer" onclick="selectRole('buyer')">
+          <div class="role-check">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 8 4 4 6-8"/></svg>
+          </div>
+          <div class="role-icon-wrap">
+            <svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M20 12V22H4V12M22 7H2v5h20V7z"/><path d="M12 22V7M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
+            </svg>
+          </div>
+          <div class="role-name">Art Collector</div>
+          <div class="role-desc">Commission bespoke artwork from verified artists across India.</div>
+        </div>
+
+        <div class="role-card" id="rcArtist" onclick="selectRole('artist')">
+          <div class="role-check">
+            <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m3 8 4 4 6-8"/></svg>
+          </div>
+          <div class="role-icon-wrap">
+            <svg class="role-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="m2 2 7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+            </svg>
+          </div>
+          <div class="role-name">Artist</div>
+          <div class="role-desc">Monetize your craft. Accept commissions, showcase your portfolio.</div>
+        </div>
+      </div>
+
+      <button class="btn-empire" onclick="goStep(3)" id="step2Btn" disabled>
+        Continue to Account Setup
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="margin-left:6px"><path d="M3 8h10M9 4l4 4-4 4"/></svg>
+      </button>
+
+      <div class="signin-row">
+        Already have an account? <a href="/login.html">Sign in</a>
+      </div>
+    </div>
+
+    <!-- STEP 3: Create Account -->
+    <div class="step" id="step3">
+      <div class="step-label">
+        Step 03 of 04 — Account Details
+        <div class="step-dots">
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot on"></div>
+          <div class="step-dot"></div>
+        </div>
+      </div>
+      <h2 class="step-title">Forge Your <em>Identity</em></h2>
+      <p class="step-sub">One account. Access to every masterpiece on ZorvEx.</p>
+
+      <!-- Google Sign-In -->
+      <button class="btn-google" onclick="handleGoogle()">
+        <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+        Continue with Google
+      </button>
+
+      <div class="divider"><span>or fill in your details</span></div>
+
+      <div class="form-err" id="regErr"></div>
+
+      <div class="input-row">
+        <div class="fg">
+          <label class="fg-label" for="rName">Full Name</label>
+          <input type="text" id="rName" placeholder="Your legal name" autocomplete="name">
+        </div>
+        <div class="fg">
+          <label class="fg-label" for="rPhone">Mobile Number</label>
+          <input type="tel" id="rPhone" placeholder="10-digit number" maxlength="10">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label class="fg-label" for="rEmail">Email Address</label>
+        <input type="email" id="rEmail" placeholder="you@example.com" autocomplete="email">
+      </div>
+
+      <div class="fg">
+        <label class="fg-label" for="rPass">Password</label>
+        <input type="password" id="rPass" placeholder="Starts with capital + one number (e.g. Zorvex1)" oninput="evalPwd(this.value)">
+        <div class="pwd-strength"><div class="pwd-bar" id="pwdBar"></div></div>
+        <div class="input-hint">Must start with a capital letter and contain at least one number.</div>
+      </div>
+
+      <div class="terms-row">
+        <div class="custom-check" id="termsCheck" onclick="toggleTerms()">
+          <svg width="9" height="9" viewBox="0 0 12 12" fill="none" stroke="white" stroke-width="2.2"><path d="m2 6 3 3 5-5"/></svg>
+        </div>
+        <div class="terms-text">
+          I agree to ZorvEx's <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>. I understand that commissions are governed by our milestone payment system.
+        </div>
+      </div>
+
+      <button class="btn-empire" onclick="handleRegister()" id="regBtn">
+        Create My Account
+      </button>
+      <button class="btn-ghost-empire" onclick="goStep(2)">← Back</button>
+    </div>
+
+    <!-- STEP 4: Success -->
+    <div class="step" id="step4">
+      <div class="step-label">
+        Step 04 of 04 — Welcome
+        <div class="step-dots">
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot"></div>
+          <div class="step-dot on"></div>
+        </div>
+      </div>
+      <div style="text-align:center; padding: 30px 0;">
+        <div id="successRing" style="width:80px;height:80px;border-radius:50%;border:1px solid rgba(200,145,90,.3);margin:0 auto 24px;display:flex;align-items:center;justify-content:center;animation:goldPulse 2s ease-in-out infinite;">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="1.5">
+            <path d="m20 6-11 11-5-5"/>
+          </svg>
+        </div>
+        <h2 class="step-title" style="margin-bottom:10px;">Your Empire<br><em>Awaits.</em></h2>
+        <p class="step-sub" style="max-width:300px;margin:0 auto 32px;">
+          Account created. You are now part of an exclusive community of artists and collectors.
+        </p>
+        <button class="btn-empire" onclick="redirectDash()" style="max-width:280px;">
+          Enter My Studio →
+        </button>
+      </div>
+    </div>
+
+  </div><!-- /right-panel -->
+</div><!-- /page -->
+
+<script src="/zorvex-api.js"></script>
+<script>
+/* ══════════════════════════════
+   CUSTOM CURSOR
+══════════════════════════════ */
+const cur  = document.getElementById('cur');
+const curR = document.getElementById('curRing');
+if (cur && curR) {
+  document.addEventListener('mousemove', e => {
+    cur.style.transform  = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+    curR.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+  });
+  const bindCursor = () => {
+    document.querySelectorAll('button, a, .role-card, .custom-check, .ws-feature').forEach(el => {
+      el.addEventListener('mouseenter', () => { cur.classList.add('hover'); curR.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { cur.classList.remove('hover'); curR.classList.remove('hover'); });
+    });
+  };
+  bindCursor();
+}
+
+/* ══════════════════════════════
+   GOLD PARTICLE GENERATOR
+══════════════════════════════ */
+function spawnParticles() {
+  const container = document.getElementById('wsParticles');
+  if (!container) return;
+  for (let i = 0; i < 22; i++) {
+    const p = document.createElement('div');
+    p.className = 'ws-particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      bottom: ${Math.random() * 30}%;
+      animation-duration: ${4 + Math.random() * 8}s;
+      animation-delay: ${Math.random() * 6}s;
+      opacity: ${0.3 + Math.random() * 0.7};
+      width: ${1 + Math.random() * 2}px;
+      height: ${1 + Math.random() * 2}px;
+    `;
+    container.appendChild(p);
+  }
+}
+
+/* ══════════════════════════════
+   WELCOME SCREEN GSAP ENTRANCE
+══════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  spawnParticles();
+
+  if (typeof gsap !== 'undefined') {
+    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+    // Logo / topbar
+    tl.fromTo('#wsTopbar',
+      { opacity: 0, y: -20 },
+      { opacity: 1, y: 0, duration: .7 }, 0.1);
+
+    // Visual phones cluster
+    tl.fromTo('#wsVisual',
+      { opacity: 0, y: 40, scale: .92 },
+      { opacity: 1, y: 0, scale: 1, duration: 1.1, ease: 'back.out(1.2)' }, 0.2);
+
+    // Text block
+    tl.fromTo('#wsText',
+      { opacity: 0, y: 32 },
+      { opacity: 1, y: 0, duration: .9 }, 0.55);
+
+    // Features stagger
+    tl.fromTo('#wsFeatures',
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration: .7 }, 0.85);
+    tl.fromTo('#wsFeatures .ws-feature',
+      { opacity: 0, x: -16 },
+      { opacity: 1, x: 0, duration: .5, stagger: .12 }, 0.9);
+
+    // CTA
+    tl.fromTo('#wsCta',
+      { opacity: 0, y: 18 },
+      { opacity: 1, y: 0, duration: .7 }, 1.1);
+  } else {
+    // Fallback: just show everything
+    ['wsTopbar','wsVisual','wsText','wsFeatures','wsCta'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '1';
+    });
+  }
+});
+
+/* ══════════════════════════════
+   LEFT PANEL STAGGER REVEAL (GSAP)
+══════════════════════════════ */
+function animateLeftPanel() {
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('#pe', { opacity: 0, x: -20 }, { opacity: 1, x: 0, duration: .9, delay: .2, ease: 'power3.out' });
+    gsap.fromTo('#ph', { opacity: 0, y: 30 },  { opacity: 1, y: 0,  duration: 1,  delay: .4, ease: 'power3.out' });
+    gsap.fromTo('#pb', { opacity: 0, y: 20 },  { opacity: 1, y: 0,  duration: .8, delay: .7, ease: 'power3.out' });
+    gsap.fromTo('#tr', { opacity: 0, y: 16 },  { opacity: 1, y: 0,  duration: .7, delay: 1,  ease: 'power3.out' });
+  }
+}
+
+/* ══════════════════════════════
+   START JOURNEY (Welcome → Main)
+══════════════════════════════ */
+function startJourney() {
+  const ws = document.getElementById('welcomeScreen');
+  const mp = document.getElementById('mainPage');
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to(ws, {
+      opacity: 0,
+      y: -30,
+      duration: .55,
+      ease: 'power2.in',
+      onComplete: () => {
+        ws.style.display = 'none';
+        mp.style.display = 'grid';
+        gsap.fromTo(mp, { opacity: 0 }, { opacity: 1, duration: .5, ease: 'power2.out' });
+        animateLeftPanel();
+        bindRoleCardTilt();
+        if (cur) {
+          document.querySelectorAll('button, a, .role-card, .custom-check').forEach(el => {
+            el.addEventListener('mouseenter', () => { cur.classList.add('hover'); curR.classList.add('hover'); });
+            el.addEventListener('mouseleave', () => { cur.classList.remove('hover'); curR.classList.remove('hover'); });
+          });
+        }
+      }
+    });
+  } else {
+    ws.style.display = 'none';
+    mp.style.display = 'grid';
+    animateLeftPanel();
+    bindRoleCardTilt();
+  }
+}
+
+/* ══════════════════════════════
+   3D TILT ON ROLE CARDS
+══════════════════════════════ */
+function bindRoleCardTilt() {
+  document.querySelectorAll('.role-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width  - .5;
+      const y = (e.clientY - r.top)  / r.height - .5;
+      card.style.transform = `perspective(600px) rotateY(${x * 12}deg) rotateX(${-y * 12}deg) scale(1.02)`;
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'perspective(600px) rotateY(0) rotateX(0) scale(1)';
+    });
+  });
+}
+
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let selectedRole  = null;
+let termsAccepted = false;
+let currentStep   = 2;   // Steps 2-4 inside main page
+
+function selectRole(role) {
+  selectedRole = role;
+  document.getElementById('rcBuyer').classList.toggle('selected',  role === 'buyer');
+  document.getElementById('rcArtist').classList.toggle('selected', role === 'artist');
+  document.getElementById('step2Btn').disabled = false;
+
+  const card = document.getElementById(role === 'buyer' ? 'rcBuyer' : 'rcArtist');
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo(card, { scale: 1 }, { scale: 1.04, duration: .15, yoyo: true, repeat: 1, ease: 'power2.out' });
+  }
+}
+
+function goStep(n) {
+  const outEl = document.getElementById(`step${currentStep}`);
+  if (outEl) outEl.classList.remove('active');
+  currentStep = n;
+  const inEl = document.getElementById(`step${n}`);
+  if (inEl) {
+    inEl.classList.add('active');
+    if (typeof gsap !== 'undefined') {
+      gsap.fromTo(inEl, { opacity: 0, y: 22 }, { opacity: 1, y: 0, duration: .45, ease: 'power2.out' });
+    }
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggleTerms() {
+  termsAccepted = !termsAccepted;
+  document.getElementById('termsCheck').classList.toggle('checked', termsAccepted);
+}
+
+/* ══════════════════════════════
+   PASSWORD STRENGTH
+══════════════════════════════ */
+function evalPwd(val) {
+  const bar = document.getElementById('pwdBar');
+  let score = 0;
+  if (val.length >= 6)        score++;
+  if (/^[A-Z]/.test(val))    score++;
+  if (/\d/.test(val))        score++;
+  if (val.length >= 10)      score++;
+  const colors = ['#e05c5c','#f59e0b','#c8915a','#22c55e'];
+  bar.style.width      = (score / 4 * 100) + '%';
+  bar.style.background = colors[score - 1] || 'transparent';
+}
+
+/* ══════════════════════════════
+   BRICK ANIMATION
+══════════════════════════════ */
+function showLoader(msgs) {
+  const ls = document.getElementById('loadingScreen');
+  ls.classList.add('show');
+  document.getElementById('mainPage').style.opacity = '0';
+
+  const rows = document.querySelectorAll('.brick-row');
+  rows.forEach(r => { r.style.opacity = '0'; });
+
+  if (typeof gsap !== 'undefined') {
+    rows.forEach((row, i) => {
+      const bricks = row.querySelectorAll('.b');
+      gsap.to(bricks, {
+        opacity: 1, y: 0,
+        duration: .35, stagger: .06, delay: i * .22,
+        ease: 'back.out(1.5)',
+        from: { opacity: 0, y: -30, scaleX: .85 }
+      });
+    });
+    setTimeout(() => {
+      gsap.to('#roofLine', { strokeDashoffset: 0, duration: .7, ease: 'power2.inOut' });
+    }, rows.length * 220 + 100);
+  } else {
+    rows.forEach(r => { r.style.opacity = '1'; });
+  }
+
+  const msgEl = document.getElementById('loadMsg');
+  const bar   = document.getElementById('loadBar');
+  let mi = 0;
+  const cycle = setInterval(() => {
+    if (mi < msgs.length) {
+      msgEl.textContent = msgs[mi];
+      bar.style.width   = ((mi + 1) / msgs.length * 80) + '%';
+      mi++;
+    } else {
+      clearInterval(cycle);
+    }
+  }, 700);
+
+  return { bar, cycle };
+}
+
+function finishLoader() {
+  const bar = document.getElementById('loadBar');
+  bar.style.width = '100%';
+  setTimeout(() => {
+    document.getElementById('loadingScreen').style.opacity = '0';
+    setTimeout(() => { document.getElementById('loadingScreen').classList.remove('show'); }, 400);
+  }, 600);
+}
+
+/* ══════════════════════════════
+   GOOGLE SIGN-IN
+══════════════════════════════ */
+function handleGoogle() {
+  if (!termsAccepted) {
+    showErr('regErr', 'Please accept the Terms & Conditions before continuing.');
+    return;
+  }
+  alert('Please configure Firebase for Google Sign-In and call ZX.auth.googleSignIn(idToken, selectedRole, true).');
+}
+
+/* ══════════════════════════════
+   REGISTER
+══════════════════════════════ */
+async function handleRegister() {
+  const name  = document.getElementById('rName').value.trim();
+  const phone = document.getElementById('rPhone').value.trim();
+  const email = document.getElementById('rEmail').value.trim();
+  const pass  = document.getElementById('rPass').value;
+
+  if (!name || !phone || !email || !pass) { showErr('regErr', 'All fields are required.'); return; }
+  if (!/^[6-9]\d{9}$/.test(phone))        { showErr('regErr', 'Enter a valid 10-digit Indian mobile number.'); return; }
+  if (!termsAccepted)                      { showErr('regErr', 'Please accept the Terms & Conditions to continue.'); return; }
+  if (!/^[A-Z](?=.*\d).+$/.test(pass))    { showErr('regErr', 'Password must start with a capital letter and contain at least one number.'); return; }
+
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true;
+
+  const msgs = [
+    'Verifying your identity…',
+    'Securing your credentials…',
+    'Building your profile…',
+    'Almost there…',
+  ];
+  showLoader(msgs);
+
+  try {
+    await ZX.auth.register(name, email, phone, pass, selectedRole);
+    finishLoader();
+    setTimeout(() => { goStep(4); document.getElementById('mainPage').style.opacity = '1'; }, 1000);
+  } catch (e) {
+    finishLoader();
+    document.getElementById('mainPage').style.opacity = '1';
+    showErr('regErr', e.message || 'Registration failed. Please try again.');
+    btn.disabled = false;
+  }
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 5000);
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo(el, { x: -6 }, { x: 0, duration: .4, ease: 'elastic.out(1,.3)' });
+  }
+}
+
+function redirectDash() {
+  const user = typeof ZX !== 'undefined' ? ZX.getUser() : null;
+  if (!user) { window.location.href = '/dashboard-buyer.html'; return; }
+  const map = { artist: '/dashboard-artist.html', admin: '/dashboard-admin.html' };
+  window.location.href = map[user.role] || '/dashboard-buyer.html';
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Commission Art — ZorvEx</title>
+<meta name="description" content="Place a commission with Kerala's finest artists. Handcrafted art, portraits, paintings and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM — Empire / Obsidian Void
+══════════════════════════════════════════════ */
+:root {
+  --void:        #07080c;
+  --surface:     #0e1018;
+  --surface-2:   #141620;
+  --surface-3:   #1a1d2a;
+  --rose:        #c8915a;
+  --rose-light:  #e0ae7f;
+  --rose-dim:    rgba(200,145,90,.12);
+  --rose-glow:   rgba(200,145,90,.06);
+  --cream:       #f0ebe3;
+  --text:        rgba(240,235,227,.88);
+  --text-dim:    rgba(240,235,227,.48);
+  --text-faint:  rgba(240,235,227,.22);
+  --border:      rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  --err:         #e05c5c;
+  --ok:          #22c55e;
+  --warn:        #f59e0b;
+  --nav-h:       56px;
+  --ease:        cubic-bezier(.25,.46,.45,.94);
+  --ease-out:    cubic-bezier(0,0,.2,1);
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  background:var(--void); color:var(--text);
+  font-family:'Outfit',sans-serif; font-weight:400;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased; min-height:100vh;
+}
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9997; opacity:.028;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (pointer:fine) {
+  body { cursor:none; }
+  .cur { width:8px;height:8px;background:var(--rose);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s; }
+  .cur-ring { width:38px;height:38px;border:1px solid rgba(200,145,90,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .3s var(--ease),width .3s,height .3s,opacity .3s; }
+  .cur.hover { width:14px;height:14px; }
+  .cur-ring.hover { width:54px;height:54px;opacity:.5; }
+}
+@keyframes fadeUp   { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:translateY(0)} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+@keyframes shimmer  { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── NAV ── */
+.nav {
+  position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(16px,3vw,40px);
+  background:rgba(7,8,12,.94); backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-logo {
+  font-family:'Playfair Display',serif;font-size:clamp(1.1rem,2vw,1.35rem);
+  font-weight:700;color:var(--cream);text-decoration:none;letter-spacing:.04em;
+}
+.nav-logo span { color:var(--rose); }
+.nav-right { display:flex;align-items:center;gap:10px; }
+.nav-btn {
+  padding:7px 16px;border:1px solid var(--border-soft);background:transparent;
+  color:var(--text-dim);font-family:'Outfit',sans-serif;font-size:.68rem;
+  font-weight:500;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;text-decoration:none;transition:all .3s;
+}
+.nav-btn:hover,.nav-btn.fill:hover { border-color:var(--border);color:var(--text); }
+.nav-btn.fill { background:var(--rose-dim);color:var(--rose);border-color:var(--border); }
+
+/* ── PAGE WRAP ── */
+.page-wrap {
+  max-width:760px;margin:0 auto;
+  padding:calc(var(--nav-h) + 40px) clamp(16px,3vw,32px) 80px;
+}
+
+/* ── SECTION HEADER ── */
+.page-eyebrow {
+  font-size:.58rem;font-weight:600;letter-spacing:.22em;text-transform:uppercase;
+  color:var(--rose);margin-bottom:8px;
+  display:flex;align-items:center;gap:8px;
+}
+.page-title {
+  font-family:'Playfair Display',serif;
+  font-size:clamp(1.5rem,3vw,2rem);font-weight:700;color:var(--cream);
+  margin-bottom:6px;line-height:1.25;
+}
+.page-title em { color:var(--rose);font-style:italic; }
+.page-sub { font-size:.8rem;color:var(--text-dim);line-height:1.7;margin-bottom:32px; }
+
+/* ── ARTIST LOCK BANNER ── */
+.artist-lock {
+  display:none;align-items:center;gap:14px;
+  padding:14px 18px;margin-bottom:28px;
+  background:var(--rose-glow);border:1px solid var(--border);
+}
+.artist-lock.show { display:flex; }
+.lock-av {
+  width:42px;height:42px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--rose),#9a6030);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.9rem;font-weight:700;color:var(--void);
+  border:1px solid rgba(200,145,90,.3);
+}
+.lock-info { flex:1; min-width:0; }
+.lock-name { font-size:.84rem;font-weight:600;color:var(--cream);margin-bottom:2px; }
+.lock-sub  { font-size:.68rem;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+.lock-badge {
+  padding:4px 10px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);
+  font-size:.58rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--ok);flex-shrink:0;
+}
+
+/* ── FORM SECTION ── */
+.form-section {
+  margin-bottom:32px;padding-bottom:32px;
+  border-bottom:1px solid var(--border-soft);
+  opacity:0;transform:translateY(16px);
+  transition:opacity .5s var(--ease),transform .5s var(--ease);
+}
+.form-section.visible { opacity:1;transform:translateY(0); }
+.form-section:last-of-type { border-bottom:none; }
+.sec-head {
+  display:flex;align-items:center;gap:10px;margin-bottom:20px;
+}
+.sec-num {
+  width:24px;height:24px;border-radius:50%;border:1px solid var(--rose);
+  display:flex;align-items:center;justify-content:center;
+  font-size:.6rem;font-weight:700;color:var(--rose);flex-shrink:0;
+}
+.sec-label {
+  font-size:.6rem;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:var(--rose);
+}
+
+/* ── FIELD ── */
+.field { margin-bottom:16px; }
+.field label {
+  display:block;font-size:.6rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--text-dim);margin-bottom:7px;
+}
+.field label .req { color:var(--rose); margin-left:2px; }
+input[type=text],input[type=tel],input[type=date],select,textarea {
+  width:100%;padding:12px 14px;background:var(--surface-2);
+  border:1px solid var(--border-soft);color:var(--text);
+  font-family:'Outfit',sans-serif;font-size:.84rem;outline:none;
+  transition:border-color .3s,box-shadow .3s;appearance:none;-webkit-appearance:none;
+}
+input:focus,select:focus,textarea:focus {
+  border-color:rgba(200,145,90,.5);box-shadow:0 0 0 3px rgba(200,145,90,.07);
+}
+textarea { resize:vertical;min-height:100px; }
+select { cursor:pointer;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(240,235,227,.4)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px; }
+select option { background:var(--surface-2);color:var(--text); }
+.field-hint { font-size:.66rem;color:var(--text-faint);margin-top:5px;line-height:1.5; }
+.field-row { display:grid;grid-template-columns:1fr 1fr;gap:14px; }
+@media(max-width:520px) { .field-row { grid-template-columns:1fr; } }
+
+/* ── PACKAGE GRID ── */
+.pkg-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;margin-bottom:4px; }
+.pkg-opt {
+  padding:16px;background:var(--surface-2);border:1px solid var(--border-soft);
+  cursor:pointer;position:relative;transition:border-color .3s,background .3s;
+  text-align:left;
+}
+.pkg-opt:hover { border-color:rgba(200,145,90,.3); }
+.pkg-opt.selected { border-color:var(--rose);background:var(--rose-glow); }
+.pkg-opt input[type=radio] { position:absolute;opacity:0;pointer-events:none; }
+.pkg-sel-ic {
+  width:16px;height:16px;border-radius:50%;border:1px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:center;margin-bottom:10px;
+  transition:all .3s;
+}
+.pkg-opt.selected .pkg-sel-ic { background:var(--rose);border-color:var(--rose); }
+.pkg-check-svg { width:9px;height:9px;opacity:0;stroke:var(--void);transition:opacity .2s; }
+.pkg-opt.selected .pkg-check-svg { opacity:1; }
+.pkg-name { font-size:.78rem;font-weight:600;color:var(--cream);margin-bottom:4px; }
+.pkg-price { font-size:1rem;font-weight:700;color:var(--rose);margin-bottom:4px; }
+.pkg-del {
+  font-size:.62rem;color:var(--text-faint);display:flex;align-items:center;gap:5px;
+}
+.pkg-del svg { flex-shrink:0; }
+.pkg-loading { font-size:.74rem;color:var(--text-dim);padding:10px 0; }
+#noPkgMsg {
+  display:none;align-items:center;gap:10px;padding:14px;
+  background:rgba(224,92,92,.06);border:1px solid rgba(224,92,92,.15);
+  font-size:.74rem;color:var(--err);margin-top:8px;
+}
+
+/* ── DELIVERY TYPE CARDS ── */
+.deliv-type-row { display:grid;grid-template-columns:1fr 1fr;gap:12px; }
+.deliv-card {
+  padding:16px;background:var(--surface-2);border:1px solid var(--border-soft);
+  cursor:pointer;transition:border-color .3s,background .3s;
+}
+.deliv-card.selected { border-color:var(--rose);background:var(--rose-glow); }
+.deliv-card-icon { width:32px;height:32px;margin-bottom:10px;color:var(--text-dim); }
+.deliv-card.selected .deliv-card-icon { color:var(--rose); }
+.deliv-card-title { font-size:.78rem;font-weight:600;color:var(--cream);margin-bottom:4px; }
+.deliv-card-sub   { font-size:.64rem;color:var(--text-faint);line-height:1.5; }
+@media(max-width:420px) { .deliv-type-row { grid-template-columns:1fr; } }
+
+/* ── FEE CALC ── */
+.fee-calc { display:none;align-items:center;gap:8px;font-size:.7rem;color:var(--text-dim);padding:8px 0; }
+.fee-result { display:none;font-size:.72rem;color:var(--text-dim);padding:8px 12px;background:var(--rose-glow);border:1px solid var(--border-soft);margin-top:8px; }
+.fee-val { color:var(--rose);font-weight:600; }
+
+/* ── UPLOAD ZONE ── */
+.upload-zone {
+  border:1px dashed var(--border-soft);padding:24px;text-align:center;cursor:pointer;
+  transition:border-color .3s,background .3s;
+}
+.upload-zone:hover { border-color:rgba(200,145,90,.35);background:var(--rose-glow); }
+.upload-zone svg { display:block;margin:0 auto 10px;color:var(--text-faint); }
+.upload-zone-text { font-size:.72rem;color:var(--text-dim); }
+.upload-zone-hint { font-size:.62rem;color:var(--text-faint);margin-top:4px; }
+
+/* ── PRICE SUMMARY ── */
+.price-summary {
+  display:none;padding:20px;background:var(--surface);border:1px solid var(--border);
+  margin:24px 0;
+}
+.ps-label-head { font-size:.58rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--rose);margin-bottom:14px; }
+.ps-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-soft);font-size:.76rem; }
+.ps-row:last-child { border-bottom:none; }
+.ps-label { color:var(--text-dim); }
+.ps-val   { color:var(--cream);font-weight:500; }
+.ps-total .ps-label { color:var(--cream);font-weight:600; }
+.ps-total .ps-val   { color:var(--rose);font-size:.9rem;font-weight:700; }
+.ps-advance {
+  display:flex;align-items:center;gap:8px;margin-top:14px;
+  padding:10px 14px;background:var(--rose-dim);
+  font-size:.72rem;color:var(--rose);line-height:1.5;
+}
+.ps-advance svg { flex-shrink:0;color:var(--rose); }
+
+/* ── NOTICES ── */
+.notice {
+  display:flex;align-items:flex-start;gap:12px;padding:12px 16px;
+  font-size:.72rem;color:var(--text-dim);line-height:1.6;margin:16px 0;
+  background:var(--rose-glow);border:1px solid rgba(200,145,90,.12);
+}
+.notice-strong { color:var(--rose);font-weight:600; }
+
+/* ── FORM ALERTS ── */
+.form-alert {
+  display:none;align-items:flex-start;gap:10px;
+  padding:12px 16px;font-size:.74rem;line-height:1.6;margin-bottom:16px;
+}
+.form-alert.show { display:flex; }
+.form-alert.err { background:rgba(224,92,92,.06);border:1px solid rgba(224,92,92,.15);color:var(--err); }
+.form-alert.ok  { background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);color:var(--ok); }
+
+/* ── SUBMIT ── */
+.submit-wrap { margin-top:28px; }
+.submit-btn {
+  width:100%;padding:16px 24px;
+  background:linear-gradient(135deg,var(--rose),#b07840);
+  border:none;color:var(--void);
+  font-family:'Outfit',sans-serif;font-size:.78rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  transition:opacity .3s,transform .2s;position:relative;overflow:hidden;
+}
+.submit-btn::after {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.15),transparent);
+  background-size:200% 100%;animation:shimmer 2s linear infinite;
+}
+.submit-btn:hover:not(:disabled) { opacity:.9;transform:translateY(-1px); }
+.submit-btn:disabled { opacity:.5;cursor:not-allowed;transform:none; }
+.submit-note { font-size:.62rem;color:var(--text-faint);text-align:center;margin-top:10px;line-height:1.6; }
+.spin { width:13px;height:13px;border-radius:50%;border:2px solid rgba(0,0,0,.3);border-top-color:var(--void);display:inline-block;animation:spin .7s linear infinite; }
+</style>
+</head>
+<body>
+
+<div class="cur"     id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <a href="/index.html" class="nav-logo">Zorv<span>Ex</span></a>
+  <div class="nav-right" id="navAuth"></div>
+</nav>
+
+<!-- ═══ PAGE WRAP ═══ -->
+<div class="page-wrap">
+
+  <!-- Page heading -->
+  <div class="page-eyebrow">
+    <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M11 2 14 5 5 14H2v-3L11 2Z"/>
+    </svg>
+    New Commission
+  </div>
+  <h1 class="page-title">Commission Your <em>Artwork</em></h1>
+  <p class="page-sub">Fill in the details below to send a commission request to your chosen artist. Admin will review and forward it.</p>
+
+  <!-- Artist lock banner — shown after artist loads -->
+  <div class="artist-lock" id="artistLock">
+    <div class="lock-av" id="alAv">A</div>
+    <div class="lock-info">
+      <div class="lock-name" id="alName">—</div>
+      <div class="lock-sub"  id="alSub">—</div>
+    </div>
+    <div class="lock-badge">Locked In</div>
+  </div>
+
+  <!-- ── SECTION 1: Choose Package ── -->
+  <div class="form-section" id="sec1">
+    <div class="sec-head">
+      <div class="sec-num">1</div>
+      <div class="sec-label">Choose a Package</div>
+    </div>
+    <div class="pkg-loading" id="pkgLoading">Loading artist packages…</div>
+    <div class="pkg-grid" id="pkgGrid" style="display:none;"></div>
+    <div id="noPkgMsg">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5h.01"/></svg>
+      This artist has not configured pricing packages yet.
+    </div>
+  </div>
+
+  <!-- ── SECTION 2: Commission Details ── -->
+  <div class="form-section" id="sec2">
+    <div class="sec-head">
+      <div class="sec-num">2</div>
+      <div class="sec-label">Commission Details</div>
+    </div>
+    <div class="field">
+      <label for="catSelect">Category <span class="req">*</span></label>
+      <select id="catSelect">
+        <option value="">Select a category…</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="subcat">Sub-Category / Style</label>
+      <input type="text" id="subcat" placeholder="e.g. Realistic, Minimalist, Vintage…" maxlength="80">
+    </div>
+    <div class="field">
+      <label for="desc">Description <span class="req">*</span></label>
+      <textarea id="desc" placeholder="Describe your vision in detail — subject, mood, size, any references. Minimum 20 characters." maxlength="1000"></textarea>
+      <div class="field-hint">The more detail you provide, the better your artist can serve you.</div>
+    </div>
+    <div class="field">
+      <label for="deadline">Deadline <span class="req">*</span></label>
+      <input type="date" id="deadline">
+    </div>
+  </div>
+
+  <!-- ── SECTION 3: Delivery Type ── -->
+  <div class="form-section" id="sec3">
+    <div class="sec-head">
+      <div class="sec-num">3</div>
+      <div class="sec-label">Delivery Type</div>
+    </div>
+    <div class="deliv-type-row">
+      <div class="deliv-card selected" id="dtDigital" onclick="selectDelivType('digital')">
+        <svg class="deliv-card-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="4" y="6" width="24" height="18" rx="2"/>
+          <path d="M16 24v2M11 28h10"/>
+          <path d="M11 14l3 3 7-7"/>
+        </svg>
+        <div class="deliv-card-title">Digital File</div>
+        <div class="deliv-card-sub">High-res artwork delivered securely in-app. View-once download.</div>
+      </div>
+      <div class="deliv-card" id="dtPhysical" onclick="selectDelivType('physical')">
+        <svg class="deliv-card-icon" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.4">
+          <rect x="3" y="10" width="26" height="18" rx="1"/>
+          <path d="M10 10V7a6 6 0 0 1 12 0v3"/>
+          <path d="M3 15h26"/>
+        </svg>
+        <div class="deliv-card-title">Physical Delivery</div>
+        <div class="deliv-card-sub">Printed or painted artwork shipped to your door via India Post.</div>
+      </div>
+    </div>
+
+    <!-- Physical delivery address (shown only for physical) -->
+    <div id="delivSection" style="display:none;margin-top:20px;">
+      <div style="font-size:.6rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:14px;">
+        Delivery Address
+      </div>
+      <div id="savedAddrSlot" style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dName">Recipient Name <span class="req">*</span></label>
+          <input type="text" id="dName" placeholder="Full name" autocomplete="name">
+        </div>
+        <div class="field">
+          <label for="dPhone">Recipient Phone <span class="req">*</span></label>
+          <input type="tel" id="dPhone" placeholder="10-digit number" maxlength="10" autocomplete="tel">
+        </div>
+      </div>
+      <div class="field">
+        <label for="dAddr">Address Line <span class="req">*</span></label>
+        <input type="text" id="dAddr" placeholder="House no., street, area…" autocomplete="street-address">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="dCity">City <span class="req">*</span></label>
+          <input type="text" id="dCity" placeholder="City" autocomplete="address-level2">
+        </div>
+        <div class="field">
+          <label for="dState">State <span class="req">*</span></label>
+          <input type="text" id="dState" placeholder="State" value="Kerala" autocomplete="address-level1">
+        </div>
+      </div>
+      <div class="field">
+        <label for="dPin">Pincode <span class="req">*</span></label>
+        <input type="text" id="dPin" placeholder="6-digit pincode" maxlength="6" inputmode="numeric" oninput="onPincodeChange()">
+        <div class="fee-calc" id="feeCalc">
+          <span class="spin" style="border-top-color:var(--text-dim);"></span>
+          Calculating delivery fee…
+        </div>
+        <div class="fee-result" id="feeResult"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SECTION 4: Contact & Reference ── -->
+  <div class="form-section" id="sec4">
+    <div class="sec-head">
+      <div class="sec-num" id="secNum">4</div>
+      <div class="sec-label">Contact & Reference</div>
+    </div>
+    <div class="field">
+      <label for="bPhone">Your WhatsApp / Mobile Number <span class="req">*</span></label>
+      <input type="tel" id="bPhone" placeholder="10-digit number" maxlength="10" inputmode="numeric">
+      <div class="field-hint">Used only for order coordination. Never shared publicly.</div>
+    </div>
+    <div class="field">
+      <label for="refFile">Reference Image <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
+      <label for="refFile" class="upload-zone">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+        <div class="upload-zone-text">Click or drag to upload a reference image</div>
+        <div class="upload-zone-hint">JPG, PNG, WebP — max 5 MB</div>
+      </label>
+      <input type="file" id="refFile" accept="image/*" style="display:none;" onchange="onRefFile(event)">
+      <div id="refPreview"></div>
+    </div>
+  </div>
+
+  <!-- Price Summary -->
+  <div class="price-summary" id="priceSummary">
+    <div class="ps-label-head">Order Summary</div>
+    <div class="ps-row"><span class="ps-label">Base Price</span><span class="ps-val" id="psBase">—</span></div>
+    <div class="ps-row"><span class="ps-label">Platform Commission (10%)</span><span class="ps-val" id="psComm">—</span></div>
+    <div class="ps-row" id="psDelRow" style="display:none;"><span class="ps-label">Delivery Fee</span><span class="ps-val" id="psDel">—</span></div>
+    <div class="ps-row ps-total"><span class="ps-label">Total</span><span class="ps-val" id="psTotal">—</span></div>
+    <div class="ps-advance">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1ZM6.5 10.9 4 8.4l1.1-1.1 1.4 1.4 3.4-3.4L11 6.4l-4.5 4.5Z"/></svg>
+      <span id="psAdvance">Advance required (50%): ₹—</span>
+    </div>
+  </div>
+
+  <!-- Email notice -->
+  <div class="notice">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" style="flex-shrink:0;margin-top:2px;color:var(--rose)">
+      <rect x="2" y="4" width="12" height="9" rx="1"/>
+      <path d="m2 4 6 5 6-5"/>
+    </svg>
+    <span>
+      <span class="notice-strong">Note:</span> Notifications and order updates will be sent to your registered email after placement.
+    </span>
+  </div>
+
+  <!-- Form alerts -->
+  <div class="form-alert err" id="formErr">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;margin-top:1px;"><circle cx="8" cy="8" r="7"/><path d="M8 5v3M8 10h.01"/></svg>
+    <span id="formErrText">—</span>
+  </div>
+  <div class="form-alert ok" id="formOk">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="flex-shrink:0;margin-top:1px;"><path d="m3 8 4 4 6-8"/></svg>
+    <span id="formOkText">—</span>
+  </div>
+
+  <!-- Submit -->
+  <div class="submit-wrap">
+    <button class="submit-btn" id="submitBtn" onclick="submitOrder()">
+      <span id="submitText">
+        Send Commission Request
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M2 7h10M8 3l4 4-4 4"/>
+        </svg>
+      </span>
+    </button>
+    <div class="submit-note">By submitting, you agree to pay 50% advance after artist acceptance. No cancellations after advance payment.</div>
+  </div>
+
+</div><!-- /page-wrap -->
+
+<script src="/zorvex-api.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════════════════
+   CURSOR
+══════════════════════════════ */
+const cur = document.getElementById('cur');
+const curRing = document.getElementById('curRing');
+if (cur && curRing) {
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+    curRing.style.left = e.clientX + 'px';
+    curRing.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a,button,.pkg-opt,.deliv-card,.upload-zone,select,input,textarea').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.classList.add('hover'); curRing.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { cur.classList.remove('hover'); curRing.classList.remove('hover'); });
+  });
+}
+
+/* ══════════════════════════════
+   SCROLL REVEAL
+══════════════════════════════ */
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(x => {
+    if (x.isIntersecting) { x.target.classList.add('visible'); revObs.unobserve(x.target); }
+  });
+}, { threshold:.08 });
+document.querySelectorAll('.form-section').forEach(el => revObs.observe(el));
+
+/* ══════════════════════════════
+   AUTH GUARD
+══════════════════════════════ */
+if (!ZX.auth.isLoggedIn()) {
+  window.location.href = '/login.html?redirect=' + encodeURIComponent(window.location.href);
+}
+const user = ZX.auth.getUser();
+if (user?.role === 'artist' || user?.role === 'admin') {
+  window.location.href = user.role === 'artist' ? '/dashboard-artist.html' : '/dashboard-admin.html';
+}
+ZX.buildNavAuth('navAuth');
+
+/* ══════════════════════════════
+   URL PARAMS
+══════════════════════════════ */
+const params   = new URLSearchParams(window.location.search);
+const artistId = params.get('artist');
+
+// Minimum deadline: tomorrow
+const minDate = new Date();
+minDate.setDate(minDate.getDate() + 1);
+document.getElementById('deadline').min = minDate.toISOString().split('T')[0];
+
+/* ══════════════════════════════
+   STATE
+   Phase 7 fix: _selectedTierName, _selectedTierFormat, _selectedTierId
+   stored so they can be sent in selectedTier payload correctly.
+══════════════════════════════ */
+let _artistProfile     = null;  // data.artist (Phase 5 fix: was data.profile)
+let _artistUserId      = null;  // the User ID of the artist
+let _selectedTierId    = null;
+let _selectedTierName  = '';
+let _selectedTierFormat = '';
+let _selectedPkgPrice  = 0;
+let _delivType         = 'digital';
+let _refImageData      = null;
+let _deliveryFee       = 0;
+let _feeTimeout        = null;
+
+/* ══════════════════════════════
+   DELIVERY TYPE SELECTION
+══════════════════════════════ */
+function selectDelivType(type) {
+  _delivType = type;
+  document.getElementById('dtDigital').classList.toggle('selected',  type === 'digital');
+  document.getElementById('dtPhysical').classList.toggle('selected', type === 'physical');
+
+  const delivSection = document.getElementById('delivSection');
+  const secNum       = document.getElementById('secNum');
+
+  if (type === 'physical') {
+    delivSection.style.display = 'block';
+    secNum.textContent = '4';
+    ZX.addresses.renderSavedPicker('savedAddrSlot');
+    // Re-calculate fee if pincode already entered
+    const pin = document.getElementById('dPin').value.trim();
+    if (pin.length === 6) onPincodeChange();
+  } else {
+    delivSection.style.display = 'none';
+    secNum.textContent = '3';
+    _deliveryFee = 0;
+    updatePriceSummary();
+  }
+}
+
+/* ══════════════════════════════
+   LOAD ARTIST & PACKAGES
+   Phase 7 fix: data.artist (not data.profile)
+   Phase 7 fix: categories is array of strings not objects
+   Phase 7 fix: _artistUserId set from artist.user._id
+══════════════════════════════ */
+async function init() {
+  if (!artistId) {
+    document.getElementById('pkgLoading').innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-right:6px;">
+        <circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5h.01"/>
+      </svg>
+      No artist selected. Please <a href="/browse.html" style="color:var(--rose)">choose an artist</a> first.`;
+    document.getElementById('submitBtn').disabled = true;
+    return;
+  }
+
+  try {
+    // Phase 7 fix: backend returns { artist, reviews } — was { profile }
+    const data = await ZX.artists.get(artistId);
+    _artistProfile = data.artist;
+
+    // The artist User ID — needed for the order payload
+    // GET /artists/:id can be called with either ArtistProfile _id or User _id
+    // artist.user._id is the User ObjectId we send as artistId in the order
+    _artistUserId = _artistProfile.user?._id || _artistProfile.user || artistId;
+
+    // Show artist lock banner
+    const lock = document.getElementById('artistLock');
+    lock.classList.add('show');
+    document.getElementById('alAv').textContent =
+      (_artistProfile.displayName || _artistProfile.user?.name || 'A')[0].toUpperCase();
+    document.getElementById('alName').textContent =
+      _artistProfile.displayName || _artistProfile.user?.name || 'Artist';
+    // Phase 7 fix: p.speciality does not exist — use tags array
+    const tagLabel = (_artistProfile.tags || []).slice(0, 2).join(', ') || '';
+    document.getElementById('alSub').textContent =
+      [tagLabel, _artistProfile.location?.city].filter(Boolean).join(' · ') || 'Kerala';
+
+    // Load pricing packages
+    const tiers       = _artistProfile.pricingTiers || [];
+    const pkgGrid     = document.getElementById('pkgGrid');
+    const pkgLoading  = document.getElementById('pkgLoading');
+    pkgLoading.style.display = 'none';
+
+    if (!tiers.length) {
+      document.getElementById('noPkgMsg').style.display = 'flex';
+      document.getElementById('submitBtn').disabled = true;
+      return;
+    }
+
+    pkgGrid.style.display = 'grid';
+    pkgGrid.innerHTML = tiers.map(t => `
+      <div class="pkg-opt" id="pkg_${t._id}"
+        onclick="selectPkg('${t._id}', ${t.price}, '${(t.name||'').replace(/'/g,"\\'")}', '${(t.format||'').replace(/'/g,"\\'")}')">
+        <input type="radio" name="pkg" value="${t._id}">
+        <div class="pkg-sel-ic">
+          <svg class="pkg-check-svg" viewBox="0 0 10 10" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M2 5l2.5 2.5L8 3"/>
+          </svg>
+        </div>
+        <div class="pkg-name">${t.name}</div>
+        <div class="pkg-price">₹${(t.price||0).toLocaleString('en-IN')}</div>
+        <div class="pkg-del">
+          <svg width="11" height="11" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+            <circle cx="8" cy="8" r="6"/><path d="M8 5v3l2 2"/>
+          </svg>
+          ${t.delivery || '—'}
+        </div>
+      </div>`).join('');
+
+    // Auto-select first package
+    if (tiers.length) {
+      selectPkg(tiers[0]._id, tiers[0].price, tiers[0].name || '', tiers[0].format || '');
+    }
+
+    // Phase 7 fix: categories is array of strings, not objects with .name
+    const cats   = _artistProfile.categories || [];
+    const catSel = document.getElementById('catSelect');
+    if (cats.length) {
+      catSel.innerHTML = `<option value="">Select a category…</option>` +
+        cats.map(c => `<option value="${c}">${c.charAt(0).toUpperCase() + c.slice(1)}</option>`).join('');
+    }
+
+    // Pre-fill buyer phone from user profile
+    if (user?.phone) {
+      document.getElementById('bPhone').value = user.phone;
+    }
+
+  } catch (e) {
+    document.getElementById('pkgLoading').innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="var(--err)" stroke-width="1.5" style="display:inline;vertical-align:middle;margin-right:6px;">
+        <circle cx="8" cy="8" r="7"/><path d="M8 5v4M8 11h.01"/>
+      </svg>
+      Failed to load artist: ${e.message}`;
+    document.getElementById('submitBtn').disabled = true;
+  }
+}
+
+/* ══════════════════════════════
+   PACKAGE SELECTION
+   Phase 7 fix: stores name and format for payload
+══════════════════════════════ */
+function selectPkg(id, price, name, format) {
+  document.querySelectorAll('.pkg-opt').forEach(el => el.classList.remove('selected'));
+  document.getElementById('pkg_' + id)?.classList.add('selected');
+  _selectedTierId    = id;
+  _selectedPkgPrice  = price;
+  _selectedTierName  = name || '';
+  _selectedTierFormat = format || '';
+  updatePriceSummary();
+}
+
+/* ══════════════════════════════
+   PRICE SUMMARY
+══════════════════════════════ */
+function updatePriceSummary() {
+  if (!_selectedPkgPrice) return;
+  const base  = _selectedPkgPrice;
+  const comm  = Math.round(base * 0.1);
+  const total = base + comm + _deliveryFee;
+  const adv   = Math.round(total * 0.5);
+
+  document.getElementById('priceSummary').style.display = 'block';
+  document.getElementById('psBase').textContent  = '₹' + base.toLocaleString('en-IN');
+  document.getElementById('psComm').textContent  = '₹' + comm.toLocaleString('en-IN');
+  document.getElementById('psTotal').textContent = '₹' + total.toLocaleString('en-IN');
+  document.getElementById('psAdvance').textContent = 'Advance required (50%): ₹' + adv.toLocaleString('en-IN');
+
+  if (_deliveryFee > 0) {
+    document.getElementById('psDelRow').style.display = 'flex';
+    document.getElementById('psDel').textContent = '₹' + _deliveryFee.toLocaleString('en-IN');
+  } else {
+    document.getElementById('psDelRow').style.display = 'none';
+  }
+}
+
+/* ══════════════════════════════
+   PINCODE → DELIVERY FEE
+══════════════════════════════ */
+function onPincodeChange() {
+  const pin = document.getElementById('dPin').value.trim();
+  if (pin.length !== 6 || !_artistProfile) return;
+
+  clearTimeout(_feeTimeout);
+  _feeTimeout = setTimeout(async () => {
+    const feeCalc   = document.getElementById('feeCalc');
+    const feeResult = document.getElementById('feeResult');
+
+    feeCalc.style.display = 'flex';
+    feeResult.style.display = 'none';
+
+    try {
+      const data = await ZX.orders.getDeliveryFee(pin, artistId);
+      _deliveryFee = data.fee || 0;
+      feeCalc.style.display   = 'none';
+      feeResult.style.display = 'block';
+      feeResult.innerHTML = `Estimated delivery fee: <span class="fee-val">₹${_deliveryFee.toLocaleString('en-IN')}</span>
+        <br><span style="font-size:.6rem;color:var(--text-faint);">${data.note || ''} · ${data.disclaimer || ''}</span>`;
+      updatePriceSummary();
+    } catch {
+      feeCalc.innerHTML = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 7v4M8 5h.01"/></svg>
+        Could not calculate fee. Standard rate will apply.`;
+      _deliveryFee = 120;
+      updatePriceSummary();
+    }
+  }, 700);
+}
+
+/* ══════════════════════════════
+   REFERENCE IMAGE
+══════════════════════════════ */
+function onRefFile(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  if (f.size > 5 * 1024 * 1024) { showErr('Image must be smaller than 5 MB.'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    _refImageData = ev.target.result;
+    const prev = document.getElementById('refPreview');
+    prev.style.display = 'block';
+    prev.innerHTML = `<img src="${_refImageData}" style="max-width:100%;max-height:180px;border:1px solid var(--border-soft);display:block;margin-top:8px;object-fit:contain;">
+      <div style="font-size:.62rem;color:var(--text-faint);margin-top:4px;">${f.name}</div>`;
+  };
+  reader.readAsDataURL(f);
+}
+
+/* ══════════════════════════════
+   ALERTS
+══════════════════════════════ */
+function showErr(msg) {
+  const el = document.getElementById('formErr');
+  document.getElementById('formErrText').textContent = msg;
+  el.classList.add('show');
+  document.getElementById('formOk').classList.remove('show');
+  el.scrollIntoView({ behavior:'smooth', block:'center' });
+}
+function showOk(msg) {
+  const el = document.getElementById('formOk');
+  document.getElementById('formOkText').textContent = msg;
+  el.classList.add('show');
+  document.getElementById('formErr').classList.remove('show');
+}
+function hideAlerts() {
+  document.getElementById('formErr').classList.remove('show');
+  document.getElementById('formOk').classList.remove('show');
+}
+
+/* ══════════════════════════════
+   SUBMIT ORDER
+   Phase 7 fixes:
+   - payload uses artistId (User ID) not artistProfileId
+   - deliveryAddress uses { name, phone, address, city, state, pincode }
+     (not recipientName / addressLine)
+   - selectedTier: { name, format, basePrice }
+   - categories are plain strings
+   - success reads data.orderId directly
+══════════════════════════════ */
+async function submitOrder() {
+  if (!artistId || !_artistProfile) {
+    return showErr('No artist selected. Please go back and choose an artist.');
+  }
+  if (!_selectedTierId) return showErr('Please select a package.');
+
+  const category = document.getElementById('catSelect').value;
+  if (!category) return showErr('Please select a category.');
+
+  const desc = document.getElementById('desc').value.trim();
+  if (!desc || desc.length < 20) {
+    return showErr('Please provide a detailed description (minimum 20 characters).');
+  }
+
+  const deadline = document.getElementById('deadline').value;
+  if (!deadline) return showErr('Please select a deadline date.');
+
+  const bPhone = document.getElementById('bPhone').value.trim();
+  if (!bPhone || !/^[6-9]\d{9}$/.test(bPhone)) {
+    return showErr('Please enter a valid 10-digit Indian mobile number.');
+  }
+
+  // Build delivery address for physical orders
+  let deliveryAddress = undefined;
+  if (_delivType === 'physical') {
+    const dName  = document.getElementById('dName').value.trim();
+    const dPhone = document.getElementById('dPhone').value.trim();
+    const dAddr  = document.getElementById('dAddr').value.trim();
+    const dCity  = document.getElementById('dCity').value.trim();
+    const dState = document.getElementById('dState').value.trim();
+    const dPin   = document.getElementById('dPin').value.trim();
+
+    if (!dName || !dPhone || !dAddr || !dCity || !dState || !dPin) {
+      return showErr('Please fill in all delivery address fields.');
+    }
+    if (!/^\d{6}$/.test(dPin)) {
+      return showErr('Please enter a valid 6-digit pincode.');
+    }
+
+    // Phase 7 fix: field names match Order.js schema exactly
+    // name (not recipientName), address (not addressLine)
+    deliveryAddress = {
+      name:    dName,
+      phone:   dPhone,
+      address: dAddr,
+      city:    dCity,
+      state:   dState,
+      pincode: dPin,
+    };
+  }
+
+  // Build payload
+  // Phase 7 fix: artistId is the User ObjectId (_artistUserId)
+  // Phase 7 fix: selectedTier has name, format, basePrice
+  const payload = {
+    artistId:        _artistUserId,
+    artistProfileId: _artistProfile._id,
+    category,
+    subCategory:     document.getElementById('subcat').value.trim() || '',
+    description:     desc,
+    deadline,
+    deliveryType:    _delivType,
+    selectedTier: {
+      name:      _selectedTierName,
+      format:    _selectedTierFormat,
+      basePrice: _selectedPkgPrice,
+    },
+    referenceImage:  _refImageData || null,
+    buyerPhone:      bPhone,
+    deliveryAddress,
+  };
+
+  const btn = document.getElementById('submitBtn');
+  const txt = document.getElementById('submitText');
+  btn.disabled = true;
+  txt.innerHTML = `<span class="spin"></span> Sending…`;
+  hideAlerts();
+
+  try {
+    // Phase 7 fix: backend returns { orderId, _id, pricing } (not data.order.orderId)
+    const data = await ZX.orders.create(payload);
+    showOk(`Commission request sent! Order reference: ${data.orderId || data._id?.slice(-8).toUpperCase()}. You will be notified by email when the artist responds.`);
+    btn.disabled = true;
+    txt.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M2 7l3.5 3.5L12 3"/>
+      </svg>
+      Request Sent`;
+    setTimeout(() => { window.location.href = '/dashboard-buyer.html'; }, 2400);
+  } catch (e) {
+    showErr(e.message || 'Failed to submit order. Please try again.');
+    btn.disabled = false;
+    txt.innerHTML = `Send Commission Request <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 7h10M8 3l4 4-4 4"/></svg>`;
+  }
+}
+
+/* ══════════════════════════════
+   INIT
+══════════════════════════════ */
+init();
+</script>
+</body>
+</html>

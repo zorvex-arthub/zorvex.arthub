@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Detail — ZorvEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<style>
+/* ══════════════════════════════════════════════
+   EMPIRE DESIGN SYSTEM — ZorvEx Order Detail
+══════════════════════════════════════════════ */
+:root {
+  --void:        #07080c;
+  --surface:     #0e1018;
+  --surface-2:   #141620;
+  --surface-3:   #1a1d2a;
+  --rose:        #c8915a;
+  --rose-light:  #e0ae7f;
+  --rose-dim:    rgba(200,145,90,.12);
+  --rose-glow:   rgba(200,145,90,.06);
+  --cream:       #f0ebe3;
+  --text:        rgba(240,235,227,.88);
+  --text-dim:    rgba(240,235,227,.48);
+  --text-faint:  rgba(240,235,227,.22);
+  --border:      rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  --ok:          #22c55e;
+  --err:         #e05c5c;
+  --warn:        #f59e0b;
+  --blue:        #3b82f6;
+  --purple:      #8b5cf6;
+  --nav-h:       58px;
+  --ease:        cubic-bezier(.25,.46,.45,.94);
+  --ease-out:    cubic-bezier(0,0,.2,1);
+}
+*,*::before,*::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; scroll-behavior:smooth; }
+body {
+  background:var(--void); color:var(--text);
+  font-family:'Outfit',sans-serif; min-height:100vh;
+  overflow-x:hidden; -webkit-font-smoothing:antialiased;
+}
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:9997; opacity:.028;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+@media (pointer:fine) {
+  body { cursor:none; }
+  .cur { width:8px;height:8px;background:var(--rose);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s,width .2s,height .2s; }
+  .cur-ring { width:38px;height:38px;border:1px solid rgba(200,145,90,.4);border-radius:50%;position:fixed;top:0;left:0;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:transform .32s var(--ease),width .3s,height .3s,opacity .3s; }
+  .cur.hover { width:14px;height:14px; }
+  .cur-ring.hover { width:54px;height:54px;opacity:.5; }
+}
+@keyframes fadeUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes spin     { to{transform:rotate(360deg)} }
+@keyframes goldFill { from { stroke-dashoffset:var(--dl,400); } to { stroke-dashoffset:0; } }
+@keyframes nodePop  { 0%{transform:scale(0) rotate(-90deg);opacity:0} 60%{transform:scale(1.2) rotate(5deg)} 100%{transform:scale(1) rotate(0deg);opacity:1} }
+@keyframes glowPulse{ 0%,100%{box-shadow:0 0 0 0 rgba(200,145,90,0)} 50%{box-shadow:0 0 28px 8px rgba(200,145,90,.18)} }
+@keyframes shimmer  { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes unlock   { 0%{transform:scale(.8) rotate(-10deg);opacity:0} 60%{transform:scale(1.15) rotate(3deg)} 100%{transform:scale(1) rotate(0);opacity:1} }
+
+/* ── TOPBAR ── */
+.topbar {
+  position:fixed;top:0;left:0;right:0;z-index:900;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 clamp(14px,3vw,36px);
+  background:rgba(7,8,12,.94);backdrop-filter:blur(20px) saturate(1.4);
+  border-bottom:1px solid var(--border-soft);animation:fadeUp .5s var(--ease) both;
+}
+.nav-logo {
+  font-family:'Playfair Display',serif;font-size:clamp(1rem,2vw,1.25rem);
+  font-weight:700;color:var(--cream);text-decoration:none;letter-spacing:.04em;
+}
+.nav-logo span { color:var(--rose); }
+.nav-back {
+  display:flex;align-items:center;gap:6px;padding:6px 12px;
+  background:transparent;border:1px solid var(--border-soft);
+  color:var(--text-dim);font-family:'Outfit',sans-serif;font-size:.64rem;
+  font-weight:500;letter-spacing:.06em;cursor:pointer;transition:all .3s;
+}
+.nav-back:hover { border-color:var(--border);color:var(--text); }
+.nav-right { display:flex;align-items:center;gap:10px; }
+.nav-badge {
+  padding:4px 12px;font-size:.58rem;font-weight:600;letter-spacing:.14em;
+  text-transform:uppercase;border:1px solid;
+}
+
+/* ── PAGE WRAP ── */
+.page-wrap {
+  padding:calc(var(--nav-h) + 32px) clamp(14px,3vw,32px) 80px;
+  max-width:1100px; margin:0 auto;
+}
+
+/* ── PAGE HEADER ── */
+.page-header {
+  margin-bottom:28px; opacity:0;
+}
+.page-header-top {
+  display:flex;align-items:flex-start;justify-content:space-between;gap:16px;flex-wrap:wrap;
+  margin-bottom:8px;
+}
+.order-title {
+  font-family:'Playfair Display',serif;font-size:clamp(1.3rem,2.5vw,1.7rem);
+  font-weight:700;color:var(--cream);line-height:1.2;
+}
+.order-title em { color:var(--rose);font-style:italic; }
+.order-meta-row {
+  display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  font-size:.66rem;color:var(--text-faint);
+}
+.order-meta-row span { display:flex;align-items:center;gap:5px; }
+
+/* ── PAGE GRID ── */
+.page-grid {
+  display:grid;
+  grid-template-columns:1fr 320px;
+  gap:20px;align-items:start;
+}
+@media(max-width:768px) { .page-grid { grid-template-columns:1fr; } }
+
+/* ── CARDS ── */
+.card {
+  background:var(--surface);border:1px solid var(--border-soft);
+  margin-bottom:16px;opacity:0;transition:border-color .3s;
+}
+.card:hover { border-color:var(--border); }
+.card-head {
+  padding:14px 20px;border-bottom:1px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-title {
+  font-size:.6rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--rose);display:flex;align-items:center;gap:8px;
+}
+.card-title svg { width:13px;height:13px; }
+.card-body { padding:20px; }
+
+/* ── DETAIL GRID ── */
+.detail-grid {
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;
+}
+.detail-item { }
+.detail-label { font-size:.58rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:4px; }
+.detail-val   { font-size:.82rem;color:var(--cream);line-height:1.4; }
+.detail-val-accent { color:var(--rose);font-weight:600; }
+.gold-line { height:1px;background:linear-gradient(90deg,transparent,var(--rose),transparent);margin:18px 0; }
+
+/* ── TIMELINE ── */
+.timeline-wrap { position:relative; }
+.tl-track {
+  position:absolute;left:18px;top:0;bottom:0;width:1px;
+  background:var(--border-soft);
+}
+.tl-fill {
+  width:100%;background:linear-gradient(to bottom,var(--rose),rgba(200,145,90,.3));
+  height:0;transition:height 1.2s var(--ease-out);
+}
+.tl-step {
+  display:flex;align-items:flex-start;gap:16px;
+  padding:14px 0;position:relative;
+  animation:fadeUp .45s var(--ease) both;
+}
+.tl-node-wrap { position:relative;z-index:1;flex-shrink:0; }
+.tl-node {
+  width:37px;height:37px;border-radius:50%;
+  background:var(--surface-2);border:1px solid var(--border-soft);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;transition:all .4s;
+}
+.tl-node svg { width:14px;height:14px;color:var(--text-faint);transition:color .4s; }
+.tl-node-svg {
+  position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);
+  border-radius:50%;pointer-events:none;
+}
+.tl-node-circle {
+  fill:none;stroke:rgba(200,145,90,.25);stroke-width:1.5;
+  stroke-dasharray:113;stroke-dashoffset:113;
+  transition:stroke-dashoffset 0.8s var(--ease-out);
+}
+.tl-step.done   .tl-node { background:rgba(200,145,90,.1);border-color:rgba(200,145,90,.3); }
+.tl-step.done   .tl-node svg { color:var(--rose); }
+.tl-step.done   .tl-node-circle { stroke:var(--rose); }
+.tl-step.active .tl-node { background:var(--rose-dim);border-color:var(--rose);animation:glowPulse 3s ease-in-out infinite; }
+.tl-step.active .tl-node svg { color:var(--rose); }
+.tl-step.active .tl-node-circle { stroke:var(--rose); }
+.tl-step.rejected .tl-node { background:rgba(224,92,92,.06);border-color:rgba(224,92,92,.3); }
+.tl-step.rejected .tl-node svg { color:var(--err); }
+.tl-content { flex:1; padding-top:7px; }
+.tl-title { font-size:.78rem;font-weight:600;color:var(--text-dim);margin-bottom:2px;transition:color .4s; }
+.tl-step.done   .tl-title { color:var(--cream); }
+.tl-step.active .tl-title { color:var(--rose); }
+.tl-step.rejected .tl-title { color:var(--err); }
+.tl-sub  { font-size:.66rem;color:var(--text-faint);line-height:1.5; }
+.tl-time { font-size:.6rem;color:var(--rose);margin-top:4px; }
+
+/* ── DIGITAL VAULT ── */
+.digital-vault { position:relative;min-height:200px; }
+.vault-locked  { padding:32px 24px;text-align:center; }
+.lock-icon-wrap {
+  width:64px;height:64px;border-radius:50%;
+  background:var(--rose-dim);border:1px solid rgba(200,145,90,.2);
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 16px;animation:glowPulse 3s ease-in-out infinite;
+  position:relative;
+}
+.lock-ring {
+  position:absolute;inset:-8px;border-radius:50%;
+  border:1px dashed rgba(200,145,90,.2);animation:rotateSlow 8s linear infinite;
+}
+@keyframes rotateSlow { to { transform:rotate(360deg); } }
+.vault-title { font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:600;color:var(--cream);margin-bottom:8px; }
+.vault-sub   { font-size:.74rem;color:var(--text-dim);max-width:360px;margin:0 auto 16px;line-height:1.7; }
+.vault-warn  {
+  display:flex;align-items:flex-start;gap:8px;padding:10px 14px;
+  background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);
+  font-size:.66rem;color:var(--warn);max-width:400px;margin:0 auto 20px;
+  line-height:1.5;text-align:left;
+}
+.btn-unlock {
+  padding:12px 24px;background:var(--rose);color:var(--void);border:none;
+  font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;cursor:pointer;
+  transition:background .3s;
+}
+.btn-unlock:hover { background:var(--rose-light); }
+.vault-anim-overlay {
+  position:absolute;inset:0;background:var(--void);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;z-index:10;transition:opacity .3s;
+}
+.vault-anim-overlay.show { opacity:1;pointer-events:all; }
+.unlock-svg-wrap { width:80px;height:80px; }
+.vault-unlocked { display:none;padding:22px; }
+.vault-unlocked.show { display:block;animation:fadeUp .5s var(--ease-out) both; }
+.vault-artwork { width:100%;max-height:360px;object-fit:contain;display:block;border:1px solid var(--border-soft);margin-bottom:14px; }
+.vault-footer {
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 0;border-top:1px solid var(--border-soft);
+  margin-top:10px;font-size:.62rem;color:var(--text-faint);
+}
+.vault-viewed-tag {
+  padding:3px 10px;background:rgba(200,145,90,.1);border:1px solid rgba(200,145,90,.25);
+  color:var(--rose);font-size:.58rem;letter-spacing:.1em;text-transform:uppercase;
+}
+
+/* ── CHAT ── */
+.chat-window { border:1px solid var(--border-soft);display:flex;flex-direction:column;height:360px;overflow:hidden; }
+.chat-warn-bar { padding:8px 14px;background:rgba(200,145,90,.04);border-bottom:1px solid rgba(200,145,90,.1);font-size:.6rem;color:rgba(200,145,90,.55);display:flex;align-items:center;gap:7px; }
+.chat-msgs { flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px; }
+.chat-msgs::-webkit-scrollbar { width:3px; }
+.chat-msgs::-webkit-scrollbar-thumb { background:var(--border); }
+.msg { max-width:75%;padding:10px 14px;font-size:.74rem;line-height:1.6;border:1px solid;word-break:break-word; }
+.msg-me   { align-self:flex-end;background:rgba(200,145,90,.08);border-color:rgba(200,145,90,.18); }
+.msg-them { align-self:flex-start;background:var(--surface-2);border-color:var(--border-soft); }
+.msg-warn { border-color:rgba(245,158,11,.3) !important; background:rgba(245,158,11,.06) !important; }
+.msg-time { font-size:.55rem;color:var(--text-faint);margin-top:4px;text-align:right; }
+.chat-bar { padding:10px;border-top:1px solid var(--border-soft);display:flex;gap:8px; }
+.chat-inp { flex:1;padding:9px 12px;background:var(--surface-2);border:1px solid var(--border-soft);color:var(--text);font-family:'Outfit',sans-serif;font-size:.74rem;outline:none;transition:border-color .3s; }
+.chat-inp:focus { border-color:rgba(200,145,90,.4); }
+.chat-send { padding:9px 16px;background:var(--rose);color:var(--void);border:none;font-family:'Outfit',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.06em;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .3s; }
+.chat-send:hover { background:var(--rose-light); }
+
+/* ── SIDEBAR CARDS ── */
+.sidebar-card { background:var(--surface);border:1px solid var(--border-soft);margin-bottom:14px;transition:border-color .3s;opacity:0; }
+.sidebar-card:hover { border-color:var(--border); }
+.sidebar-card-head { padding:12px 18px;border-bottom:1px solid var(--border-soft); }
+.sidebar-card-title { font-size:.6rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--rose);display:flex;align-items:center;gap:7px; }
+.sidebar-card-body  { padding:18px; }
+.artist-mini   { display:flex;align-items:center;gap:12px; }
+.artist-avatar { width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--rose),#9a6030);display:flex;align-items:center;justify-content:center;font-size:.85rem;color:var(--void);font-weight:700;flex-shrink:0;border:1px solid rgba(200,145,90,.3); }
+.artist-name   { font-size:.82rem;color:var(--cream);font-weight:500;margin-bottom:3px; }
+.artist-spec   { font-size:.66rem;color:var(--text-faint); }
+.action-btn { display:flex;align-items:center;gap:10px;width:100%;padding:13px 16px;background:transparent;border:1px solid var(--border-soft);color:var(--text);font-family:'Outfit',sans-serif;font-size:.72rem;font-weight:500;letter-spacing:.03em;cursor:pointer;transition:all .3s;text-align:left;margin-bottom:8px; }
+.action-btn:hover  { border-color:var(--rose);color:var(--rose);background:var(--rose-dim); }
+.action-btn svg    { width:14px;height:14px;flex-shrink:0; }
+.action-btn.danger { color:var(--err); }
+.action-btn.danger:hover { border-color:rgba(224,92,92,.5);background:rgba(224,92,92,.06);color:var(--err); }
+
+/* Pricing rows */
+.price-row { display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border-soft);font-size:.76rem; }
+.price-row:last-child { border-bottom:none; }
+.price-label { color:var(--text-dim); }
+.price-val   { color:var(--cream);font-weight:500; }
+.price-total .price-label { color:var(--cream);font-weight:600; }
+.price-total .price-val   { color:var(--rose);font-size:.88rem;font-weight:700; }
+
+/* Tracking banner */
+.track-banner {
+  padding:12px 16px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.15);
+  display:flex;align-items:center;gap:10px;margin-bottom:14px;
+}
+.track-banner-id   { font-size:.8rem;font-weight:600;color:var(--warn); }
+.track-banner-sub  { font-size:.64rem;color:var(--text-dim);margin-top:2px; }
+
+/* Review */
+.star-row { display:flex;gap:6px;margin-bottom:14px; }
+.star { width:28px;height:28px;cursor:pointer;color:var(--border);transition:color .2s,transform .2s; }
+.star.lit { color:var(--rose); }
+.star:hover { transform:scale(1.2); }
+.review-textarea { width:100%;padding:10px 13px;background:var(--surface-2);border:1px solid var(--border-soft);color:var(--text);font-family:'Outfit',sans-serif;font-size:.76rem;outline:none;resize:vertical;min-height:80px;transition:border-color .3s;margin-bottom:10px; }
+.review-textarea:focus { border-color:rgba(200,145,90,.4); }
+.btn-primary { display:inline-flex;align-items:center;gap:8px;padding:10px 22px;background:var(--rose);color:var(--void);font-family:'Outfit',sans-serif;font-size:.68rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;border:none;cursor:pointer;clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px));transition:background .3s; }
+.btn-primary:hover { background:var(--rose-light); }
+
+/* Loading */
+.spin { width:13px;height:13px;border-radius:50%;border:2px solid rgba(200,145,90,.3);border-top-color:var(--rose);display:inline-block;animation:spin .7s linear infinite; }
+.loading-state { padding:50px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;color:var(--text-faint);font-size:.72rem; }
+</style>
+</head>
+<body>
+
+<div class="cur"      id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ═══ TOPBAR ═══ -->
+<nav class="topbar">
+  <div style="display:flex;align-items:center;gap:16px;">
+    <a class="nav-logo" href="/index.html">Zorv<span>Ex</span></a>
+    <button class="nav-back" onclick="history.back()">
+      <svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m10 3-5 5 5 5"/></svg>
+      Back to Orders
+    </button>
+  </div>
+  <div class="nav-right">
+    <div class="nav-badge" id="navStatus" style="color:var(--rose);border-color:rgba(200,145,90,.3);">Loading…</div>
+  </div>
+</nav>
+
+<!-- ═══ PAGE WRAP ═══ -->
+<div class="page-wrap">
+
+  <!-- Loading state -->
+  <div id="loadState" class="loading-state">
+    <div class="spin"></div>
+    <div>Retrieving your commission…</div>
+  </div>
+
+  <!-- Main grid (hidden until loaded) -->
+  <div class="page-grid" id="pageGrid" style="display:none;">
+
+    <!-- ═══ LEFT COLUMN ═══ -->
+    <div>
+
+      <!-- Page header (inside left col for flow) -->
+      <div class="page-header" id="pageHeader">
+        <div class="page-header-top">
+          <h1 class="order-title" id="ordTitle">Loading…</h1>
+        </div>
+        <div class="order-meta-row" id="ordMeta">
+          <span id="metaId">—</span>
+          <span>·</span>
+          <span id="metaDate">—</span>
+          <span>·</span>
+          <span id="metaDelivery">—</span>
+        </div>
+      </div>
+
+      <!-- Commission Brief -->
+      <div class="card" id="detailCard">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3l3 3 3-3h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z"/></svg>
+            Commission Brief
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="detail-grid" id="detailGrid"></div>
+          <div class="gold-line"></div>
+          <div class="detail-label" style="margin-bottom:8px;">Description</div>
+          <div class="detail-val" style="line-height:1.8;font-size:.8rem;" id="detailDesc">—</div>
+          <div id="refImgWrap" style="display:none;margin-top:18px;">
+            <div class="detail-label" style="margin-bottom:8px;">Reference Image</div>
+            <img id="refImg" style="max-width:100%;max-height:280px;object-fit:contain;border:1px solid var(--border-soft);" alt="Reference">
+          </div>
+        </div>
+      </div>
+
+      <!-- Status Timeline -->
+      <div class="card" id="timelineCard">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v4l3 3"/></svg>
+            Order Timeline
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="timeline-wrap">
+            <div class="tl-track"><div class="tl-fill" id="tlFill"></div></div>
+            <div id="timelineInner"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Digital Delivery Card -->
+      <div class="card" id="digitalCard" style="display:none;">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1 15 14H1L8 1Z"/><path d="M8 7v2M8 11v.5"/></svg>
+            Digital Artwork Delivery
+          </div>
+        </div>
+        <div class="card-body" style="padding:0;">
+          <div class="digital-vault" id="digitalVault">
+            <div class="vault-locked" id="vaultLocked">
+              <div class="lock-icon-wrap">
+                <div class="lock-ring"></div>
+                <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--rose)" stroke-width="1.4">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                  <circle cx="12" cy="16" r="1.5" fill="var(--rose)" stroke="none"/>
+                </svg>
+              </div>
+              <div class="vault-title">Sealed Artwork Vault</div>
+              <div class="vault-sub">Your commission has been delivered. This is a view-once experience — once unlocked, the artwork cannot be accessed again.</div>
+              <div class="vault-warn">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1 15 14H1L8 1Z"/><path d="M8 6v4M8 11v1"/></svg>
+                <div>Ensure you are ready before proceeding. The file will be sealed permanently after your first view.</div>
+              </div>
+              <button class="btn-unlock" onclick="unlockVault()">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:6px;"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+                Reveal My Artwork
+              </button>
+            </div>
+            <div class="vault-anim-overlay" id="vaultAnim">
+              <div class="unlock-svg-wrap">
+                <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="40" cy="40" r="36" stroke="rgba(200,145,90,.2)" stroke-width="1"/>
+                  <circle id="unlockCircle" cx="40" cy="40" r="36" stroke="var(--rose)" stroke-width="1.5" stroke-dasharray="226" stroke-dashoffset="226" transform="rotate(-90 40 40)"/>
+                  <path id="unlockCheck" d="M24 40l12 12 20-22" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" opacity="0"/>
+                </svg>
+              </div>
+            </div>
+            <div class="vault-unlocked" id="vaultUnlocked">
+              <div style="padding:0 0 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border-soft);margin-bottom:18px;">
+                <div style="font-size:.65rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ok);">
+                  <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" style="display:inline-block;vertical-align:middle;margin-right:5px;"><path d="m3 8 4 4 6-8"/></svg>
+                  Artwork Received
+                </div>
+                <div class="vault-viewed-tag">Viewed</div>
+              </div>
+              <img id="artworkImg" class="vault-artwork" alt="Your commissioned artwork" src="">
+              <div class="vault-footer">
+                <span>This view is final. The file has been sealed.</span>
+                <span id="viewedAt" style="color:var(--text-faint);">—</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chat Section -->
+      <div class="card" id="chatCard" style="display:none;">
+        <div class="card-head">
+          <div class="card-title">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 2h12a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H5l-3 3V3a1 1 0 0 1 1-1Z"/></svg>
+            Commission Chat
+          </div>
+        </div>
+        <div class="chat-window">
+          <div class="chat-warn-bar">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1 15 14H1L8 1Z"/><path d="M8 6v4M8 11v1"/></svg>
+            Keep all communication on platform. Personal contact info is not allowed.
+          </div>
+          <div class="chat-msgs" id="chatMsgs">
+            <div class="loading-state" style="padding:20px;font-size:.68rem;"><div class="spin"></div><span>Loading messages…</span></div>
+          </div>
+          <div class="chat-bar">
+            <input class="chat-inp" id="chatInp" placeholder="Type your message…" onkeydown="if(event.key==='Enter')sendMsg()">
+            <button class="chat-send" onclick="sendMsg()">
+              <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2 1 8l5 2 2 5 6-13Z"/><path d="m6 10 3-3"/></svg>
+              Send
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /left col -->
+
+    <!-- ═══ RIGHT SIDEBAR ═══ -->
+    <div>
+
+      <!-- Pricing -->
+      <div class="sidebar-card" id="priceCard">
+        <div class="sidebar-card-head">
+          <div class="sidebar-card-title">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v8M6 6h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3"/></svg>
+            Pricing Breakdown
+          </div>
+        </div>
+        <div class="sidebar-card-body"><div id="priceRows"></div></div>
+      </div>
+
+      <!-- Artist Info -->
+      <div class="sidebar-card" id="artistCard">
+        <div class="sidebar-card-head">
+          <div class="sidebar-card-title">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2 14 5 5 14H2v-3L11 2Z"/></svg>
+            Your Artist
+          </div>
+        </div>
+        <div class="sidebar-card-body" id="artistBody"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="sidebar-card" id="actionsCard">
+        <div class="sidebar-card-head">
+          <div class="sidebar-card-title">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m13 2-9 9-3 1 1-3 9-9z"/></svg>
+            Actions
+          </div>
+        </div>
+        <div class="sidebar-card-body" id="actionsBody"></div>
+      </div>
+
+      <!-- Review (when delivered) -->
+      <div class="sidebar-card" id="reviewCard" style="display:none;">
+        <div class="sidebar-card-head">
+          <div class="sidebar-card-title">
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 1l1.8 3.7 4.1.6-3 2.9.7 4.1L8 10.4l-3.6 1.9.7-4.1-3-2.9 4.1-.6z"/></svg>
+            Leave a Review
+          </div>
+        </div>
+        <div class="sidebar-card-body">
+          <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:14px;line-height:1.6;">How was your experience with this artist?</div>
+          <div class="star-row" id="starRow">
+            <svg class="star" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" data-v="1" onclick="setStar(1)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" data-v="2" onclick="setStar(2)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" data-v="3" onclick="setStar(3)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" data-v="4" onclick="setStar(4)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+            <svg class="star" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5" fill="none" data-v="5" onclick="setStar(5)"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+          </div>
+          <textarea class="review-textarea" id="reviewText" placeholder="Describe your experience — quality, communication, timeliness…"></textarea>
+          <div id="reviewErr" style="display:none;font-size:.68rem;color:var(--err);margin-bottom:10px;"></div>
+          <button class="btn-primary" onclick="submitReview()" style="width:100%;justify-content:center;">Submit Review</button>
+        </div>
+      </div>
+
+    </div><!-- /right sidebar -->
+
+  </div><!-- /page-grid -->
+</div><!-- /page-wrap -->
+
+<script src="/zorvex-api.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════════════════
+   CURSOR
+══════════════════════════════ */
+(function() {
+  const c = document.getElementById('cur');
+  const r = document.getElementById('curRing');
+  if (!c) return;
+  document.addEventListener('mousemove', e => {
+    c.style.transform = `translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)`;
+    r.style.transform = `translate(${e.clientX}px,${e.clientY}px) translate(-50%,-50%)`;
+  });
+  document.querySelectorAll('button,a,[onclick]').forEach(el => {
+    el.addEventListener('mouseenter', () => { c.classList.add('hover'); r.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { c.classList.remove('hover'); r.classList.remove('hover'); });
+  });
+})();
+
+/* ══════════════════════════════
+   GUARD + INIT
+══════════════════════════════ */
+if (!ZX.guardRoute()) { /* redirects */ }
+const user = ZX.auth.getUser();
+
+const params   = new URLSearchParams(location.search);
+const ORDER_ID = params.get('id');
+if (!ORDER_ID) {
+  document.getElementById('loadState').innerHTML =
+    `<div style="color:var(--err);padding:20px;">No order ID in URL. Add <code>?id=YOUR_ORDER_ID</code>.</div>`;
+}
+
+let _order      = null;
+let _starRating = 0;
+
+/* ══════════════════════════════
+   TIMELINE CONFIG
+══════════════════════════════ */
+const ALL_STEPS_PHYSICAL = [
+  { key:'request_sent', icon:'<path d="M14 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3l3 3 3-3h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z"/>',                                                    label:'Request Sent',   sub:'Your commission request was submitted.' },
+  { key:'waiting',      icon:'<circle cx="8" cy="8" r="7"/><path d="M8 4v4l3 3"/>',                                                                                             label:'Waiting',        sub:'Pending admin review and artist assignment.' },
+  { key:'accepted',     icon:'<circle cx="8" cy="8" r="7"/><path d="m5 8 2 2 4-4"/>',                                                                                           label:'Accepted',       sub:'The artist accepted your commission.' },
+  { key:'advance_paid', icon:'<circle cx="8" cy="8" r="7"/><path d="M8 4v8M6 6h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3"/>',                                                          label:'Advance Paid',   sub:'50% advance payment confirmed.' },
+  { key:'in_progress',  icon:'<path d="M11 2 14 5 5 14H2v-3L11 2Z"/>',                                                                                                          label:'In Progress',    sub:'Your artwork is being crafted.' },
+  { key:'completed',    icon:'<rect x="1" y="3" width="14" height="10" rx="1"/><path d="M1 6h14"/>',                                                                             label:'Work Completed', sub:'Artist finished. Awaiting shipping.' },
+  { key:'shipped',      icon:'<rect x="1" y="8" width="14" height="7" rx="1"/><path d="M5 8V5a3 3 0 0 1 6 0v3"/><path d="M1 11h14"/>',                                          label:'Shipped',        sub:'Your artwork is on its way.' },
+  { key:'delivered',    icon:'<path d="m3 8 4 4 6-8"/>',                                                                                                                         label:'Delivered',      sub:'Artwork delivered. Enjoy your commission.' },
+];
+const ALL_STEPS_DIGITAL = [
+  { key:'request_sent', icon:'<path d="M14 2H2a1 1 0 0 0-1 1v7a1 1 0 0 0 1 1h3l3 3 3-3h3a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1Z"/>',                                                    label:'Request Sent',  sub:'Your commission request was submitted.' },
+  { key:'waiting',      icon:'<circle cx="8" cy="8" r="7"/><path d="M8 4v4l3 3"/>',                                                                                             label:'Waiting',       sub:'Pending admin review and artist assignment.' },
+  { key:'accepted',     icon:'<circle cx="8" cy="8" r="7"/><path d="m5 8 2 2 4-4"/>',                                                                                           label:'Accepted',      sub:'The artist accepted your commission.' },
+  { key:'advance_paid', icon:'<circle cx="8" cy="8" r="7"/><path d="M8 4v8M6 6h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3"/>',                                                          label:'Advance Paid',  sub:'50% advance payment confirmed.' },
+  { key:'in_progress',  icon:'<path d="M11 2 14 5 5 14H2v-3L11 2Z"/>',                                                                                                          label:'In Progress',   sub:'Your digital artwork is being created.' },
+  { key:'completed',    icon:'<path d="M8 1v8M5 6l3 3 3-3M2 11v2a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1v-2"/>',                                                                        label:'File Uploaded', sub:'Artist uploaded the artwork securely.' },
+  { key:'delivered',    icon:'<path d="m3 8 4 4 6-8"/>',                                                                                                                         label:'Delivered',     sub:'Digital artwork is ready in your vault.' },
+];
+const STATUS_ORDER = ['request_sent','waiting','accepted','advance_paid','in_progress','completed','shipped','delivered'];
+
+/* ══════════════════════════════
+   LOAD ORDER
+══════════════════════════════ */
+async function loadOrder() {
+  if (!ORDER_ID) return;
+  try {
+    const data = await ZX.orders.get(ORDER_ID);
+    _order = data.order || data;
+    renderOrder();
+  } catch(e) {
+    document.getElementById('loadState').innerHTML =
+      `<div style="color:var(--err);padding:20px;">Failed to load order: ${e.message}</div>`;
+  }
+}
+
+/* ══════════════════════════════
+   FORMATTERS
+══════════════════════════════ */
+function fmt(d) {
+  return d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}) : '—';
+}
+function fmtTime(d) {
+  return d ? new Date(d).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) : '—';
+}
+function rupees(n) { return '₹' + (n||0).toLocaleString('en-IN'); }
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+/* ══════════════════════════════
+   RENDER ORDER
+   Phase 7 fixes applied:
+   - o.orderId          (real field from Phase 2 Order.js)
+   - o.selectedTier.name (not o.pricingTierName)
+   - o.pricing.totalAmount / advanceAmount / remainingAmount / platformFee
+   - o.shipping.trackingId  (not o.trackingId)
+   - o.statusHistory    (not o.history)
+   - o.artist.name      (populated User doc — no displayName)
+══════════════════════════════ */
+function renderOrder() {
+  const o = _order;
+  const p = o.pricing || {};
+  const statusColor = ZX.STATUS_COLOR[o.status] || 'var(--rose)';
+
+  // Nav badge
+  const navBadge = document.getElementById('navStatus');
+  navBadge.textContent     = ZX.STATUS_LABEL[o.status] || o.status;
+  navBadge.style.color       = statusColor;
+  navBadge.style.borderColor = statusColor + '40';
+  navBadge.style.background  = statusColor + '12';
+
+  // Page header
+  // Phase 7 fix: use o.orderId (real field) with fallback to _id slice
+  const displayId = o.orderId || o._id?.slice(-8).toUpperCase() || '—';
+  document.getElementById('ordTitle').innerHTML =
+    `${esc(o.category || 'Commission')} <em>#${esc(displayId)}</em>`;
+  document.getElementById('metaId').textContent       = displayId;
+  document.getElementById('metaDate').textContent     = fmt(o.createdAt);
+  document.getElementById('metaDelivery').textContent = o.deliveryType === 'digital' ? 'Digital Delivery' : 'Physical Delivery';
+
+  // Detail grid
+  // Phase 7 fix: o.selectedTier.name (not o.pricingTierName)
+  const tierName = o.selectedTier?.name || '—';
+  document.getElementById('detailGrid').innerHTML = [
+    { label:'Category',     val: esc(o.category   || '—') },
+    { label:'Sub-Category', val: esc(o.subCategory || '—') },
+    { label:'Deadline',     val: fmt(o.deadline) },
+    { label:'Delivery',     val: o.deliveryType === 'digital' ? 'Digital File' : 'Physical Post' },
+    { label:'Package',      val: esc(tierName) },
+    { label:'Format',       val: esc(o.selectedTier?.format || '—') },
+  ].map(item => `
+    <div class="detail-item">
+      <div class="detail-label">${item.label}</div>
+      <div class="detail-val">${item.val}</div>
+    </div>`).join('');
+
+  document.getElementById('detailDesc').textContent = o.description || '—';
+
+  if (o.referenceImage) {
+    document.getElementById('refImgWrap').style.display = 'block';
+    document.getElementById('refImg').src = o.referenceImage;
+  }
+
+  // Pricing — Phase 7 fix: all canonical field names
+  document.getElementById('priceRows').innerHTML = [
+    { label:'Base Price',        val: rupees(p.basePrice) },
+    { label:'Platform Fee (10%)',val: rupees(p.platformFee) },
+    { label:'Delivery Fee',      val: o.deliveryType === 'digital' ? '₹0' : rupees(p.deliveryFee) },
+    { label:'Advance Paid',      val: o.payment?.advancePaid ? rupees(p.advanceAmount) : '—' },
+    { label:'Remaining',         val: rupees(p.remainingAmount) },
+  ].map(r => `<div class="price-row"><span class="price-label">${r.label}</span><span class="price-val">${r.val}</span></div>`).join('') +
+  `<div class="price-row price-total">
+    <span class="price-label">Total</span>
+    <span class="price-val detail-val-accent">${rupees(p.totalAmount)}</span>
+  </div>`;
+
+  // Artist — Phase 7 fix: artist is a User doc (.name, no .displayName)
+  const a = o.artist || {};
+  const artistName = a.name || 'Artist';
+  document.getElementById('artistBody').innerHTML = `
+    <div class="artist-mini">
+      <div class="artist-avatar">${artistName[0].toUpperCase()}</div>
+      <div>
+        <div class="artist-name">${esc(artistName)}</div>
+        <div class="artist-spec">${esc(o.category || 'Custom Commission')}</div>
+      </div>
+    </div>
+    ${o.artistProfile?.displayName ? `<div style="font-size:.64rem;color:var(--text-faint);margin-top:8px;">${esc(o.artistProfile.displayName)}</div>` : ''}`;
+
+  // Tracking banner (physical) — Phase 7 fix: o.shipping.trackingId (not o.trackingId)
+  if (o.deliveryType === 'physical' && o.shipping?.trackingId) {
+    const trackHtml = `
+      <div class="track-banner">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--warn)" stroke-width="1.5"><rect x="1" y="8" width="22" height="13" rx="1"/><path d="M1 13h22M16 8V6a4 4 0 0 0-8 0v2"/></svg>
+        <div>
+          <div class="track-banner-id">${esc(o.shipping.trackingId)}</div>
+          <div class="track-banner-sub">Shipped via ${esc(o.shipping.carrier || 'India Post')} · <a href="https://www.indiapost.gov.in" target="_blank" style="color:var(--rose);">Track on India Post →</a></div>
+        </div>
+      </div>`;
+    // Insert before priceCard
+    document.getElementById('priceCard').insertAdjacentHTML('beforebegin', trackHtml);
+  }
+
+  // Actions
+  renderActions();
+
+  // Timeline — Phase 7 fix: o.statusHistory (not o.history)
+  renderTimeline();
+
+  // Digital vault
+  if (o.deliveryType === 'digital' && ['completed','delivered'].includes(o.status)) {
+    document.getElementById('digitalCard').style.display = 'block';
+    if (o.artworkFile?.viewed) showAlreadyViewed();
+  }
+
+  // Chat
+  const chatableStatuses = ['accepted','advance_paid','in_progress','completed','shipped','delivered'];
+  if (chatableStatuses.includes(o.status)) {
+    document.getElementById('chatCard').style.display = 'block';
+    loadChat();
+  }
+
+  // Review
+  if (o.status === 'delivered' && !o.reviewLeft) {
+    document.getElementById('reviewCard').style.display = 'block';
+  }
+
+  // Show everything
+  document.getElementById('loadState').style.display   = 'none';
+  document.getElementById('pageGrid').style.display    = 'grid';
+  document.getElementById('pageHeader').style.opacity  = '1';
+
+  // GSAP stagger reveal
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('#pageHeader', { opacity:0, y:16 }, { opacity:1, y:0, duration:.6, ease:'power3.out', delay:.1 });
+    ['#detailCard','#timelineCard','#priceCard','#artistCard','#actionsCard'].forEach((sel, i) => {
+      gsap.fromTo(sel, { opacity:0, y:20 }, { opacity:1, y:0, duration:.5, delay:.15 + i*.08, ease:'power3.out' });
+    });
+    setTimeout(animateTimeline, 500);
+  } else {
+    document.querySelectorAll('.card, .sidebar-card').forEach(el => { el.style.opacity = '1'; });
+  }
+}
+
+/* ══════════════════════════════
+   TIMELINE RENDER
+   Phase 7 fix: o.statusHistory (not o.history)
+══════════════════════════════ */
+function renderTimeline() {
+  const o = _order;
+  const steps  = o.deliveryType === 'digital' ? ALL_STEPS_DIGITAL : ALL_STEPS_PHYSICAL;
+  const curIdx = STATUS_ORDER.indexOf(o.status);
+  // Phase 7 fix: statusHistory (not history)
+  const hist   = o.statusHistory || [];
+
+  const inner = document.getElementById('timelineInner');
+  inner.innerHTML = steps.map((step, i) => {
+    const stepIdx  = STATUS_ORDER.indexOf(step.key);
+    const isDone   = stepIdx < curIdx;
+    const isActive = step.key === o.status;
+
+    const histEntry = hist.find(h => h.status === step.key);
+    const timeStr   = histEntry ? fmtTime(histEntry.time) : (isActive ? 'Now' : '');
+
+    let cls = 'tl-step';
+    if (isDone)   cls += ' done';
+    if (isActive) cls += ' active';
+
+    return `
+      <div class="${cls}" style="animation-delay:${i*.08}s">
+        <div class="tl-node-wrap">
+          <div class="tl-node">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">${step.icon}</svg>
+            <svg class="tl-node-svg" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+              <circle class="tl-node-circle" cx="20" cy="20" r="18" transform="rotate(-90 20 20)"/>
+            </svg>
+          </div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title">${step.label}</div>
+          <div class="tl-sub">${step.sub}</div>
+          ${timeStr ? `<div class="tl-time">${timeStr}</div>` : ''}
+        </div>
+      </div>`;
+  }).join('');
+
+  if (o.status === 'rejected') {
+    inner.innerHTML += `
+      <div class="tl-step rejected done" style="animation-delay:.5s">
+        <div class="tl-node-wrap">
+          <div class="tl-node">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 3 10 10M13 3 3 13"/></svg>
+          </div>
+        </div>
+        <div class="tl-content">
+          <div class="tl-title" style="color:var(--err)">Declined</div>
+          <div class="tl-sub">${esc(o.rejectionReason) || 'The artist was unable to accept this commission.'}</div>
+        </div>
+      </div>`;
+  }
+}
+
+function animateTimeline() {
+  const o = _order;
+  const steps  = o.deliveryType === 'digital' ? ALL_STEPS_DIGITAL : ALL_STEPS_PHYSICAL;
+  const curIdx = STATUS_ORDER.indexOf(o.status);
+  const done   = steps.filter(s => STATUS_ORDER.indexOf(s.key) <= curIdx).length;
+  const pct    = Math.min(100, Math.round((done / steps.length) * 100));
+  const fill   = document.getElementById('tlFill');
+  if (fill) fill.style.height = pct + '%';
+
+  document.querySelectorAll('.tl-step.done .tl-node-circle, .tl-step.active .tl-node-circle').forEach((el, i) => {
+    setTimeout(() => {
+      if (typeof gsap !== 'undefined') {
+        gsap.to(el, { strokeDashoffset:0, duration:.8, delay:i*.1, ease:'power2.out' });
+      } else {
+        el.style.strokeDashoffset = '0';
+      }
+    }, i * 100);
+  });
+}
+
+/* ══════════════════════════════
+   ACTIONS
+   Phase 7 fix: artist action uses 'accepted'/'rejected' (not 'accept'/'reject')
+   Phase 7 fix: advance pay shows correct advanceAmount
+══════════════════════════════ */
+function renderActions() {
+  const o        = _order;
+  const p        = o.pricing || {};
+  const isArtist = user?.role === 'artist';
+  const isBuyer  = user?.role === 'buyer';
+  const body     = document.getElementById('actionsBody');
+  let html       = '';
+
+  if (isBuyer) {
+    if (o.status === 'accepted' && !o.payment?.advancePaid) {
+      // Phase 7 fix: p.advanceAmount (not p.advance)
+      html += `<button class="action-btn" onclick="handlePayAdvance()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v8M6 6h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3"/></svg>
+        Pay Advance — ${rupees(p.advanceAmount)}
+      </button>`;
+    }
+    if (o.status === 'completed' && !o.payment?.fullPaid) {
+      // Phase 7 fix: p.remainingAmount
+      html += `<button class="action-btn" onclick="handlePayFinal()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="M8 4v8M6 6h3a1 1 0 0 1 0 2H7a1 1 0 0 0 0 2h3"/></svg>
+        Pay Final Amount — ${rupees(p.remainingAmount)}
+      </button>`;
+    }
+    if (!o.cancelLocked) {
+      html += `<button class="action-btn danger" onclick="handleCancel()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="m5 5 6 6M11 5l-6 6"/></svg>
+        Cancel Order
+      </button>`;
+    }
+  }
+
+  if (isArtist) {
+    if (['request_sent','waiting'].includes(o.status)) {
+      html += `<button class="action-btn" onclick="handleArtistAction('accepted')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="m5 8 2 2 4-4"/></svg>
+        Accept Commission
+      </button>`;
+      html += `<button class="action-btn danger" onclick="handleArtistAction('rejected')">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="7"/><path d="m5 5 6 6M11 5l-6 6"/></svg>
+        Decline Commission
+      </button>`;
+    }
+    if (o.status === 'advance_paid') {
+      html += `<button class="action-btn" onclick="handleStart()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 2 14 5 5 14H2v-3L11 2Z"/></svg>
+        Start Working
+      </button>`;
+    }
+    if (o.status === 'in_progress') {
+      html += `<button class="action-btn" onclick="handleComplete()">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m3 8 4 4 6-8"/></svg>
+        Submit Completed Artwork
+      </button>`;
+    }
+  }
+
+  if (!html) {
+    html = `<div style="font-size:.72rem;color:var(--text-faint);line-height:1.7;">No actions available for the current order status.</div>`;
+  }
+  body.innerHTML = html;
+}
+
+/* ══════════════════════════════
+   ACTION HANDLERS
+   Phase 7 fix: uses 'accepted'/'rejected' (not 'accept'/'reject')
+══════════════════════════════ */
+async function handleArtistAction(action) {
+  // Phase 7 fix: action values must be 'accepted' or 'rejected'
+  if (action === 'rejected') {
+    const reason = prompt('Please provide a reason for declining this commission:');
+    if (!reason || !reason.trim()) return;
+    try {
+      await ZX.orders.artistAction(_order._id, 'rejected', reason.trim());
+      location.reload();
+    } catch(e) { alert(e.message); }
+  } else {
+    try {
+      await ZX.orders.artistAction(_order._id, 'accepted');
+      location.reload();
+    } catch(e) { alert(e.message); }
+  }
+}
+
+async function handleStart() {
+  try {
+    await ZX.orders.startWork(_order._id);
+    location.reload();
+  } catch(e) { alert(e.message); }
+}
+
+async function handleComplete() {
+  const artUrl = _order.deliveryType === 'digital'
+    ? prompt('Enter the artwork file URL (CDN or Firebase Storage URL):')
+    : null;
+  if (_order.deliveryType === 'digital' && !artUrl) return;
+  try {
+    await ZX.orders.complete(_order._id, artUrl);
+    location.reload();
+  } catch(e) { alert(e.message); }
+}
+
+async function handlePayAdvance() {
+  // Phase 7 fix: p.advanceAmount (not p.advance)
+  const p = _order.pricing || {};
+  alert(`Razorpay integration: initialise payment for ₹${(p.advanceAmount||0).toLocaleString('en-IN')}.\n\nOn success call ZX.orders.payAdvance(orderId, { razorpayOrderId, razorpayPaymentId, razorpaySignature }).`);
+}
+
+async function handlePayFinal() {
+  const p = _order.pricing || {};
+  alert(`Razorpay integration: initialise final payment for ₹${(p.remainingAmount||0).toLocaleString('en-IN')}.\n\nOn success call ZX.orders.payFinal(orderId, { razorpayOrderId, razorpayPaymentId, razorpaySignature }).`);
+}
+
+async function handleCancel() {
+  if (!confirm('Are you sure you want to cancel this order? This cannot be undone.')) return;
+  try {
+    await ZX.orders.cancel(_order._id);
+    alert('Order cancelled.');
+    window.location.href = '/dashboard-buyer.html';
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   DIGITAL VAULT
+══════════════════════════════ */
+function showAlreadyViewed() {
+  const o = _order;
+  document.getElementById('vaultLocked').style.display = 'none';
+  const unlocked = document.getElementById('vaultUnlocked');
+  unlocked.classList.add('show');
+  if (o.artworkFile?.url) document.getElementById('artworkImg').src = o.artworkFile.url;
+  document.getElementById('viewedAt').textContent = 'Viewed: ' + fmtTime(o.artworkFile?.viewedAt);
+  document.getElementById('digitalVault').classList.add('unlocked');
+}
+
+async function unlockVault() {
+  const anim   = document.getElementById('vaultAnim');
+  const circle = document.getElementById('unlockCircle');
+  const check  = document.getElementById('unlockCheck');
+  anim.classList.add('show');
+
+  if (typeof gsap !== 'undefined') {
+    gsap.to(circle, { strokeDashoffset:0, duration:1.2, ease:'power2.inOut' });
+    gsap.to(check,  { opacity:1, duration:.4, delay:1.1, ease:'power2.out' });
+  } else {
+    circle.style.strokeDashoffset = '0';
+    setTimeout(() => { check.style.opacity = '1'; }, 1000);
+  }
+
+  try {
+    // The download token is on order.artworkFile.token — request via backend
+    // to get the one-time URL. For now we use the URL directly if available.
+    await new Promise(r => setTimeout(r, 1600));
+    const artUrl = _order.artworkFile?.url || '';
+
+    setTimeout(() => {
+      anim.classList.remove('show');
+      document.getElementById('vaultLocked').style.display = 'none';
+      const unlocked = document.getElementById('vaultUnlocked');
+      unlocked.classList.add('show');
+      if (artUrl) document.getElementById('artworkImg').src = artUrl;
+      document.getElementById('viewedAt').textContent = 'Viewed: ' + fmtTime(new Date());
+      document.getElementById('digitalVault').classList.add('unlocked');
+      if (typeof gsap !== 'undefined') {
+        gsap.from(unlocked, { opacity:0, y:20, duration:.6, ease:'power3.out' });
+      }
+    }, 400);
+
+  } catch(e) {
+    anim.classList.remove('show');
+    alert('Failed to retrieve artwork: ' + e.message);
+  }
+}
+
+/* ══════════════════════════════
+   CHAT
+══════════════════════════════ */
+async function loadChat() {
+  const el = document.getElementById('chatMsgs');
+  try {
+    const data = await ZX.chat.load(ORDER_ID);
+    renderMsgs(data.messages || [], el);
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--err);font-size:.68rem;padding:14px;">Failed to load messages: ${e.message}</div>`;
+  }
+}
+
+function renderMsgs(msgs, el) {
+  el.innerHTML = msgs.length
+    ? msgs.map(m => {
+        const isMe   = m.sender?._id === user?._id || m.sender === user?._id;
+        const warnCls = m.piiDetected ? 'msg-warn' : '';
+        return `<div class="msg ${isMe ? 'msg-me' : 'msg-them'} ${warnCls}">
+          <div>${esc(m.text)}</div>
+          <div class="msg-time">${new Date(m.createdAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}</div>
+        </div>`;
+      }).join('')
+    : `<div style="text-align:center;font-size:.7rem;color:var(--text-faint);margin:auto;padding:20px;">No messages yet. Say hello!</div>`;
+  el.scrollTop = el.scrollHeight;
+}
+
+async function sendMsg() {
+  const inp  = document.getElementById('chatInp');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  try {
+    const res = await ZX.chat.send(ORDER_ID, text);
+    const el  = document.getElementById('chatMsgs');
+    const warnCls = res.message?.piiDetected ? 'msg-warn' : '';
+    el.innerHTML += `<div class="msg msg-me ${warnCls}"><div>${esc(res.message.text)}</div><div class="msg-time">now</div></div>`;
+    el.scrollTop = el.scrollHeight;
+    if (res.warning) alert(res.warning);
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════
+   REVIEW
+══════════════════════════════ */
+function setStar(v) {
+  _starRating = v;
+  document.querySelectorAll('.star').forEach(s => {
+    const sv = parseInt(s.dataset.v);
+    s.classList.toggle('lit', sv <= v);
+    s.style.fill = sv <= v ? 'var(--rose)' : 'none';
+  });
+}
+
+async function submitReview() {
+  if (!_starRating) {
+    document.getElementById('reviewErr').textContent = 'Please select a star rating.';
+    document.getElementById('reviewErr').style.display = 'block';
+    return;
+  }
+  const text = document.getElementById('reviewText').value.trim();
+  if (!text || text.length < 10) {
+    document.getElementById('reviewErr').textContent = 'Review must be at least 10 characters.';
+    document.getElementById('reviewErr').style.display = 'block';
+    return;
+  }
+  document.getElementById('reviewErr').style.display = 'none';
+  try {
+    await ZX.reviews.submit(ORDER_ID, _starRating, text);
+    document.getElementById('reviewCard').innerHTML = `
+      <div class="sidebar-card-body" style="text-align:center;padding:24px;">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.5" style="display:block;margin:0 auto 10px;"><path d="m20 6-11 11-5-5"/></svg>
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--cream);margin-bottom:5px;">Review Submitted</div>
+        <div style="font-size:.7rem;color:var(--text-dim);">Thank you for sharing your experience.</div>
+      </div>`;
+  } catch(e) {
+    document.getElementById('reviewErr').textContent = e.message;
+    document.getElementById('reviewErr').style.display = 'block';
+  }
+}
+
+/* ══════════════════════════════
+   START
+══════════════════════════════ */
+loadOrder();
+</script>
+</body>
+</html>

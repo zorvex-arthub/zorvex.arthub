@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verify Your Number — ZorvEx</title>
+<meta name="description" content="Verify your WhatsApp number to access the ZorvEx platform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<style>
+/* ══════════════════════════════════════════════
+   EMPIRE DESIGN SYSTEM — ZorvEx Phone Verify
+══════════════════════════════════════════════ */
+:root {
+  --void:        #07080c;
+  --surface:     #0e1018;
+  --surface-2:   #141620;
+  --surface-3:   #1a1d2a;
+  --rose:        #c8915a;
+  --rose-light:  #e0ae7f;
+  --rose-dim:    rgba(200,145,90,.12);
+  --rose-glow:   rgba(200,145,90,.06);
+  --cream:       #f0ebe3;
+  --text:        rgba(240,235,227,.88);
+  --text-dim:    rgba(240,235,227,.48);
+  --text-faint:  rgba(240,235,227,.22);
+  --border:      rgba(200,145,90,.18);
+  --border-soft: rgba(240,235,227,.07);
+  --ok:          #22c55e;
+  --ok-dim:      rgba(34,197,94,.12);
+  --err:         #e05c5c;
+  --err-dim:     rgba(224,92,92,.08);
+  --warn:        #f59e0b;
+  --ease:        cubic-bezier(.25,.46,.45,.94);
+  --ease-out:    cubic-bezier(0,0,.2,1);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { font-size:16px; scroll-behavior:smooth; }
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  min-height: 100vh;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Film-grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9997; opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CUSTOM CURSOR ── */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width:8px; height:8px; background:var(--rose); border-radius:50%;
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+    transform:translate(-50%,-50%);
+    transition:transform .1s, width .2s, height .2s;
+    mix-blend-mode: difference;
+  }
+  .cur-ring {
+    width:38px; height:38px; border:1px solid rgba(200,145,90,.5); border-radius:50%;
+    position:fixed; top:0; left:0; pointer-events:none; z-index:9998;
+    transform:translate(-50%,-50%);
+    transition:transform .32s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover  { width:14px; height:14px; }
+  .cur-ring.hover { width:54px; height:54px; opacity:.5; }
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp   { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@keyframes goldPulse{ 0%,100%{box-shadow:0 0 0 0 rgba(200,145,90,0)} 50%{box-shadow:0 0 40px 10px rgba(200,145,90,.18)} }
+@keyframes scanLine { 0%{transform:translateY(-100%)} 100%{transform:translateY(100vh)} }
+@keyframes rotateSlow { to { transform:rotate(360deg); } }
+@keyframes successPop {
+  0%   { transform:scale(0.5); opacity:0; }
+  60%  { transform:scale(1.12); }
+  100% { transform:scale(1);   opacity:1; }
+}
+@keyframes shimmer  { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+@keyframes blinkCaret { 50%{border-color:transparent} }
+
+/* ── SCAN LINE ── */
+.scan-line {
+  position:fixed; top:0; left:0; right:0; height:1px;
+  background: linear-gradient(90deg, transparent, rgba(200,145,90,.3), transparent);
+  pointer-events:none; z-index:9996;
+  animation: scanLine 8s linear infinite;
+}
+
+/* ══════════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════════ */
+.topbar {
+  position: fixed; top:0; left:0; right:0; z-index:900;
+  height: 56px;
+  display: flex; align-items:center; justify-content:space-between;
+  padding: 0 clamp(16px,3vw,40px);
+  background: rgba(7,8,12,.92);
+  backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border-soft);
+  animation: fadeUp .6s var(--ease) both;
+}
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem,2vw,1.35rem);
+  font-weight: 700; color:var(--cream); text-decoration:none;
+  letter-spacing: .04em;
+}
+.logo span { color:var(--rose); }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.topbar-badge {
+  padding: 4px 10px;
+  background: rgba(200,145,90,.08);
+  border: 1px solid rgba(200,145,90,.2);
+  font-size: .58rem; font-weight:600; letter-spacing:.18em;
+  text-transform: uppercase; color:var(--rose);
+}
+
+/* ══════════════════════════════════════════════
+   MAIN LAYOUT
+══════════════════════════════════════════════ */
+.page {
+  flex:1; display:flex; align-items:center; justify-content:center;
+  padding: 80px 20px 40px;
+  min-height: 100vh;
+}
+
+.card {
+  width: 100%; max-width: 480px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  padding: clamp(32px,5vw,52px);
+  position: relative;
+  overflow: hidden;
+  animation: fadeUp .7s var(--ease) .1s both;
+}
+
+/* Gold corner accents */
+.card::before, .card::after {
+  content: '';
+  position: absolute;
+  width: 40px; height: 40px;
+  border-color: var(--rose);
+  border-style: solid;
+}
+.card::before {
+  top:0; left:0;
+  border-width: 1px 0 0 1px;
+}
+.card::after {
+  bottom:0; right:0;
+  border-width: 0 1px 1px 0;
+}
+
+/* ── IDENTITY LOCK ICON ── */
+.lock-wrap {
+  display: flex; flex-direction:column; align-items:center;
+  margin-bottom: 28px;
+}
+.lock-ring {
+  width: 72px; height: 72px; border-radius:50%;
+  border: 1px solid rgba(200,145,90,.25);
+  background: var(--rose-dim);
+  display:flex; align-items:center; justify-content:center;
+  margin-bottom: 16px;
+  animation: goldPulse 3s ease-in-out infinite;
+}
+.lock-ring svg { color:var(--rose); }
+.lock-eyebrow {
+  font-size: .6rem; font-weight:600; letter-spacing:.2em;
+  text-transform:uppercase; color:var(--rose);
+  margin-bottom: 8px;
+}
+.lock-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem,3vw,1.8rem);
+  font-weight: 700; color:var(--cream);
+  text-align: center; line-height: 1.25;
+  margin-bottom: 8px;
+}
+.lock-title em { color:var(--rose); font-style:italic; }
+.lock-sub {
+  font-size: .78rem; color:var(--text-dim);
+  text-align:center; line-height:1.7;
+  max-width: 340px;
+}
+
+/* ── PROGRESS STEPS ── */
+.steps {
+  display: flex; align-items:center; justify-content:center;
+  gap: 6px; margin-bottom: 32px;
+}
+.step-dot {
+  width: 28px; height: 3px;
+  background: var(--border-soft);
+  border-radius: 2px;
+  transition: background .4s;
+}
+.step-dot.active { background: var(--rose); }
+.step-dot.done   { background: var(--ok); }
+
+/* ── FORM PANELS ── */
+.panel { display:none; }
+.panel.active { display:block; animation: fadeUp .45s var(--ease) both; }
+
+/* ── FIELD GROUP ── */
+.fg {
+  margin-bottom: 18px;
+}
+.fg label {
+  display: block;
+  font-size: .62rem; font-weight:600; letter-spacing:.14em;
+  text-transform: uppercase; color:var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.inp-wrap {
+  position: relative; display:flex; align-items:center;
+}
+.inp-prefix {
+  position: absolute; left:14px;
+  font-size: .82rem; color:var(--text-dim);
+  pointer-events: none; user-select:none;
+}
+input[type="tel"],
+input[type="text"] {
+  width: 100%;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .9rem;
+  padding: 13px 14px 13px 46px;
+  outline: none;
+  transition: border-color .3s, box-shadow .3s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+input[type="tel"].no-prefix,
+input[type="text"].no-prefix {
+  padding-left: 14px;
+}
+input:focus {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px rgba(200,145,90,.08);
+}
+input.error {
+  border-color: var(--err);
+  box-shadow: 0 0 0 3px rgba(224,92,92,.08);
+}
+input::placeholder { color: var(--text-faint); }
+
+/* ── OTP INPUT ROW ── */
+.otp-row {
+  display: flex; gap: 10px; margin-bottom: 8px;
+}
+.otp-digit {
+  flex:1; height: 58px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--cream);
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.4rem; font-weight:600;
+  text-align: center;
+  outline: none;
+  caret-color: var(--rose);
+  border-right: 2px solid transparent;
+  transition: border-color .25s, box-shadow .25s, background .25s;
+  appearance: none; -webkit-appearance:none;
+  -moz-appearance: textfield;
+}
+.otp-digit::-webkit-inner-spin-button,
+.otp-digit::-webkit-outer-spin-button { -webkit-appearance: none; margin:0; }
+.otp-digit:focus {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px rgba(200,145,90,.1);
+  background: var(--surface-3);
+}
+.otp-digit.filled { border-color: rgba(200,145,90,.4); }
+.otp-digit.error  { border-color: var(--err); background: var(--err-dim); }
+
+.otp-meta {
+  display:flex; justify-content:space-between; align-items:center;
+  font-size: .7rem; color:var(--text-dim);
+  margin-bottom: 20px;
+}
+.otp-timer { font-variant-numeric:tabular-nums; }
+.otp-timer.expired { color:var(--err); }
+.resend-btn {
+  background:none; border:none; cursor:pointer;
+  color:var(--rose); font-family:'Outfit',sans-serif;
+  font-size:.7rem; font-weight:500; padding:0;
+  opacity:0; pointer-events:none;
+  transition:opacity .3s;
+}
+.resend-btn.visible { opacity:1; pointer-events:auto; }
+.resend-btn:hover { text-decoration:underline; }
+
+.phone-display {
+  font-size: .78rem; color:var(--text-dim); text-align:center;
+  margin-bottom: 20px;
+  padding: 10px 14px;
+  background: var(--rose-glow);
+  border: 1px solid var(--border-soft);
+}
+.phone-display strong { color:var(--cream); }
+
+/* ── SUBMIT BUTTON ── */
+.btn-empire {
+  width:100%; padding: 15px 24px;
+  background: linear-gradient(135deg, var(--rose), #b07840);
+  border: none; color: #07080c;
+  font-family: 'Outfit', sans-serif;
+  font-size: .78rem; font-weight:600;
+  letter-spacing: .12em; text-transform:uppercase;
+  cursor: pointer; position:relative; overflow:hidden;
+  transition: opacity .3s, transform .2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-empire:hover { opacity:.9; transform:translateY(-1px); }
+.btn-empire:active { transform:translateY(0); }
+.btn-empire:disabled {
+  opacity: .5; cursor:not-allowed; transform:none;
+}
+.btn-empire .shimmer-layer {
+  position:absolute; inset:0;
+  background: linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+  pointer-events:none;
+}
+
+.btn-ghost {
+  width:100%; padding: 12px 24px;
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  font-family:'Outfit',sans-serif;
+  font-size:.78rem; font-weight:500; letter-spacing:.1em; text-transform:uppercase;
+  cursor:pointer; transition:all .3s;
+  margin-top: 10px;
+}
+.btn-ghost:hover { border-color:var(--border); color:var(--text); }
+
+/* ── SPINNER ── */
+.spin {
+  display: inline-block; width:14px; height:14px;
+  border: 2px solid rgba(0,0,0,.3);
+  border-top-color: #07080c;
+  border-radius:50%;
+  animation: rotateSlow .7s linear infinite;
+  flex-shrink:0;
+}
+
+/* ── ALERT BOXES ── */
+.alert {
+  padding: 12px 14px;
+  font-size:.76rem; line-height:1.6;
+  display:flex; align-items:flex-start; gap:10px;
+  margin-bottom: 16px;
+  opacity:0; pointer-events:none; max-height:0; overflow:hidden;
+  transition: opacity .3s, max-height .3s;
+}
+.alert.show { opacity:1; pointer-events:auto; max-height:200px; }
+.alert.err { background:var(--err-dim); border:1px solid rgba(224,92,92,.2); color:var(--err); }
+.alert.ok  { background:var(--ok-dim);  border:1px solid rgba(34,197,94,.2);  color:var(--ok); }
+.alert svg { flex-shrink:0; margin-top:1px; }
+
+/* ── SUCCESS SCREEN ── */
+#successPanel {
+  text-align:center; padding: 12px 0 4px;
+}
+.success-ring {
+  width:80px; height:80px; border-radius:50%;
+  border: 1px solid rgba(34,197,94,.3);
+  background: var(--ok-dim);
+  display:flex; align-items:center; justify-content:center;
+  margin: 0 auto 20px;
+  animation: successPop .6s var(--ease) both;
+}
+.success-title {
+  font-family:'Playfair Display', serif;
+  font-size:1.5rem; font-weight:700; color:var(--cream);
+  margin-bottom:8px;
+}
+.success-title em { color:var(--ok); font-style:italic; }
+.success-sub {
+  font-size:.78rem; color:var(--text-dim); line-height:1.7;
+  max-width:300px; margin:0 auto 24px;
+}
+.progress-bar-wrap {
+  height:2px; background:var(--border-soft);
+  margin-bottom:24px; overflow:hidden;
+}
+.progress-bar-fill {
+  height:100%; background:var(--ok); width:0;
+  transition:width 2.5s linear;
+}
+
+/* ── FOOTER NOTE ── */
+.footer-note {
+  text-align:center; margin-top:24px;
+  font-size:.68rem; color:var(--text-faint); line-height:1.7;
+}
+.footer-note a { color:var(--rose); text-decoration:none; }
+.footer-note a:hover { text-decoration:underline; }
+
+/* ══════════════════════════════════════════════
+   DECORATIVE BACKGROUND ELEMENTS
+══════════════════════════════════════════════ */
+.bg-glow {
+  position:fixed; z-index:0;
+  border-radius:50%; pointer-events:none; filter:blur(80px);
+}
+.bg-glow-1 {
+  width:400px; height:400px;
+  background: radial-gradient(circle, rgba(200,145,90,.07) 0%, transparent 70%);
+  top:-100px; right:-100px;
+}
+.bg-glow-2 {
+  width:300px; height:300px;
+  background: radial-gradient(circle, rgba(200,145,90,.05) 0%, transparent 70%);
+  bottom:0; left:-60px;
+}
+
+/* ══════════════════════════════════════════════
+   MOBILE
+══════════════════════════════════════════════ */
+@media (max-width:500px) {
+  .card { padding:28px 20px; }
+  .lock-title { font-size:1.35rem; }
+  .otp-digit  { height:52px; font-size:1.25rem; }
+  .otp-row    { gap:7px; }
+}
+</style>
+</head>
+
+<body>
+<!-- Custom cursor -->
+<div class="cur"     id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- Background scan line -->
+<div class="scan-line"></div>
+
+<!-- Decorative glows -->
+<div class="bg-glow bg-glow-1"></div>
+<div class="bg-glow bg-glow-2"></div>
+
+<!-- ══════════════════════════════════════════
+     TOPBAR
+══════════════════════════════════════════ -->
+<nav class="topbar">
+  <a href="/index.html" class="logo">Zorv<span>Ex</span></a>
+  <div class="topbar-right">
+    <span class="topbar-badge">Identity Verification</span>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════
+     MAIN PAGE
+══════════════════════════════════════════ -->
+<div class="page">
+  <div class="card" id="mainCard">
+
+    <!-- Lock icon + title -->
+    <div class="lock-wrap">
+      <div class="lock-ring">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+          <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        </svg>
+      </div>
+      <div class="lock-eyebrow">Identity Verification Required</div>
+      <h1 class="lock-title">Secure Your <em>Access</em></h1>
+      <p class="lock-sub">
+        A one-time code will be sent to your mobile number to verify your identity before you can access the platform.
+      </p>
+    </div>
+
+    <!-- Step dots -->
+    <div class="steps" id="stepDots">
+      <div class="step-dot active" id="dot1"></div>
+      <div class="step-dot"        id="dot2"></div>
+    </div>
+
+    <!-- ── PANEL 1: Enter phone number ── -->
+    <div class="panel active" id="panel1">
+      <div id="err1" class="alert err">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="err1Text"></span>
+      </div>
+
+      <div class="fg">
+        <label for="phoneInp">Mobile Number</label>
+        <div class="inp-wrap">
+          <span class="inp-prefix">+91</span>
+          <input
+            type="tel"
+            id="phoneInp"
+            maxlength="10"
+            placeholder="Enter 10-digit number"
+            autocomplete="tel"
+            oninput="onPhoneInput(this)"
+            onkeydown="if(event.key==='Enter')sendOtp()"
+          >
+        </div>
+      </div>
+
+      <button class="btn-empire" id="sendBtn" onclick="sendOtp()">
+        <div class="shimmer-layer"></div>
+        <span id="sendBtnText">Send Verification Code</span>
+      </button>
+
+      <div class="footer-note">
+        Your number is private and will never be shared. Used only for account security and order updates.<br>
+        Already verified? <a href="#" onclick="skipToLogin(); return false;">Go to dashboard →</a>
+      </div>
+    </div>
+
+    <!-- ── PANEL 2: Enter OTP ── -->
+    <div class="panel" id="panel2">
+      <div id="err2" class="alert err">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <span id="err2Text"></span>
+      </div>
+      <div id="ok2" class="alert ok">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+        <span id="ok2Text"></span>
+      </div>
+
+      <div class="phone-display">
+        Code sent to <strong id="phoneDisplay">—</strong>
+      </div>
+
+      <div class="fg">
+        <label>6-Digit Verification Code</label>
+        <div class="otp-row" id="otpRow">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp0" oninput="onOtpInput(0)" onkeydown="onOtpKey(event,0)">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp1" oninput="onOtpInput(1)" onkeydown="onOtpKey(event,1)">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp2" oninput="onOtpInput(2)" onkeydown="onOtpKey(event,2)">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp3" oninput="onOtpInput(3)" onkeydown="onOtpKey(event,3)">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp4" oninput="onOtpInput(4)" onkeydown="onOtpKey(event,4)">
+          <input class="otp-digit" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]*" id="otp5" oninput="onOtpInput(5)" onkeydown="onOtpKey(event,5)">
+        </div>
+        <div class="otp-meta">
+          <span class="otp-timer" id="otpTimer">Expires in 10:00</span>
+          <button class="resend-btn" id="resendBtn" onclick="resendOtp()">Resend code</button>
+        </div>
+      </div>
+
+      <button class="btn-empire" id="verifyBtn" onclick="verifyOtp()">
+        <div class="shimmer-layer"></div>
+        <span id="verifyBtnText">Verify & Continue</span>
+      </button>
+
+      <button class="btn-ghost" onclick="goBack()">← Change Number</button>
+    </div>
+
+    <!-- ── PANEL 3: Success ── -->
+    <div class="panel" id="successPanel">
+      <div class="success-ring">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="1.5" stroke-linecap="round">
+          <path d="m20 6-11 11-5-5"/>
+        </svg>
+      </div>
+      <h2 class="success-title">Identity <em>Confirmed.</em></h2>
+      <p class="success-sub">
+        Your phone number has been verified. You are now entering the ZorvEx empire.
+      </p>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="progressFill"></div>
+      </div>
+      <button class="btn-empire" onclick="redirectNow()">
+        <div class="shimmer-layer"></div>
+        <span>Enter My Studio →</span>
+      </button>
+    </div>
+
+  </div><!-- /card -->
+</div><!-- /page -->
+
+<script src="/zorvex-api.js"></script>
+<script>
+'use strict';
+
+/* ══════════════════════════════
+   CUSTOM CURSOR
+══════════════════════════════ */
+(function () {
+  const c = document.getElementById('cur');
+  const r = document.getElementById('curRing');
+  if (!c || !r || !window.matchMedia('(pointer:fine)').matches) return;
+
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', (e) => {
+    mx = e.clientX; my = e.clientY;
+    c.style.transform = `translate(${mx}px,${my}px) translate(-50%,-50%)`;
+  });
+  (function loop() {
+    rx += (mx - rx) * .12;
+    ry += (my - ry) * .12;
+    r.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  })();
+
+  const bindCursor = () => {
+    document.querySelectorAll('button, a, input, .otp-digit').forEach((el) => {
+      el.addEventListener('mouseenter', () => { c.classList.add('hover'); r.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { c.classList.remove('hover'); r.classList.remove('hover'); });
+    });
+  };
+  bindCursor();
+})();
+
+/* ══════════════════════════════
+   AUTH GUARD
+══════════════════════════════ */
+(function () {
+  if (!ZX.auth.isLoggedIn()) {
+    window.location.href = '/login.html';
+    return;
+  }
+  const user = ZX.auth.getUser();
+  // Admin is permanently verified — redirect to their dashboard
+  if (user?.role === 'admin') {
+    window.location.href = '/dashboard-admin.html';
+    return;
+  }
+  // Already verified — redirect to appropriate dashboard
+  if (user?.phoneVerified) {
+    redirectNow();
+    return;
+  }
+  // Pre-fill phone if user already has one on file
+  if (user?.phone) {
+    document.getElementById('phoneInp').value = user.phone;
+  }
+})();
+
+/* ══════════════════════════════
+   STATE
+══════════════════════════════ */
+let _phone      = '';
+let _timerSecs  = 600;   // 10 minutes
+let _timerInterval = null;
+let _currentPanel  = 1;
+
+/* ══════════════════════════════
+   HELPERS
+══════════════════════════════ */
+function showErr(panelNum, msg) {
+  const el   = document.getElementById(`err${panelNum}`);
+  const text = document.getElementById(`err${panelNum}Text`);
+  text.textContent = msg;
+  el.classList.add('show');
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo(el, { x: -5 }, { x: 0, duration:.35, ease:'elastic.out(1,.4)' });
+  }
+}
+function hideErr(panelNum) {
+  document.getElementById(`err${panelNum}`)?.classList.remove('show');
+}
+function showOk(panelNum, msg) {
+  const el   = document.getElementById(`ok${panelNum}`);
+  const text = document.getElementById(`ok${panelNum}Text`);
+  if (!el) return;
+  text.textContent = msg;
+  el.classList.add('show');
+}
+function hideOk(panelNum) {
+  document.getElementById(`ok${panelNum}`)?.classList.remove('show');
+}
+
+function setBtnLoading(btnId, textId, loading, defaultText) {
+  const btn = document.getElementById(btnId);
+  const txt = document.getElementById(textId);
+  btn.disabled = loading;
+  if (loading) {
+    txt.innerHTML = `<span class="spin"></span> Please wait…`;
+  } else {
+    txt.textContent = defaultText;
+  }
+}
+
+function showPanel(num) {
+  document.querySelectorAll('.panel').forEach((p) => p.classList.remove('active'));
+  document.getElementById(`panel${num}`)?.classList.add('active');
+  _currentPanel = num;
+  updateDots(num);
+  if (typeof gsap !== 'undefined') {
+    const el = document.getElementById(`panel${num}`) || document.getElementById('successPanel');
+    if (el) gsap.fromTo(el, { opacity:0, y:16 }, { opacity:1, y:0, duration:.4, ease:'power2.out' });
+  }
+}
+
+function updateDots(step) {
+  document.getElementById('dot1').className = 'step-dot ' + (step > 1 ? 'done' : step === 1 ? 'active' : '');
+  document.getElementById('dot2').className = 'step-dot ' + (step > 2 ? 'done' : step === 2 ? 'active' : '');
+}
+
+/* ══════════════════════════════
+   PHONE INPUT HANDLER
+══════════════════════════════ */
+function onPhoneInput(el) {
+  // Strip non-digits
+  el.value = el.value.replace(/\D/g, '').slice(0, 10);
+  el.classList.remove('error');
+  hideErr(1);
+}
+
+/* ══════════════════════════════
+   OTP INPUT HANDLERS
+══════════════════════════════ */
+function onOtpInput(idx) {
+  const el = document.getElementById(`otp${idx}`);
+  const val = el.value.replace(/\D/g, '');
+  el.value = val ? val[0] : '';
+
+  if (val && idx < 5) {
+    document.getElementById(`otp${idx + 1}`)?.focus();
+  }
+
+  el.classList.toggle('filled', !!el.value);
+  el.classList.remove('error');
+  hideErr(2);
+  hideOk(2);
+
+  // Auto-verify when all 6 digits are filled
+  const allFilled = Array.from({ length: 6 }, (_, i) =>
+    document.getElementById(`otp${i}`)?.value
+  ).every((v) => v && /\d/.test(v));
+
+  if (allFilled) {
+    setTimeout(verifyOtp, 150);
+  }
+}
+
+function onOtpKey(e, idx) {
+  if (e.key === 'Backspace' && !document.getElementById(`otp${idx}`).value && idx > 0) {
+    document.getElementById(`otp${idx - 1}`)?.focus();
+  }
+  if (e.key === 'ArrowLeft'  && idx > 0) document.getElementById(`otp${idx - 1}`)?.focus();
+  if (e.key === 'ArrowRight' && idx < 5) document.getElementById(`otp${idx + 1}`)?.focus();
+}
+
+// Handle paste into any OTP digit
+document.getElementById('otpRow')?.addEventListener('paste', (e) => {
+  e.preventDefault();
+  const pasted = (e.clipboardData || window.clipboardData)
+    .getData('text')
+    .replace(/\D/g, '')
+    .slice(0, 6);
+  pasted.split('').forEach((char, i) => {
+    const inp = document.getElementById(`otp${i}`);
+    if (inp) { inp.value = char; inp.classList.add('filled'); }
+  });
+  const nextEmpty = pasted.length < 6 ? pasted.length : 5;
+  document.getElementById(`otp${nextEmpty}`)?.focus();
+  if (pasted.length === 6) setTimeout(verifyOtp, 150);
+});
+
+function getOtpValue() {
+  return Array.from({ length: 6 }, (_, i) =>
+    document.getElementById(`otp${i}`)?.value || ''
+  ).join('');
+}
+
+function clearOtpInputs() {
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById(`otp${i}`);
+    if (el) { el.value = ''; el.classList.remove('filled', 'error'); }
+  }
+}
+
+function markOtpError() {
+  for (let i = 0; i < 6; i++) {
+    const el = document.getElementById(`otp${i}`);
+    if (el) el.classList.add('error');
+  }
+  if (typeof gsap !== 'undefined') {
+    const row = document.getElementById('otpRow');
+    gsap.fromTo(row, { x:-6 }, { x:0, duration:.4, ease:'elastic.out(1,.3)' });
+  }
+  setTimeout(() => {
+    for (let i = 0; i < 6; i++) {
+      document.getElementById(`otp${i}`)?.classList.remove('error');
+    }
+    clearOtpInputs();
+    document.getElementById('otp0')?.focus();
+  }, 900);
+}
+
+/* ══════════════════════════════
+   OTP COUNTDOWN TIMER
+══════════════════════════════ */
+function startTimer(seconds) {
+  clearInterval(_timerInterval);
+  _timerSecs = seconds;
+  updateTimerDisplay();
+
+  _timerInterval = setInterval(() => {
+    _timerSecs--;
+    updateTimerDisplay();
+    if (_timerSecs <= 0) {
+      clearInterval(_timerInterval);
+      document.getElementById('otpTimer').textContent = 'Code expired';
+      document.getElementById('otpTimer').classList.add('expired');
+      showErr(2, 'Your code has expired. Please request a new one.');
+      document.getElementById('resendBtn').classList.add('visible');
+    }
+  }, 1000);
+}
+
+function updateTimerDisplay() {
+  const m = Math.floor(_timerSecs / 60).toString().padStart(2, '0');
+  const s = (_timerSecs % 60).toString().padStart(2, '0');
+  document.getElementById('otpTimer').textContent = `Expires in ${m}:${s}`;
+  document.getElementById('otpTimer').classList.remove('expired');
+}
+
+function showResendAfterDelay(delaySecs) {
+  const btn = document.getElementById('resendBtn');
+  btn.classList.remove('visible');
+  setTimeout(() => {
+    btn.classList.add('visible');
+  }, delaySecs * 1000);
+}
+
+/* ══════════════════════════════
+   SEND OTP
+══════════════════════════════ */
+async function sendOtp() {
+  hideErr(1);
+  const phone = document.getElementById('phoneInp').value.trim();
+
+  if (!phone || phone.length !== 10) {
+    document.getElementById('phoneInp').classList.add('error');
+    return showErr(1, 'Please enter a valid 10-digit mobile number.');
+  }
+  if (!/^[6-9]\d{9}$/.test(phone)) {
+    document.getElementById('phoneInp').classList.add('error');
+    return showErr(1, 'Mobile numbers must start with 6, 7, 8, or 9.');
+  }
+
+  _phone = phone;
+  setBtnLoading('sendBtn', 'sendBtnText', true, 'Send Verification Code');
+
+  try {
+    await ZX.auth.sendOtp(phone);
+
+    // Move to OTP panel
+    showPanel(2);
+    document.getElementById('phoneDisplay').textContent = `+91 ${phone.slice(0,5)} ${phone.slice(5)}`;
+    clearOtpInputs();
+    document.getElementById('otp0')?.focus();
+
+    startTimer(600);
+    showResendAfterDelay(60);
+  } catch (err) {
+    // Handle rate-limit (429) with a specific message
+    if (err.status === 429) {
+      showErr(1, err.message || 'Too many requests. Please wait before trying again.');
+    } else {
+      showErr(1, err.message || 'Failed to send OTP. Please try again.');
+    }
+  } finally {
+    setBtnLoading('sendBtn', 'sendBtnText', false, 'Send Verification Code');
+  }
+}
+
+/* ══════════════════════════════
+   RESEND OTP
+══════════════════════════════ */
+async function resendOtp() {
+  if (!_phone) return;
+  hideErr(2); hideOk(2);
+  clearOtpInputs();
+
+  const btn = document.getElementById('resendBtn');
+  btn.classList.remove('visible');
+  btn.textContent = 'Sending…';
+
+  try {
+    await ZX.auth.sendOtp(_phone);
+    showOk(2, 'A new code has been sent.');
+    startTimer(600);
+    showResendAfterDelay(60);
+    document.getElementById('otp0')?.focus();
+  } catch (err) {
+    showErr(2, err.message || 'Failed to resend. Please try again.');
+    btn.classList.add('visible');
+  } finally {
+    btn.textContent = 'Resend code';
+  }
+}
+
+/* ══════════════════════════════
+   VERIFY OTP
+══════════════════════════════ */
+async function verifyOtp() {
+  hideErr(2); hideOk(2);
+  const otp = getOtpValue();
+
+  if (otp.length !== 6) {
+    return showErr(2, 'Please enter all 6 digits of your verification code.');
+  }
+
+  setBtnLoading('verifyBtn', 'verifyBtnText', true, 'Verify & Continue');
+
+  try {
+    const data = await ZX.auth.verifyOtp(_phone, otp);
+
+    // Refresh user in local cache so phoneVerified = true is reflected everywhere
+    await ZX.auth.me();
+
+    clearInterval(_timerInterval);
+    showSuccess();
+  } catch (err) {
+    markOtpError();
+    if (err.status === 429) {
+      showErr(2, err.message || 'Too many attempts. Please request a new code.');
+      document.getElementById('resendBtn').classList.add('visible');
+    } else {
+      showErr(2, err.message || 'Incorrect code. Please try again.');
+    }
+  } finally {
+    setBtnLoading('verifyBtn', 'verifyBtnText', false, 'Verify & Continue');
+  }
+}
+
+/* ══════════════════════════════
+   GO BACK
+══════════════════════════════ */
+function goBack() {
+  clearInterval(_timerInterval);
+  hideErr(2); hideOk(2);
+  showPanel(1);
+}
+
+/* ══════════════════════════════
+   SUCCESS
+══════════════════════════════ */
+function showSuccess() {
+  // Hide step dots — success is the final state
+  document.getElementById('stepDots').style.opacity = '0';
+  document.getElementById('panel2').classList.remove('active');
+  document.getElementById('successPanel').classList.add('active');
+
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('#successPanel',
+      { opacity:0, y:20 },
+      { opacity:1, y:0, duration:.5, ease:'power2.out' }
+    );
+  }
+
+  // Animate the progress bar then auto-redirect
+  requestAnimationFrame(() => {
+    document.getElementById('progressFill').style.width = '100%';
+  });
+
+  setTimeout(redirectNow, 2800);
+}
+
+/* ══════════════════════════════
+   REDIRECT
+══════════════════════════════ */
+function redirectNow() {
+  const user = ZX.auth.getUser();
+  if (!user) { window.location.href = '/login.html'; return; }
+  const dashMap = {
+    artist: '/dashboard-artist.html',
+    admin:  '/dashboard-admin.html',
+    buyer:  '/dashboard-buyer.html',
+  };
+  window.location.href = dashMap[user.role] || '/dashboard-buyer.html';
+}
+
+function skipToLogin() {
+  // Called when user clicks "Already verified? Go to dashboard"
+  const user = ZX.auth.getUser();
+  if (!user) { window.location.href = '/login.html'; return; }
+  if (user.phoneVerified) { redirectNow(); return; }
+  // Not verified — stay on this page
+  showErr(1, 'Your phone number is not yet verified. Please complete verification to continue.');
+}
+
+/* ══════════════════════════════
+   GSAP ENTRANCE
+══════════════════════════════ */
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('#mainCard',
+      { opacity:0, y:32, scale:.97 },
+      { opacity:1, y:0,  scale:1, duration:.8, ease:'power3.out', delay:.1 }
+    );
+  }
+});
+</script>
+</body>
+</html>

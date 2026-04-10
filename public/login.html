@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — ZorvEx</title>
+<meta name="description" content="Sign in or create your ZorvEx account to commission unique handcrafted art from Kerala's finest artists.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM — ZorvEx Empire
+══════════════════════════════════════════════ */
+:root {
+  --void: #07080c;
+  --surface: #0e1018;
+  --surface-2: #141620;
+  --surface-3: #1a1d2a;
+  --rose: #c8915a;
+  --rose-light: #e0ae7f;
+  --rose-dim: rgba(200,145,90,.12);
+  --rose-glow: rgba(200,145,90,.06);
+  --cream: #f0ebe3;
+  --text: rgba(240,235,227,.88);
+  --text-dim: rgba(240,235,227,.48);
+  --text-faint: rgba(240,235,227,.22);
+  --border: rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  --error: #e05c5c;
+  --error-dim: rgba(224,92,92,.08);
+  --success: #4ade80;
+  --success-dim: rgba(74,222,128,.08);
+  --nav-h: 56px;
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --ease-out: cubic-bezier(0,0,.2,1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; overflow-x: hidden; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9997;
+  opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CURSOR ── */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width: 8px; height: 8px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform .12s var(--ease), width .2s, height .2s, background .2s;
+  }
+  .cur-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,145,90,.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .35s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover { width: 14px; height: 14px; }
+  .cur-ring.hover { width: 56px; height: 56px; opacity: .5; }
+}
+
+/* ══════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 800; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px,4vw,64px);
+  background: rgba(7,8,12,.96);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem,2.2vw,1.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+.nav-logo span { color: var(--rose); font-style: italic; }
+
+.nav-back {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .7rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-dim); text-decoration: none;
+  transition: color .3s;
+}
+.nav-back:hover { color: var(--rose); }
+.nav-back svg { transition: transform .3s var(--ease); }
+.nav-back:hover svg { transform: translateX(-3px); }
+
+/* ══════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════ */
+@keyframes fadeUp   { from { opacity:0; transform:translateY(28px) } to { opacity:1; transform:translateY(0) } }
+@keyframes fadeIn   { from { opacity:0 } to { opacity:1 } }
+@keyframes float    { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-8px) } }
+@keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1) } 50% { opacity:.5; transform:scale(.7) } }
+@keyframes rotateSlow  { from { transform:translate(-50%,-50%) rotate(0deg)    } to { transform:translate(-50%,-50%) rotate(360deg) } }
+@keyframes rotateSlow2 { from { transform:translate(-50%,-50%) rotate(0deg)    } to { transform:translate(-50%,-50%) rotate(-360deg) } }
+@keyframes spin     { to { transform:rotate(360deg) } }
+@keyframes shimmerPulse {
+  0%,100% { opacity:.4 }
+  50%     { opacity:.7 }
+}
+@keyframes lineExpand {
+  from { width: 0 }
+  to   { width: 28px }
+}
+
+/* ══════════════════════════════════════════════
+   PAGE LAYOUT
+══════════════════════════════════════════════ */
+.page {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  padding-top: var(--nav-h);
+  position: relative;
+}
+
+/* ── LEFT PANEL — editorial art side ── */
+.left-panel {
+  position: relative;
+  display: flex; flex-direction: column;
+  justify-content: center;
+  padding: clamp(40px,6vw,80px) clamp(32px,5vw,72px);
+  background: var(--surface);
+  border-right: 1px solid var(--border-soft);
+  overflow: hidden;
+}
+
+/* Ambient orbs */
+.left-orb-1 {
+  position: absolute;
+  width: 55vw; height: 55vw; max-width: 520px; max-height: 520px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,145,90,.1) 0%, transparent 70%);
+  filter: blur(80px);
+  top: -10%; right: -20%;
+  animation: float 12s ease-in-out infinite;
+  pointer-events: none;
+}
+.left-orb-2 {
+  position: absolute;
+  width: 30vw; height: 30vw; max-width: 280px; max-height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(120,90,180,.08) 0%, transparent 70%);
+  filter: blur(60px);
+  bottom: 5%; left: -10%;
+  animation: float 9s ease-in-out 3s infinite;
+  pointer-events: none;
+}
+
+/* Grid backdrop */
+.left-grid-bg {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(200,145,90,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,145,90,.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at 60% 50%, rgba(0,0,0,.5) 0%, transparent 72%);
+}
+
+.left-content { position: relative; z-index: 2; }
+
+.left-eyebrow {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: clamp(20px,3vw,32px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .1s forwards;
+}
+.eyebrow-pill {
+  padding: 4px 11px;
+  border: 1px solid var(--border);
+  font-size: .6rem; font-weight: 500; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--rose);
+  background: var(--rose-dim);
+  display: flex; align-items: center; gap: 7px;
+}
+.eyebrow-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--rose);
+  animation: pulseDot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.left-headline {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem,4.8vw,5rem);
+  font-weight: 700;
+  line-height: .93;
+  letter-spacing: -.02em;
+  margin-bottom: clamp(16px,2.5vw,26px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .25s forwards;
+}
+.left-headline .l1 { display: block; color: var(--cream); }
+.left-headline .l2 {
+  display: block;
+  font-style: italic; font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-light) 50%, var(--rose) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.left-desc {
+  font-size: clamp(.78rem,1vw,.88rem);
+  font-weight: 400; line-height: 1.7;
+  color: var(--text-dim); max-width: 380px;
+  margin-bottom: clamp(28px,4vw,48px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .42s forwards;
+}
+
+/* Trust indicators */
+.left-trust {
+  display: flex; flex-direction: column; gap: 14px;
+  opacity: 0; animation: fadeUp .9s var(--ease) .58s forwards;
+}
+.trust-row {
+  display: flex; align-items: center; gap: 14px;
+}
+.trust-icon-box {
+  width: 36px; height: 36px; flex-shrink: 0;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+}
+.trust-text-title { font-size: .72rem; font-weight: 600; color: var(--cream); letter-spacing: .03em; }
+.trust-text-sub   { font-size: .62rem; color: var(--text-faint); margin-top: 1px; }
+
+/* Decorative divider */
+.left-divider {
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--rose), transparent);
+  margin: clamp(24px,3.5vw,40px) 0;
+  opacity: 0; animation: fadeIn 1s var(--ease) .7s forwards;
+}
+
+/* Floating art badge */
+.art-badge {
+  position: absolute; bottom: 8%; right: 5%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  padding: 12px 16px;
+  display: flex; align-items: center; gap: 12px;
+  animation: float 7s ease-in-out 1s infinite;
+  z-index: 3;
+}
+.art-badge-icon {
+  width: 32px; height: 32px;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.art-badge-title { font-size: .64rem; font-weight: 600; color: var(--cream); letter-spacing: .04em; }
+.art-badge-sub   { font-size: .56rem; color: var(--text-faint); margin-top: 2px; }
+
+/* Rotating rings in corner */
+.corner-ring-1 {
+  position: absolute; bottom: 15%; left: -8%;
+  width: 220px; height: 220px;
+  border: 1px solid var(--border-soft); border-radius: 50%;
+  pointer-events: none;
+  animation: rotateSlow 40s linear infinite;
+}
+.corner-ring-2 {
+  position: absolute; bottom: 18%; left: -5%;
+  width: 160px; height: 160px;
+  border: 1px solid rgba(200,145,90,.08); border-radius: 50%;
+  pointer-events: none;
+  animation: rotateSlow2 28s linear infinite;
+}
+
+/* ── RIGHT PANEL — form side ── */
+.right-panel {
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: center;
+  padding: clamp(32px,5vw,64px) clamp(20px,4vw,56px);
+  position: relative;
+  background: var(--void);
+}
+
+/* Subtle glow behind card */
+.right-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: min(400px, 100%); height: 300px;
+  background: radial-gradient(ellipse, rgba(200,145,90,.04) 0%, transparent 70%);
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════
+   AUTH CARD
+══════════════════════════════════════════════ */
+.auth-card {
+  width: 100%; max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  position: relative; z-index: 1;
+  opacity: 0; animation: fadeUp .9s var(--ease) .3s forwards;
+}
+
+/* Tab bar */
+.tabs {
+  display: grid; grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border-soft);
+}
+.tab {
+  padding: 15px;
+  background: none; border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: .62rem; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint); cursor: pointer;
+  transition: all .3s;
+  border-bottom: 2px solid transparent;
+  position: relative;
+}
+.tab.active {
+  color: var(--rose);
+  border-bottom-color: var(--rose);
+  background: rgba(200,145,90,.03);
+}
+.tab:hover:not(.active) { color: var(--text); }
+
+/* Form body */
+.form-wrap { padding: clamp(22px,3.5vw,36px); }
+.form-panel { display: none; }
+.form-panel.active { display: block; }
+
+.form-eyebrow {
+  font-size: .58rem; font-weight: 600;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 12px;
+  display: flex; align-items: center; gap: 12px;
+}
+.form-eyebrow::before {
+  content: '';
+  height: 1px; background: var(--rose); flex-shrink: 0;
+  animation: lineExpand .6s var(--ease) .5s both;
+}
+
+.form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,3vw,2.1rem);
+  font-weight: 500; line-height: 1.1;
+  margin-bottom: 8px; color: var(--cream);
+}
+.form-title em { font-style: italic; color: var(--rose); font-weight: 400; }
+
+.form-sub {
+  font-size: .7rem; color: var(--text-dim);
+  margin-bottom: 26px; line-height: 1.65;
+}
+
+/* Fields */
+.field { margin-bottom: 16px; }
+.field label {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .56rem; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: 7px;
+}
+
+.field input, .field select {
+  width: 100%; padding: 11px 14px;
+  background: rgba(240,235,227,.03);
+  border: 1px solid var(--border-soft);
+  color: var(--cream);
+  font-family: 'Outfit', sans-serif;
+  font-size: .74rem; font-weight: 400;
+  outline: none;
+  transition: border-color .3s, background .3s;
+  -webkit-appearance: none;
+}
+.field input::placeholder { color: var(--text-faint); }
+.field input:focus, .field select:focus {
+  border-color: rgba(200,145,90,.4);
+  background: rgba(200,145,90,.025);
+}
+.field input.error-field  {
+  border-color: rgba(224,92,92,.5);
+  background: rgba(224,92,92,.03);
+}
+
+.field-hint {
+  font-size: .56rem; color: var(--text-faint);
+  margin-top: 6px; line-height: 1.7;
+  display: flex; align-items: flex-start; gap: 6px;
+}
+
+/* Role toggle */
+.role-toggle {
+  display: grid; grid-template-columns: 1fr 1fr;
+  margin-bottom: 18px;
+  border: 1px solid var(--border-soft);
+}
+.role-btn {
+  padding: 11px;
+  background: rgba(240,235,227,.02);
+  border: none;
+  color: var(--text-dim);
+  font-family: 'Outfit', sans-serif;
+  font-size: .62rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; transition: all .3s;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.role-btn:first-child { border-right: 1px solid var(--border-soft); }
+.role-btn.active {
+  background: var(--rose-dim);
+  color: var(--rose);
+}
+.role-btn:hover:not(.active) { color: var(--cream); background: rgba(240,235,227,.04); }
+
+/* Password rules */
+.pw-rules {
+  margin-top: 8px;
+  display: flex; flex-direction: column; gap: 5px;
+}
+.pw-rule {
+  display: flex; align-items: center; gap: 8px;
+  font-size: .58rem; color: var(--text-faint);
+  transition: color .3s;
+}
+.pw-rule .rule-icon { flex-shrink: 0; opacity: .3; transition: opacity .3s; }
+.pw-rule.ok { color: var(--success); }
+.pw-rule.ok .rule-icon { opacity: 1; }
+
+/* Notice box */
+.notice-box {
+  margin-bottom: 18px; padding: 11px 14px;
+  background: var(--rose-dim);
+  border: 1px solid var(--border);
+  display: flex; align-items: flex-start; gap: 10px;
+  font-size: .64rem; line-height: 1.65;
+}
+.notice-box-icon { flex-shrink: 0; margin-top: 1px; }
+.notice-box strong { color: var(--rose); font-weight: 600; }
+
+/* Alert */
+.alert {
+  padding: 11px 14px; font-size: .66rem; line-height: 1.7;
+  margin-bottom: 16px;
+  border-left: 2px solid;
+  display: none;
+  align-items: flex-start; gap: 10px;
+}
+.alert.error   { background: var(--error-dim);   border-color: var(--error);   color: var(--error); }
+.alert.success { background: var(--success-dim); border-color: var(--success); color: var(--success); }
+.alert.visible { display: flex; }
+.alert-icon { flex-shrink: 0; }
+
+/* Submit button */
+.submit-btn {
+  width: 100%; padding: 14px;
+  background: var(--rose); color: var(--void);
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: .7rem; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  cursor: pointer; margin-top: 8px;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  transition: background .3s, transform .2s;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  position: relative; overflow: hidden;
+}
+.submit-btn::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rose-light), var(--rose));
+  opacity: 0; transition: opacity .35s;
+}
+.submit-btn:hover::after { opacity: 1; }
+.submit-btn span, .submit-btn svg { position: relative; z-index: 1; }
+.submit-btn:hover { transform: translateY(-1px); }
+.submit-btn:active { transform: translateY(0); }
+.submit-btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+.submit-btn:disabled::after { opacity: 0; }
+
+/* Spinner */
+.spinner {
+  width: 15px; height: 15px;
+  border: 2px solid rgba(7,8,12,.3);
+  border-top-color: var(--void);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  position: relative; z-index: 1;
+}
+
+/* Switch link */
+.switch-hint {
+  margin-top: 18px; text-align: center;
+  font-size: .64rem; color: var(--text-faint);
+}
+.switch-hint button {
+  background: none; border: none;
+  color: var(--rose); cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  font-size: .64rem; font-weight: 500;
+  letter-spacing: .04em;
+  transition: opacity .25s;
+  text-decoration: underline; text-underline-offset: 3px;
+  text-decoration-color: rgba(200,145,90,.3);
+}
+.switch-hint button:hover { opacity: .75; }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 860px) {
+  .page { grid-template-columns: 1fr; }
+  .left-panel { display: none; }
+  .right-panel {
+    padding: clamp(28px,5vw,48px) clamp(16px,5vw,32px);
+    min-height: calc(100vh - var(--nav-h));
+    width: 100%;
+    overflow-x: hidden;
+  }
+  .auth-card { max-width: 440px; width: 100%; }
+}
+@media (max-width: 400px) {
+  .form-wrap { padding: 18px; }
+  .submit-btn { clip-path: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav class="nav">
+  <a class="nav-logo" href="/index.html">Zorv<span>Ex</span></a>
+  <a class="nav-back" href="/index.html">
+    <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M16 10H4M10 16l-6-6 6-6"/>
+    </svg>
+    Back to Home
+  </a>
+</nav>
+
+<!-- ══════════════ PAGE ══════════════ -->
+<div class="page">
+
+  <!-- LEFT PANEL -->
+  <aside class="left-panel">
+    <div class="left-orb-1"></div>
+    <div class="left-orb-2"></div>
+    <div class="left-grid-bg"></div>
+    <div class="corner-ring-1"></div>
+    <div class="corner-ring-2"></div>
+
+    <div class="left-content">
+      <div class="left-eyebrow">
+        <div class="eyebrow-pill">
+          <div class="eyebrow-dot"></div>
+          Kerala's Premium Art Marketplace
+        </div>
+      </div>
+
+      <h1 class="left-headline">
+        <span class="l1">Art That</span>
+        <span class="l2">Endures</span>
+      </h1>
+
+      <p class="left-desc">
+        Join thousands of collectors and artists building a living legacy of handcrafted Kerala art. Every commission is a conversation between creator and collector.
+      </p>
+
+      <div class="left-divider"></div>
+
+      <div class="left-trust">
+        <div class="trust-row">
+          <div class="trust-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="trust-text-title">Secure Payments</div>
+            <div class="trust-text-sub">Escrow-protected transactions</div>
+          </div>
+        </div>
+        <div class="trust-row">
+          <div class="trust-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5">
+              <path d="M9 12l2 2 4-4M7.8 21A9 9 0 1 1 20 8.2"/>
+            </svg>
+          </div>
+          <div>
+            <div class="trust-text-title">Verified Artists</div>
+            <div class="trust-text-sub">All portfolios manually reviewed</div>
+          </div>
+        </div>
+        <div class="trust-row">
+          <div class="trust-icon-box">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Z"/>
+              <polyline points="22,6 12,13 2,6"/>
+            </svg>
+          </div>
+          <div>
+            <div class="trust-text-title">Email Updates</div>
+            <div class="trust-text-sub">Order progress straight to your inbox</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Floating badge -->
+    <div class="art-badge">
+      <div class="art-badge-icon">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5">
+          <path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5L17 3Z"/>
+          <path d="M15 5l4 4" opacity=".5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="art-badge-title">Handcrafted Art</div>
+        <div class="art-badge-sub">From ₹500 · Delivered Across India</div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- RIGHT PANEL -->
+  <main class="right-panel">
+    <div class="right-glow"></div>
+
+    <div class="auth-card">
+      <!-- TABS -->
+      <div class="tabs">
+        <button class="tab active" id="tabLogin" onclick="switchTab('login')">Sign In</button>
+        <button class="tab" id="tabReg"   onclick="switchTab('register')">Register</button>
+      </div>
+
+      <div class="form-wrap">
+
+        <!-- ALERTS -->
+        <div class="alert error" id="alertBox">
+          <span class="alert-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </span>
+          <span id="alertMsg"></span>
+        </div>
+        <div class="alert success" id="successBox">
+          <span class="alert-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+            </svg>
+          </span>
+          <span id="successMsg"></span>
+        </div>
+
+        <!-- ─── LOGIN ─── -->
+        <div class="form-panel active" id="panelLogin">
+          <div class="form-eyebrow">Welcome back</div>
+          <div class="form-title">Sign <em>In</em></div>
+          <p class="form-sub">Access your ZorvEx account to manage orders and commissions.</p>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Email Address
+            </label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+          </div>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Password
+            </label>
+            <input type="password" id="loginPass" placeholder="Your password" autocomplete="current-password"
+                   onkeydown="if(event.key==='Enter')doLogin()">
+          </div>
+
+          <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+            <span id="loginBtnText">Sign In</span>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 10h12M10 4l6 6-6 6"/>
+            </svg>
+          </button>
+
+          <div class="switch-hint">
+            New to ZorvEx? <button onclick="switchTab('register')">Create an account</button>
+          </div>
+        </div>
+
+        <!-- ─── REGISTER ─── -->
+        <div class="form-panel" id="panelRegister">
+          <div class="form-eyebrow">Join ZorvEx</div>
+          <div class="form-title">Create <em>Account</em></div>
+          <p class="form-sub">Start collecting or selling art on Kerala's premium marketplace.</p>
+
+          <!-- Role Toggle -->
+          <div class="role-toggle">
+            <button class="role-btn active" id="roleBuyer" onclick="setRole('buyer')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/>
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <path d="M16 10a4 4 0 0 1-8 0"/>
+              </svg>
+              Buyer
+            </button>
+            <button class="role-btn" id="roleArtist" onclick="setRole('artist')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5L17 3Z"/>
+              </svg>
+              Artist
+            </button>
+          </div>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>
+              </svg>
+              Full Name
+            </label>
+            <input type="text" id="regName" placeholder="Your full name" autocomplete="name">
+          </div>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+              Email Address
+            </label>
+            <input type="email" id="regEmail" placeholder="you@example.com" autocomplete="email">
+            <div class="field-hint">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Must be unique. Used for order updates.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.4 2.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 9.91a16 16 0 0 0 6.07 6.07l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92Z"/>
+              </svg>
+              Mobile Number
+            </label>
+            <input type="tel" id="regPhone" placeholder="10-digit Indian number" maxlength="10" autocomplete="tel">
+            <div class="field-hint">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px">
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              Must be unique. Hidden from public.
+            </div>
+          </div>
+
+          <div class="field">
+            <label>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+              Password
+            </label>
+            <input type="password" id="regPass" placeholder="e.g. Zorvex2025"
+                   autocomplete="new-password" oninput="checkPwRules()">
+            <div class="pw-rules">
+              <div class="pw-rule" id="ruleCapital">
+                <svg class="rule-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Starts with a capital letter
+              </div>
+              <div class="pw-rule" id="ruleNumber">
+                <svg class="rule-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Contains at least one number
+              </div>
+              <div class="pw-rule" id="ruleLength">
+                <svg class="rule-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Minimum 8 characters
+              </div>
+            </div>
+          </div>
+
+          <div class="notice-box">
+            <span class="notice-box-icon">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <span><strong>Note:</strong> Notifications &amp; order updates will be sent to your email address.</span>
+          </div>
+
+          <button class="submit-btn" id="regBtn" onclick="doRegister()">
+            <span id="regBtnText">Create Account</span>
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 10h12M10 4l6 6-6 6"/>
+            </svg>
+          </button>
+
+          <div class="switch-hint">
+            Already have an account? <button onclick="switchTab('login')">Sign in instead</button>
+          </div>
+        </div>
+
+      </div><!-- /form-wrap -->
+    </div><!-- /auth-card -->
+  </main>
+</div><!-- /page -->
+
+<script src="/zorvex-api.js"></script>
+<script>
+// ─── Init ─────────────────────────────────────────────────────────────────────
+const urlP       = new URLSearchParams(window.location.search);
+const redirectTo = urlP.get("redirect") || null;
+const initMode   = urlP.get("mode");
+
+// Redirect if already logged in
+if (typeof ZX !== 'undefined' && ZX.auth.isLoggedIn()) {
+  const u = ZX.auth.getUser();
+  window.location.href = u.role === "artist"
+    ? "/dashboard-artist.html"
+    : u.role === "admin"
+    ? "/dashboard-admin.html"
+    : "/dashboard-buyer.html";
+}
+
+if (initMode === "register") switchTab("register");
+
+// Pre-select artist role from URL param
+const initRole = urlP.get("role");
+let selectedRole = initRole === "artist" ? "artist" : "buyer";
+if (selectedRole === "artist") {
+  requestAnimationFrame(() => setRole("artist"));
+}
+
+// ─── Cursor ───────────────────────────────────────────────────────────────────
+(function(){
+  if (!window.matchMedia('(pointer:fine)').matches) return;
+  const c = document.getElementById('cur');
+  const r = document.getElementById('curRing');
+  if (!c || !r) return;
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    c.style.left = mx + 'px'; c.style.top = my + 'px';
+  });
+  (function loop(){
+    rx += (mx - rx) * .12; ry += (my - ry) * .12;
+    r.style.left = rx + 'px'; r.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  const hoverEls = document.querySelectorAll('a,button,.auth-card,.role-btn');
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => { c.classList.add('hover'); r.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { c.classList.remove('hover'); r.classList.remove('hover'); });
+  });
+})();
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  const isLogin = tab === 'login';
+  document.getElementById('tabLogin').classList.toggle('active', isLogin);
+  document.getElementById('tabReg').classList.toggle('active', !isLogin);
+  document.getElementById('panelLogin').classList.toggle('active', isLogin);
+  document.getElementById('panelRegister').classList.toggle('active', !isLogin);
+  clearAlerts();
+}
+
+// ─── Role ─────────────────────────────────────────────────────────────────────
+function setRole(role) {
+  selectedRole = role;
+  document.getElementById('roleBuyer').classList.toggle('active', role === 'buyer');
+  document.getElementById('roleArtist').classList.toggle('active', role === 'artist');
+}
+
+// ─── Alerts ───────────────────────────────────────────────────────────────────
+function showError(msg) {
+  const el = document.getElementById('alertBox');
+  document.getElementById('alertMsg').textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('successBox').classList.remove('visible');
+}
+function showSuccess(msg) {
+  const el = document.getElementById('successBox');
+  document.getElementById('successMsg').textContent = msg;
+  el.classList.add('visible');
+  document.getElementById('alertBox').classList.remove('visible');
+}
+function clearAlerts() {
+  document.getElementById('alertBox').classList.remove('visible');
+  document.getElementById('successBox').classList.remove('visible');
+}
+
+// ─── Loading state ────────────────────────────────────────────────────────────
+function setLoading(btnId, textId, loading, defaultText) {
+  const btn = document.getElementById(btnId);
+  const txt = document.getElementById(textId);
+  btn.disabled = loading;
+  // Remove any existing spinner
+  btn.querySelector('.spinner')?.remove();
+  btn.querySelector('svg:last-child')?.remove();
+  if (loading) {
+    txt.textContent = '';
+    const sp = document.createElement('span');
+    sp.className = 'spinner';
+    btn.appendChild(sp);
+  } else {
+    txt.textContent = defaultText;
+    const arrowSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+    arrowSvg.setAttribute('width','15'); arrowSvg.setAttribute('height','15');
+    arrowSvg.setAttribute('viewBox','0 0 20 20');
+    arrowSvg.setAttribute('fill','none');
+    arrowSvg.setAttribute('stroke','currentColor');
+    arrowSvg.setAttribute('stroke-width','2');
+    const p = document.createElementNS('http://www.w3.org/2000/svg','path');
+    p.setAttribute('d','M4 10h12M10 4l6 6-6 6');
+    arrowSvg.appendChild(p);
+    btn.appendChild(arrowSvg);
+  }
+}
+
+// ─── Password rules ───────────────────────────────────────────────────────────
+function checkPwRules() {
+  const pw = document.getElementById('regPass').value;
+  const rules = {
+    ruleCapital: /^[A-Z]/.test(pw),
+    ruleNumber:  /\d/.test(pw),
+    ruleLength:  pw.length >= 8,
+  };
+  Object.entries(rules).forEach(([id, ok]) => {
+    document.getElementById(id).classList.toggle('ok', ok);
+  });
+}
+
+// ─── Login ────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  clearAlerts();
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+
+  if (!email || !pass) return showError('Please fill in all fields.');
+
+  setLoading('loginBtn', 'loginBtnText', true, 'Sign In');
+  try {
+    const data = await ZX.auth.login(email, pass);
+    showSuccess('Welcome back, ' + data.user.name + '!');
+    setTimeout(() => {
+      const dest = redirectTo || (
+        data.user.role === 'artist' ? '/dashboard-artist.html' :
+        data.user.role === 'admin'  ? '/dashboard-admin.html'  :
+        '/dashboard-buyer.html'
+      );
+      window.location.href = dest;
+    }, 800);
+  } catch (err) {
+    showError(err.message || 'Login failed. Please try again.');
+  } finally {
+    setLoading('loginBtn', 'loginBtnText', false, 'Sign In');
+  }
+}
+
+// ─── Register ─────────────────────────────────────────────────────────────────
+async function doRegister() {
+  clearAlerts();
+  const name  = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const phone = document.getElementById('regPhone').value.trim();
+  const pass  = document.getElementById('regPass').value;
+
+  // Clear prior field errors
+  ['regEmail','regPhone'].forEach(id =>
+    document.getElementById(id).classList.remove('error-field'));
+
+  if (!name || !email || !phone || !pass) return showError('All fields are required.');
+  if (!/^[A-Z]/.test(pass)) return showError('Password must start with a capital letter.');
+  if (!/\d/.test(pass))     return showError('Password must contain at least one number.');
+  if (pass.length < 8)      return showError('Password must be at least 8 characters.');
+
+  setLoading('regBtn', 'regBtnText', true, 'Create Account');
+  try {
+    const data = await ZX.auth.register(name, email, phone, pass, selectedRole);
+    showSuccess('Account created! Redirecting...');
+    setTimeout(() => {
+      const dest = data.user.role === 'artist'
+        ? '/dashboard-artist.html'
+        : '/dashboard-buyer.html';
+      window.location.href = dest;
+    }, 900);
+  } catch (err) {
+    showError(err.message || 'Registration failed. Please try again.');
+    if (err.field === 'email') document.getElementById('regEmail').classList.add('error-field');
+    if (err.field === 'phone') document.getElementById('regPhone').classList.add('error-field');
+  } finally {
+    setLoading('regBtn', 'regBtnText', false, 'Create Account');
+  }
+}
+</script>
+</body>
+</html>

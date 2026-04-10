@@ -1,0 +1,1969 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Control — ZorvEx</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   EMPIRE DESIGN SYSTEM — ZORVEX ADMIN
+══════════════════════════════════════════════ */
+:root {
+  --void: #07080c;
+  --surface: #0e1018;
+  --surface-2: #141620;
+  --surface-3: #1a1d2a;
+  --rose: #c8915a;
+  --rose-light: #e0ae7f;
+  --rose-dim: rgba(200,145,90,.12);
+  --rose-glow: rgba(200,145,90,.06);
+  --cream: #f0ebe3;
+  --text: rgba(240,235,227,.88);
+  --text-dim: rgba(240,235,227,.48);
+  --text-faint: rgba(240,235,227,.22);
+  --border: rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  --nav-h: 56px;
+  --sb-w: 220px;
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --ease-out: cubic-bezier(0,0,.2,1);
+  /* Semantic */
+  --ok: #22c55e;
+  --ok-dim: rgba(34,197,94,.12);
+  --err: #e05c5c;
+  --err-dim: rgba(224,92,92,.12);
+  --warn: #f59e0b;
+  --warn-dim: rgba(245,158,11,.12);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59,130,246,.12);
+  --purple: #8b5cf6;
+  --purple-dim: rgba(139,92,246,.12);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9997;
+  opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CURSOR ── */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width: 8px; height: 8px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform .12s var(--ease), width .2s, height .2s;
+  }
+  .cur-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,145,90,.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .35s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover { width: 14px; height: 14px; }
+  .cur-ring.hover { width: 56px; height: 56px; opacity: .5; }
+}
+
+/* ══════════════════════════════════════════════
+   TOP BAR
+══════════════════════════════════════════════ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 900; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px,3vw,32px);
+  background: rgba(7,8,12,.94);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom: 1px solid var(--border-soft);
+  animation: slideDown .6s var(--ease) both;
+}
+@keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.logo-wrap { display: flex; align-items: center; gap: 12px; }
+.logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem,2vw,1.4rem);
+  font-weight: 700;
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: .04em;
+}
+.logo span { color: var(--rose); }
+
+.admin-chip {
+  padding: 3px 8px;
+  background: rgba(224,92,92,.08);
+  border: 1px solid rgba(224,92,92,.25);
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--err);
+}
+
+.tb-r { display: flex; align-items: center; gap: 10px; }
+
+.alert-bell {
+  position: relative;
+  width: 34px; height: 34px;
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .3s, background .3s;
+}
+.alert-bell:hover { border-color: var(--border); background: var(--rose-dim); color: var(--rose); }
+.bell-dot {
+  position: absolute; top: 5px; right: 5px;
+  width: 7px; height: 7px;
+  background: var(--err);
+  border-radius: 50%;
+  border: 2px solid var(--void);
+  display: none;
+}
+.bell-dot.on { display: block; }
+
+.sign-out {
+  padding: 7px 16px;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--rose);
+  font-family: 'Outfit', sans-serif;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .3s;
+  white-space: nowrap;
+}
+.sign-out:hover { background: var(--rose-dim); border-color: var(--rose); }
+
+.ham {
+  display: none; flex-direction: column; gap: 5px;
+  padding: 6px; background: none; border: none; cursor: pointer; flex-shrink: 0;
+}
+.ham span {
+  width: 22px; height: 1.5px;
+  background: var(--cream); display: block;
+  transition: transform .35s var(--ease), opacity .25s;
+  transform-origin: center;
+}
+.ham.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.ham.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.ham.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* ══════════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════════ */
+.shell {
+  display: flex;
+  min-height: 100vh;
+  padding-top: var(--nav-h);
+}
+
+/* ══════════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════════ */
+.sb {
+  width: var(--sb-w); flex-shrink: 0;
+  background: var(--surface);
+  border-right: 1px solid var(--border-soft);
+  padding: 24px 0 40px;
+  position: fixed;
+  top: var(--nav-h); left: 0;
+  height: calc(100vh - var(--nav-h));
+  overflow-y: auto;
+  z-index: 200;
+  transition: transform .35s var(--ease);
+  animation: fadeInLeft .7s var(--ease) .2s both;
+}
+@keyframes fadeInLeft { from { transform: translateX(-20px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+.sb::-webkit-scrollbar { width: 3px; }
+.sb::-webkit-scrollbar-track { background: transparent; }
+.sb::-webkit-scrollbar-thumb { background: var(--border-soft); border-radius: 2px; }
+
+.sb-sec { margin-bottom: 4px; }
+
+.sb-lbl {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  padding: 0 20px;
+  margin: 24px 0 8px;
+}
+
+.sb-ul { list-style: none; }
+
+.sb-ul li a,
+.sb-ul li button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: .72rem;
+  font-weight: 400;
+  letter-spacing: .02em;
+  transition: all .25s;
+  width: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  position: relative;
+}
+.sb-ul li a::before,
+.sb-ul li button::before {
+  content: '';
+  position: absolute; left: 0; top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 2px; height: 60%;
+  background: var(--rose);
+  transition: transform .25s var(--ease);
+}
+.sb-ul li a:hover,
+.sb-ul li button:hover {
+  color: var(--text);
+  background: var(--rose-glow);
+}
+.sb-ul li.on a {
+  color: var(--rose);
+  background: var(--rose-dim);
+}
+.sb-ul li.on a::before { transform: translateY(-50%) scaleY(1); }
+
+.sb-ic {
+  width: 16px;
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  opacity: .7;
+}
+.sb-ul li.on a .sb-ic,
+.sb-ul li a:hover .sb-ic,
+.sb-ul li button:hover .sb-ic { opacity: 1; }
+
+.sb-badge {
+  margin-left: auto;
+  padding: 2px 6px;
+  font-size: .52rem;
+  font-weight: 600;
+  border-radius: 20px;
+  color: #fff;
+}
+.badge-red { background: var(--err); }
+.badge-warn { background: var(--warn); }
+
+/* ══════════════════════════════════════════════
+   MAIN CONTENT
+══════════════════════════════════════════════ */
+.main {
+  flex: 1;
+  margin-left: var(--sb-w);
+  padding: clamp(20px,3vw,40px);
+  animation: fadeUp .7s var(--ease) .35s both;
+}
+@keyframes fadeUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+.view { display: none; }
+.view.on { display: block; }
+
+/* ── PAGE HEAD ── */
+.ph {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: clamp(20px,3vw,36px);
+  padding-bottom: clamp(16px,2.5vw,28px);
+  border-bottom: 1px solid var(--border-soft);
+}
+.ph-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem,3vw,2.2rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+.ph-title em { font-style: italic; color: var(--rose); }
+.ph-sub {
+  font-size: .78rem;
+  color: var(--text-dim);
+  margin-top: 5px;
+  font-weight: 300;
+}
+
+/* ══════════════════════════════════════════════
+   KPI GRID
+══════════════════════════════════════════════ */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: clamp(16px,2.5vw,28px);
+}
+
+.kpi {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  padding: 20px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .3s, transform .3s var(--ease), box-shadow .3s;
+}
+.kpi::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--kc, var(--rose)), transparent);
+  opacity: .6;
+}
+.kpi::after {
+  content: '';
+  position: absolute; bottom: -20px; right: -20px;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--kc, var(--rose)) 0%, transparent 70%);
+  opacity: .04;
+  transition: opacity .3s, transform .3s;
+}
+.kpi:hover {
+  border-color: var(--border);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+.kpi:hover::after { opacity: .08; transform: scale(1.3); }
+
+.kpi-ic {
+  width: 28px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(200,145,90,.08);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  margin-bottom: 12px;
+  color: var(--kc, var(--rose));
+}
+
+.kpi-v {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.4rem, 2.5vw, 1.9rem);
+  font-weight: 500;
+  color: var(--kc, var(--rose));
+  line-height: 1;
+  margin-bottom: 5px;
+  letter-spacing: -.02em;
+}
+.kpi-l {
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+/* ══════════════════════════════════════════════
+   CARDS & LAYOUT
+══════════════════════════════════════════════ */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: clamp(12px,2vw,18px);
+}
+
+.card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  margin-bottom: 10px;
+  transition: border-color .3s;
+}
+.card:hover { border-color: var(--border); }
+
+.ch {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ct {
+  font-size: .65rem;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--rose);
+}
+.ca {
+  font-size: .65rem;
+  font-weight: 400;
+  color: var(--text-faint);
+  background: none; border: none; cursor: pointer;
+  font-family: 'Outfit', sans-serif;
+  transition: color .25s;
+  text-decoration: none;
+  display: flex; align-items: center; gap: 4px;
+}
+.ca:hover { color: var(--rose); }
+
+/* ══════════════════════════════════════════════
+   TABLE
+══════════════════════════════════════════════ */
+.tbl-wrap { overflow-x: auto; }
+.tbl-wrap::-webkit-scrollbar { height: 3px; }
+.tbl-wrap::-webkit-scrollbar-thumb { background: var(--border-soft); }
+
+table { width: 100%; border-collapse: collapse; font-size: .74rem; }
+thead tr { border-bottom: 1px solid var(--border-soft); }
+th {
+  padding: 10px 16px;
+  text-align: left;
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  white-space: nowrap;
+}
+td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(240,235,227,.04);
+  color: var(--text-dim);
+  vertical-align: middle;
+}
+td:first-child { color: var(--text); }
+tr:last-child td { border-bottom: none; }
+tbody tr {
+  cursor: pointer;
+  transition: background .2s;
+}
+tbody tr:hover td { background: rgba(200,145,90,.04); }
+
+/* ══════════════════════════════════════════════
+   PILL / STATUS
+══════════════════════════════════════════════ */
+.pill {
+  padding: 3px 9px;
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+/* ══════════════════════════════════════════════
+   BUTTONS
+══════════════════════════════════════════════ */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all .25s;
+  white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.btn-gold { background: var(--rose); color: var(--void); }
+.btn-gold:hover { background: var(--rose-light); transform: translateY(-1px); }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--rose); }
+.btn-ghost:hover { background: var(--rose-dim); border-color: var(--rose); }
+.btn-warn { background: transparent; border: 1px solid rgba(245,158,11,.3); color: var(--warn); }
+.btn-warn:hover { background: var(--warn-dim); }
+.btn-ok { background: transparent; border: 1px solid rgba(34,197,94,.3); color: var(--ok); }
+.btn-ok:hover { background: var(--ok-dim); }
+.btn-red { background: transparent; border: 1px solid rgba(224,92,92,.3); color: var(--err); }
+.btn-red:hover { background: var(--err-dim); }
+
+/* ══════════════════════════════════════════════
+   ORDER PIPELINE
+══════════════════════════════════════════════ */
+.pipeline {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 10px;
+  margin-bottom: clamp(14px,2.5vw,24px);
+}
+.pipe-col {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  padding: 16px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .25s, transform .25s;
+}
+.pipe-col:hover { border-color: var(--border); transform: translateY(-2px); }
+.pipe-col::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: var(--pipe-c, var(--rose));
+  opacity: .5;
+}
+.pipe-hd {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  color: var(--pipe-c, var(--rose));
+}
+.pipe-cnt {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem;
+  font-weight: 500;
+  line-height: 1;
+  margin-bottom: 2px;
+  color: var(--pipe-c, var(--rose));
+}
+.pipe-sub { font-size: .6rem; color: var(--text-faint); }
+
+/* ══════════════════════════════════════════════
+   ALERT ITEMS
+══════════════════════════════════════════════ */
+.alert-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  transition: background .2s;
+  cursor: pointer;
+}
+.alert-row:last-child { border-bottom: none; }
+.alert-row:hover { background: var(--rose-glow); }
+
+.alert-ic {
+  width: 32px; height: 32px;
+  background: var(--rose-dim);
+  border: 1px solid var(--border);
+  border-radius: 2px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  color: var(--rose);
+}
+.alert-txt { flex: 1; min-width: 0; }
+.alert-title { font-size: .74rem; color: var(--text); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.alert-sub { font-size: .65rem; color: var(--text-dim); }
+.alert-time { font-size: .62rem; color: var(--text-faint); flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════
+   SEARCH
+══════════════════════════════════════════════ */
+.search-row {
+  display: flex;
+  gap: 0;
+  margin-bottom: 14px;
+}
+.s-input {
+  flex: 1;
+  padding: 10px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  border-right: none;
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .78rem;
+  outline: none;
+  transition: border-color .25s;
+}
+.s-input:focus { border-color: var(--border); }
+.s-input::placeholder { color: var(--text-faint); }
+.s-btn {
+  padding: 10px 18px;
+  background: var(--rose);
+  color: var(--void);
+  border: none;
+  font-family: 'Outfit', sans-serif;
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background .25s;
+  flex-shrink: 0;
+}
+.s-btn:hover { background: var(--rose-light); }
+
+/* ══════════════════════════════════════════════
+   FORM FIELDS
+══════════════════════════════════════════════ */
+.fg { margin-bottom: 14px; }
+.fg label {
+  display: block;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 7px;
+}
+.fg input, .fg textarea {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .82rem;
+  outline: none;
+  transition: border-color .25s;
+}
+.fg input:focus, .fg textarea:focus { border-color: var(--border); }
+
+/* ══════════════════════════════════════════════
+   MODALS
+══════════════════════════════════════════════ */
+.m-ov {
+  display: none;
+  position: fixed; inset: 0;
+  z-index: 2000;
+  background: rgba(7,8,12,.92);
+  backdrop-filter: blur(20px) saturate(1.2);
+  -webkit-backdrop-filter: blur(20px) saturate(1.2);
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity .3s;
+}
+.m-ov.open { display: block; animation: modalIn .35s var(--ease) forwards; }
+@keyframes modalIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal {
+  max-width: 700px;
+  margin: clamp(16px,4vw,64px) auto;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  animation: modalSlide .4s var(--ease) .05s both;
+}
+@keyframes modalSlide { from { transform: translateY(24px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+.mh {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.mt {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 500;
+}
+.mt em { font-style: italic; color: var(--rose); }
+.mc {
+  width: 30px; height: 30px;
+  background: none;
+  border: 1px solid var(--border-soft);
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: .9rem;
+  transition: all .25s;
+  display: flex; align-items: center; justify-content: center;
+}
+.mc:hover { border-color: var(--border); color: var(--rose); }
+.mb { padding: 20px 24px; }
+
+/* ══════════════════════════════════════════════
+   INFO GRID (modal detail)
+══════════════════════════════════════════════ */
+.ig {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+.ii { display: flex; flex-direction: column; gap: 3px; }
+.il {
+  font-size: .58rem;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.iv { font-size: .78rem; color: var(--text); }
+
+/* ══════════════════════════════════════════════
+   TRACKING FORM
+══════════════════════════════════════════════ */
+.track-form {
+  padding: 16px;
+  background: rgba(245,158,11,.04);
+  border: 1px solid rgba(245,158,11,.14);
+  margin-top: 12px;
+}
+.track-form label {
+  display: block;
+  font-size: .62rem;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 8px;
+}
+.track-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .84rem;
+  outline: none;
+  margin-bottom: 12px;
+  transition: border-color .25s;
+}
+.track-input:focus { border-color: var(--warn); }
+
+/* ══════════════════════════════════════════════
+   NOTICES
+══════════════════════════════════════════════ */
+.notice {
+  padding: 12px 16px;
+  border-left: 2px solid;
+  font-size: .74rem;
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+.notice-gold { background: rgba(200,145,90,.05); border-color: var(--rose); color: var(--text-dim); }
+.notice-ok { background: var(--ok-dim); border-color: var(--ok); color: var(--ok); }
+.notice-err { background: var(--err-dim); border-color: var(--err); color: var(--err); }
+.notice-warn { background: var(--warn-dim); border-color: var(--warn); color: var(--warn); }
+
+/* ══════════════════════════════════════════════
+   ARTWORK VIEWER
+══════════════════════════════════════════════ */
+.art-img { max-width: 100%; max-height: 320px; display: block; border: 1px solid var(--border-soft); margin-bottom: 14px; }
+.view-once-warn {
+  padding: 10px 14px;
+  background: var(--err-dim);
+  border: 1px solid rgba(224,92,92,.2);
+  font-size: .68rem;
+  color: var(--err);
+  margin-bottom: 12px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+/* ══════════════════════════════════════════════
+   SELECT
+══════════════════════════════════════════════ */
+select {
+  padding: 9px 14px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-size: .74rem;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  transition: border-color .25s;
+}
+select:focus { border-color: var(--border); }
+
+/* ══════════════════════════════════════════════
+   SPINNER
+══════════════════════════════════════════════ */
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin {
+  width: 12px; height: 12px;
+  border: 1.5px solid rgba(240,235,227,.15);
+  border-top-color: var(--cream);
+  border-radius: 50%;
+  display: inline-block;
+  animation: spin .7s linear infinite;
+  vertical-align: middle;
+}
+
+/* ══════════════════════════════════════════════
+   EMPTY STATE
+══════════════════════════════════════════════ */
+.empty-state {
+  padding: 48px 24px;
+  text-align: center;
+  color: var(--text-faint);
+  font-size: .78rem;
+  letter-spacing: .04em;
+}
+
+/* ══════════════════════════════════════════════
+   REVENUE
+══════════════════════════════════════════════ */
+.rev-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border-soft);
+  font-size: .78rem;
+}
+.rev-row:last-child { border-bottom: none; }
+.rev-lbl { color: var(--text-dim); }
+.rev-amt {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.1rem;
+  color: var(--rose);
+}
+
+/* ══════════════════════════════════════════════
+   PAGINATION
+══════════════════════════════════════════════ */
+#allPagination {
+  padding: 16px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-size: .7rem;
+  color: var(--text-faint);
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .two-col { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 768px) {
+  :root { --sb-w: 240px; }
+  .shell { flex-direction: column; }
+  .main { margin-left: 0; }
+  .sb {
+    transform: translateX(-100%);
+    animation: none;
+    box-shadow: 4px 0 40px rgba(0,0,0,.5);
+  }
+  .sb.open { transform: translateX(0); }
+  .ham { display: flex; }
+  .kpi-grid { grid-template-columns: 1fr 1fr 1fr; }
+  .ig { grid-template-columns: 1fr; }
+  .sign-out { display: none; }
+}
+
+@media (max-width: 560px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .pipeline { grid-template-columns: 1fr 1fr 1fr; }
+  .modal { margin: 8px; }
+}
+
+@media (max-width: 380px) {
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .pipeline { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- TOP BAR -->
+<nav class="topbar">
+  <div class="logo-wrap">
+    <a class="logo" href="/index.html">Zorv<span>Ex</span></a>
+    <span class="admin-chip">Admin</span>
+  </div>
+  <div class="tb-r">
+    <!-- Bell icon -->
+    <button class="alert-bell" title="Alerts" onclick="show('alerts')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/>
+        <path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+      </svg>
+      <span class="bell-dot" id="bellDot"></span>
+    </button>
+    <button class="sign-out" onclick="ZX.auth.logout()">Sign Out</button>
+    <button class="ham" id="hamBtn"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<div class="shell">
+
+<!-- SIDEBAR -->
+<aside class="sb" id="sb">
+  <div class="sb-sec">
+    <div class="sb-lbl">Platform</div>
+    <ul class="sb-ul">
+      <li class="on" id="sn-overview">
+        <a onclick="show('overview')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          </span>Overview
+        </a>
+      </li>
+      <li id="sn-alerts">
+        <a onclick="show('alerts')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </span>Alerts
+          <span class="sb-badge badge-red" id="alertBadge" style="display:none">0</span>
+        </a>
+      </li>
+      <li id="sn-requests">
+        <a onclick="show('requests')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          </span>New Requests
+          <span class="sb-badge badge-red" id="reqBadge" style="display:none">0</span>
+        </a>
+      </li>
+      <li id="sn-active">
+        <a onclick="show('active')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </span>Active Orders
+        </a>
+      </li>
+      <li id="sn-shipping">
+        <a onclick="show('shipping')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10l-8.5-8.5-1.5 1.5"/><path d="M21 10h-6v11H3V10H1"/><path d="M9 21v-9h6v9"/></svg>
+          </span>Shipping
+          <span class="sb-badge badge-warn" id="shipBadge" style="display:none">0</span>
+        </a>
+      </li>
+      <li id="sn-all">
+        <a onclick="show('all')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          </span>All Orders
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">Management</div>
+    <ul class="sb-ul">
+      <li id="sn-users">
+        <a onclick="show('users')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          </span>Users
+        </a>
+      </li>
+      <li id="sn-artists">
+        <a onclick="show('artists')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8.56 2.75c4.37 6.03 6.02 9.42 8.03 17.72m2.54-15.38c-3.72 4.35-8.94 5.66-16.88 5.85m19.5 1.9c-3.5-.93-6.63-.82-8.94 0-2.58.92-5.01 2.86-7.44 6.32"/></svg>
+          </span>Artists
+        </a>
+      </li>
+      <li id="sn-revenue">
+        <a onclick="show('revenue')">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </span>Revenue
+        </a>
+      </li>
+    </ul>
+  </div>
+
+  <div class="sb-sec">
+    <div class="sb-lbl">System</div>
+    <ul class="sb-ul">
+      <li>
+        <button onclick="seedAdmin()">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          </span>Seed Admin
+        </button>
+      </li>
+      <li>
+        <button onclick="ZX.auth.logout()">
+          <span class="sb-ic">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+          </span>Sign Out
+        </button>
+      </li>
+    </ul>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+
+<!-- ── OVERVIEW ─────────────────────────────── -->
+<div class="view on" id="view-overview">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Platform <em>Overview</em></div>
+      <div class="ph-sub">Live ZorvEx marketplace stats.</div>
+    </div>
+    <button class="btn btn-ghost" onclick="loadOverview()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+      Refresh
+    </button>
+  </div>
+
+  <div class="kpi-grid">
+    <div class="kpi" style="--kc:var(--rose)">
+      <div class="kpi-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="kpi-v" id="kTotal">—</div>
+      <div class="kpi-l">Total Orders</div>
+    </div>
+    <div class="kpi" style="--kc:var(--blue)">
+      <div class="kpi-ic" style="color:var(--blue);border-color:rgba(59,130,246,.2);background:var(--blue-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+      <div class="kpi-v" id="kActive">—</div>
+      <div class="kpi-l">Active</div>
+    </div>
+    <div class="kpi" style="--kc:var(--warn)">
+      <div class="kpi-ic" style="color:var(--warn);border-color:rgba(245,158,11,.2);background:var(--warn-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      <div class="kpi-v" id="kShip">—</div>
+      <div class="kpi-l">To Ship</div>
+    </div>
+    <div class="kpi" style="--kc:var(--ok)">
+      <div class="kpi-ic" style="color:var(--ok);border-color:rgba(34,197,94,.2);background:var(--ok-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <div class="kpi-v" id="kDone">—</div>
+      <div class="kpi-l">Delivered</div>
+    </div>
+    <div class="kpi" style="--kc:var(--rose)">
+      <div class="kpi-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="kpi-v" id="kComm">—</div>
+      <div class="kpi-l">Commission</div>
+    </div>
+    <div class="kpi" style="--kc:var(--purple)">
+      <div class="kpi-ic" style="color:var(--purple);border-color:rgba(139,92,246,.2);background:var(--purple-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+      <div class="kpi-v" id="kUsers">—</div>
+      <div class="kpi-l">Users</div>
+    </div>
+  </div>
+
+  <!-- Order Pipeline -->
+  <div class="card" style="margin-bottom:clamp(14px,2.5vw,24px);">
+    <div class="ch"><span class="ct">Order Pipeline</span></div>
+    <div class="pipeline" id="pipelineGrid" style="padding:12px;margin:0;border:none;background:transparent;"></div>
+  </div>
+
+  <div class="two-col">
+    <div class="card">
+      <div class="ch">
+        <span class="ct">Needs Forwarding</span>
+        <button class="ca" onclick="show('requests')">View all
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div id="ovReqs"></div>
+    </div>
+    <div class="card">
+      <div class="ch">
+        <span class="ct">Ready to Ship</span>
+        <button class="ca" onclick="show('shipping')">View all
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div id="ovShip"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ch">
+      <span class="ct">Recent Orders</span>
+      <button class="ca" onclick="show('all')">View all
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Order ID</th><th>Category</th><th>Status</th><th>Total</th><th>Date</th><th></th></tr></thead>
+        <tbody id="recentTbl"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ALERTS ─────────────────────────────── -->
+<div class="view" id="view-alerts">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Platform <em>Alerts</em></div>
+      <div class="ph-sub">Items requiring immediate action.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Action Required</span></div>
+    <div id="alertsList"></div>
+  </div>
+</div>
+
+<!-- ── NEW REQUESTS ─────────────────────────────── -->
+<div class="view" id="view-requests">
+  <div class="ph">
+    <div>
+      <div class="ph-title">New <em>Requests</em></div>
+      <div class="ph-sub">Review and forward to the specific artist chosen by the buyer.</div>
+    </div>
+  </div>
+  <div class="notice notice-gold">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:2px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+    Each request is already tied to a <strong style="color:var(--rose)">specific artist</strong> chosen by the buyer. Forwarding sends it ONLY to that artist — not broadcast to everyone.
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Pending Review</span></div>
+    <div id="reqList"></div>
+  </div>
+</div>
+
+<!-- ── ACTIVE ORDERS ─────────────────────────────── -->
+<div class="view" id="view-active">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Active <em>Orders</em></div>
+      <div class="ph-sub">Orders being worked on. Artwork review before shipping.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">In Progress</span></div>
+    <div id="activeList"></div>
+  </div>
+</div>
+
+<!-- ── SHIPPING ─────────────────────────────── -->
+<div class="view" id="view-shipping">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Shipping <em>Management</em></div>
+      <div class="ph-sub">Add India Post tracking IDs for physical orders.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Ready to Ship / Shipped</span></div>
+    <div id="shipList"></div>
+  </div>
+</div>
+
+<!-- ── ALL ORDERS ─────────────────────────────── -->
+<div class="view" id="view-all">
+  <div class="ph">
+    <div>
+      <div class="ph-title">All <em>Orders</em></div>
+      <div class="ph-sub">Complete order history.</div>
+    </div>
+  </div>
+  <div style="margin-bottom:14px;display:flex;gap:8px;flex-wrap:wrap;">
+    <select id="statusFilter" onchange="loadAll()">
+      <option value="">All Statuses</option>
+      <option value="request_sent">Request Sent</option>
+      <option value="waiting">Waiting</option>
+      <option value="accepted">Accepted</option>
+      <option value="advance_paid">Advance Paid</option>
+      <option value="in_progress">In Progress</option>
+      <option value="completed">Completed</option>
+      <option value="shipped">Shipped</option>
+      <option value="delivered">Delivered</option>
+      <option value="rejected">Rejected</option>
+    </select>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Order ID</th><th>Buyer</th><th>Artist</th><th>Category</th><th>Status</th><th>Total</th><th>Date</th><th></th></tr></thead>
+        <tbody id="allOrdTbl"></tbody>
+      </table>
+    </div>
+  </div>
+  <div id="allPagination"></div>
+</div>
+
+<!-- ── USERS ─────────────────────────────── -->
+<div class="view" id="view-users">
+  <div class="ph">
+    <div>
+      <div class="ph-title">User <em>Management</em></div>
+      <div class="ph-sub">All registered platform users.</div>
+    </div>
+  </div>
+  <div class="search-row" style="margin-bottom:14px;">
+    <input class="s-input" id="userSearch" type="text" placeholder="Search by name or email…" onkeydown="if(event.key==='Enter')loadUsers()">
+    <button class="s-btn" onclick="loadUsers()">Search</button>
+  </div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <button class="btn btn-ghost" style="font-size:.64rem;padding:6px 14px;" onclick="loadUsers('buyer')">Buyers</button>
+    <button class="btn btn-ghost" style="font-size:.64rem;padding:6px 14px;" onclick="loadUsers('artist')">Artists</button>
+    <button class="btn btn-ghost" style="font-size:.64rem;padding:6px 14px;" onclick="loadUsers()">All</button>
+  </div>
+  <div class="card">
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Status</th><th></th></tr></thead>
+        <tbody id="usersTbl"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── ARTISTS ─────────────────────────────── -->
+<div class="view" id="view-artists">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Artist <em>Verification</em></div>
+      <div class="ph-sub">Verify and feature artists on the platform.</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Unverified Artists</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Name</th><th>Email</th><th>Joined</th><th>Packages</th><th></th></tr></thead>
+        <tbody id="unverTbl"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── REVENUE ─────────────────────────────── -->
+<div class="view" id="view-revenue">
+  <div class="ph">
+    <div>
+      <div class="ph-title">Platform <em>Revenue</em></div>
+      <div class="ph-sub">Commission and delivery fee earnings.</div>
+    </div>
+  </div>
+  <div class="kpi-grid" style="margin-bottom:10px;">
+    <div class="kpi" style="--kc:var(--rose)">
+      <div class="kpi-ic"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+      <div class="kpi-v" id="rComm">₹0</div>
+      <div class="kpi-l">Total Commission</div>
+    </div>
+    <div class="kpi" style="--kc:var(--warn)">
+      <div class="kpi-ic" style="color:var(--warn);border-color:rgba(245,158,11,.2);background:var(--warn-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg></div>
+      <div class="kpi-v" id="rDel">₹0</div>
+      <div class="kpi-l">Delivery Fees</div>
+    </div>
+    <div class="kpi" style="--kc:var(--ok)">
+      <div class="kpi-ic" style="color:var(--ok);border-color:rgba(34,197,94,.2);background:var(--ok-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <div class="kpi-v" id="rGross">₹0</div>
+      <div class="kpi-l">Gross Revenue</div>
+    </div>
+    <div class="kpi" style="--kc:var(--blue)">
+      <div class="kpi-ic" style="color:var(--blue);border-color:rgba(59,130,246,.2);background:var(--blue-dim);"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+      <div class="kpi-v" id="rOrds">0</div>
+      <div class="kpi-l">Paid Orders</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Breakdown by Order</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Order ID</th><th>Category</th><th>Base Price</th><th>Commission (10%)</th><th>Delivery Fee</th><th>Total Collected</th></tr></thead>
+        <tbody id="revTbl"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div class="m-ov" id="ordModal">
+  <div class="modal">
+    <div class="mh">
+      <div class="mt" id="ordModalTitle">Order</div>
+      <button class="mc" onclick="closeOrdModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mb" id="ordModalBody"></div>
+  </div>
+</div>
+
+<!-- SHIPPING MODAL -->
+<div class="m-ov" id="shipModal">
+  <div class="modal" style="max-width:480px;">
+    <div class="mh">
+      <div class="mt">Add <em>Tracking ID</em></div>
+      <button class="mc" onclick="closeShipModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mb">
+      <p style="font-size:.78rem;color:var(--text-dim);line-height:1.8;margin-bottom:16px;">Enter the India Post tracking number. Buyer will be emailed automatically.</p>
+      <div class="track-form">
+        <label>India Post Tracking Number</label>
+        <input class="track-input" type="text" id="trackInp" placeholder="e.g. EP123456789IN" maxlength="30">
+        <div style="display:flex;gap:10px;">
+          <button class="btn btn-gold" id="shipSaveBtn" onclick="confirmShip()">Mark as Shipped</button>
+          <button class="btn btn-ghost" onclick="closeShipModal()">Cancel</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARTWORK VIEW MODAL -->
+<div class="m-ov" id="artModal">
+  <div class="modal" style="max-width:560px;">
+    <div class="mh">
+      <div class="mt">Artwork <em>Preview</em></div>
+      <button class="mc" onclick="closeArtModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="mb">
+      <div class="view-once-warn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Admin view only. Do not share externally.
+      </div>
+      <div id="artContent"></div>
+      <div style="display:flex;gap:10px;margin-top:14px;">
+        <button class="btn btn-ok" id="artApproveBtn" onclick="approveArtwork()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Approve for Delivery
+        </button>
+        <button class="btn btn-ghost" onclick="closeArtModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/zorvex-api.js"></script>
+<script src="/zorvex-api.js"></script>
+<script>
+'use strict';
+/* ══════════════════════════════════════════════
+   ZorvEx Admin Control Center — Production JS
+   Phase 7 fixes:
+   - All admin stats use /admin/orders/stats (ZX.orders.adminStats)
+   - All order lists use /orders/admin/all (ZX.orders.adminAll)
+   - Field names: o.orderId, o.selectedTier.name, o.pricing.totalAmount,
+     o.pricing.platformFee, o.pricing.advanceAmount,
+     o.shipping.trackingId, o.statusHistory
+   - admin actions: adminForward, adminShip, adminDeliver (correct PATCH paths)
+   - data.totalPages (not data.pages)
+   - loadAlerts() defined (was missing — caused ReferenceError)
+══════════════════════════════════════════════ */
+
+/* ── CUSTOM CURSOR ── */
+const cur = document.getElementById('cur');
+const curRing = document.getElementById('curRing');
+if (cur) {
+  document.addEventListener('mousemove', e => {
+    cur.style.left = e.clientX + 'px';
+    cur.style.top  = e.clientY + 'px';
+    setTimeout(() => {
+      curRing.style.left = e.clientX + 'px';
+      curRing.style.top  = e.clientY + 'px';
+    }, 80);
+  });
+  document.querySelectorAll('a,button,.kpi,.card,.alert-row,.pipe-col,tbody tr').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.classList.add('hover'); curRing.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { cur.classList.remove('hover'); curRing.classList.remove('hover'); });
+  });
+}
+
+/* ── AUTH GUARD ── */
+if (!ZX.guardRoute('admin')) { /* redirects */ }
+
+/* ── HAMBURGER ── */
+const hamBtn = document.getElementById('hamBtn');
+const sbEl   = document.getElementById('sb');
+hamBtn.addEventListener('click', () => {
+  hamBtn.classList.toggle('open');
+  sbEl.classList.toggle('open');
+});
+
+/* ── VIEW ROUTER ── */
+function show(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('on'));
+  document.querySelectorAll('.sb-ul li').forEach(l => l.classList.remove('on'));
+  document.getElementById('view-' + id)?.classList.add('on');
+  document.getElementById('sn-' + id)?.classList.add('on');
+  if (window.innerWidth <= 768) { sbEl.classList.remove('open'); hamBtn.classList.remove('open'); }
+  const fn = {
+    alerts:   loadAlerts,
+    requests: loadRequests,
+    active:   loadActive,
+    shipping: loadShipping,
+    all:      loadAll,
+    users:    loadUsers,
+    artists:  loadUnverified,
+    revenue:  loadRevenue,
+  };
+  if (fn[id]) fn[id]();
+}
+
+/* ── HELPERS ── */
+const SL = ZX.STATUS_LABEL;
+const SC = ZX.STATUS_COLOR;
+
+function pill(s) {
+  const c = SC[s] || 'var(--rose)';
+  return `<span class="pill" style="color:${c};border-color:${c}30;background:${c}10;">${SL[s]||s}</span>`;
+}
+function fmt(n)   { return '₹' + (n||0).toLocaleString('en-IN'); }
+function fmtDate(d) { return d ? new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'2-digit'}) : '—'; }
+function emptyRow(cols, msg) {
+  return `<tr><td colspan="${cols}" style="text-align:center;padding:32px 20px;color:var(--text-faint);font-size:.74rem;">${msg}</td></tr>`;
+}
+function esc(s) { if (!s) return ''; return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* Phase 7 fix: canonical helpers for order display */
+function orderDisplayId(o) { return o.orderId || o._id?.slice(-8).toUpperCase() || '—'; }
+function orderTierName(o)   { return o.selectedTier?.name || o.category || '—'; }
+function artistDisplayName(o) {
+  // artist is a User doc (has .name), artistProfile has .displayName
+  return o.artistProfile?.displayName || o.artist?.name || '—';
+}
+
+/* ══════════════════════════════════════════════
+   OVERVIEW
+   Phase 7 fix: uses ZX.orders.adminStats() and ZX.orders.adminAll()
+   stats shape: { stats: { statusCounts, revenue: { totalCommission, totalDeliveryFees }, totalUsers } }
+══════════════════════════════════════════════ */
+async function loadOverview() {
+  try {
+    const [statsData, allData] = await Promise.all([
+      ZX.orders.adminStats(),
+      ZX.orders.adminAll({ limit: 10 }),
+    ]);
+    const s   = statsData.stats;
+    const sc  = s.statusCounts || {};
+    const rev = s.revenue || {};
+
+    const active = (sc.waiting||0)+(sc.accepted||0)+(sc.advance_paid||0)+(sc.in_progress||0);
+    const toShip = sc.completed || 0;
+
+    document.getElementById('kTotal').textContent  = Object.values(sc).reduce((a,b)=>a+b,0);
+    document.getElementById('kActive').textContent = active;
+    document.getElementById('kShip').textContent   = toShip;
+    document.getElementById('kDone').textContent   = sc.delivered || 0;
+    // Phase 7 fix: revenue.totalCommission (not totalCommission directly)
+    document.getElementById('kComm').textContent   = fmt(rev.totalCommission || 0);
+    document.getElementById('kUsers').textContent  = s.totalUsers || 0;
+
+    const alerts = (sc.request_sent||0) + toShip;
+    if (alerts > 0) {
+      document.getElementById('bellDot').classList.add('on');
+      document.getElementById('alertBadge').textContent = alerts;
+      document.getElementById('alertBadge').style.display = 'inline';
+    }
+    if (sc.request_sent > 0) {
+      document.getElementById('reqBadge').textContent = sc.request_sent;
+      document.getElementById('reqBadge').style.display = 'inline';
+    }
+    if (toShip > 0) {
+      document.getElementById('shipBadge').textContent = toShip;
+      document.getElementById('shipBadge').style.display = 'inline';
+    }
+
+    // Pipeline
+    const pipeStatuses = ['request_sent','waiting','accepted','advance_paid','in_progress','completed','shipped','delivered'];
+    document.getElementById('pipelineGrid').innerHTML = pipeStatuses.map(s2 => {
+      const c = SC[s2] || 'var(--rose)';
+      return `<div class="pipe-col" style="--pipe-c:${c};">
+        <div class="pipe-hd">${SL[s2]}</div>
+        <div class="pipe-cnt">${sc[s2]||0}</div>
+        <div class="pipe-sub">orders</div>
+      </div>`;
+    }).join('');
+
+    // Recent orders
+    const rows = allData.orders || [];
+    document.getElementById('recentTbl').innerHTML = rows.length
+      ? rows.map(o => `<tr onclick="openOrdModal('${o._id}')">
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(o.category)}</td>
+          <td>${pill(o.status)}</td>
+          <td style="color:var(--rose);">${fmt(o.pricing?.totalAmount)}</td>
+          <td>${fmtDate(o.createdAt)}</td>
+          <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();openOrdModal('${o._id}')">View</button></td>
+        </tr>`).join('')
+      : emptyRow(6, 'No orders yet');
+
+    // Needs forwarding & ready to ship
+    const needFwd   = rows.filter(o => o.status === 'request_sent');
+    const shipReady = rows.filter(o => o.status === 'completed' && o.deliveryType === 'physical');
+    document.getElementById('ovReqs').innerHTML  = needFwd.length
+      ? needFwd.slice(0,3).map(o => alertItem('fwd', orderDisplayId(o), orderTierName(o), o.createdAt, () => openOrdModal(o._id))).join('')
+      : `<div style="padding:20px;text-align:center;font-size:.72rem;color:var(--text-faint);">None pending</div>`;
+    document.getElementById('ovShip').innerHTML  = shipReady.length
+      ? shipReady.slice(0,3).map(o => alertItem('pkg', orderDisplayId(o), orderTierName(o), o.createdAt, () => openShipModal(o._id))).join('')
+      : `<div style="padding:20px;text-align:center;font-size:.72rem;color:var(--text-faint);">None ready</div>`;
+  } catch(e) { console.error('loadOverview:', e); }
+}
+
+function alertItem(type, id, cat, ts, fn) {
+  const icons = {
+    fwd: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>`,
+    pkg: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>`,
+  };
+  return `<div class="alert-row" onclick="(${fn.toString()})()">
+    <div class="alert-ic">${icons[type]||icons.fwd}</div>
+    <div class="alert-txt">
+      <div class="alert-title">${esc(id)}</div>
+      <div class="alert-sub">${esc(cat)}</div>
+    </div>
+    <div class="alert-time">${fmtDate(ts)}</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════
+   ALERTS VIEW (was undefined — Phase 7 fix: defined)
+   Phase 7 fix: uses canonical field names
+══════════════════════════════════════════════ */
+async function loadAlerts() {
+  const el = document.getElementById('alertsList');
+  if (!el) return;
+  el.innerHTML = `<div style="padding:24px;text-align:center;font-size:.74rem;color:var(--text-faint);">Loading…</div>`;
+  try {
+    const [reqData, activeData] = await Promise.all([
+      ZX.orders.adminAll({ status: 'request_sent', limit: 30 }),
+      ZX.orders.adminAll({ status: 'completed',    limit: 30 }),
+    ]);
+    const items = [
+      ...(reqData.orders||[]).map(o => ({
+        type:'fwd', title: orderDisplayId(o) + ' — needs forwarding',
+        sub: orderTierName(o), ts: o.createdAt, action: () => openOrdModal(o._id),
+      })),
+      ...(activeData.orders||[]).filter(o=>o.deliveryType==='physical').map(o => ({
+        type:'pkg', title: orderDisplayId(o) + ' — ready to ship',
+        sub: orderTierName(o), ts: o.updatedAt||o.createdAt, action: () => openShipModal(o._id),
+      })),
+    ];
+    el.innerHTML = items.length
+      ? items.map(i => alertItem(i.type, i.title, i.sub, i.ts, i.action)).join('')
+      : `<div style="padding:40px;text-align:center;font-size:.74rem;color:var(--text-faint);">No alerts. All clear.</div>`;
+  } catch(e) {
+    el.innerHTML = `<div style="padding:14px;font-size:.74rem;color:var(--err);">${esc(e.message)}</div>`;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   REQUESTS
+   Phase 7 fix: orderDisplayId, orderTierName, artistDisplayName
+══════════════════════════════════════════════ */
+async function loadRequests() {
+  const el = document.getElementById('reqList');
+  el.innerHTML = `<div style="padding:24px;text-align:center;font-size:.74rem;color:var(--text-faint);">Loading…</div>`;
+  try {
+    const data   = await ZX.orders.adminAll({ status: 'request_sent', limit: 50 });
+    const orders = data.orders || [];
+    if (!orders.length) { el.innerHTML = `<div style="padding:32px;text-align:center;font-size:.74rem;color:var(--text-faint);">No pending requests.</div>`; return; }
+    el.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Order ID</th><th>Buyer</th><th>Artist</th><th>Category</th><th>Date</th><th></th></tr></thead><tbody>${
+      orders.map(o => `<tr onclick="openOrdModal('${o._id}')">
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(o.buyer?.name||'—')}</td>
+          <td style="color:var(--rose);">${esc(artistDisplayName(o))}</td>
+          <td>${esc(orderTierName(o))}</td>
+          <td>${fmtDate(o.createdAt)}</td>
+          <td><button class="btn btn-gold" style="padding:5px 12px;font-size:.62rem;" onclick="event.stopPropagation();fwdOrder('${o._id}')">Forward</button></td>
+        </tr>`).join('')
+    }</tbody></table></div>`;
+  } catch(e) { el.innerHTML = `<div style="padding:14px;font-size:.74rem;color:var(--err);">${esc(e.message)}</div>`; }
+}
+
+/* Phase 7 fix: uses ZX.orders.adminForward */
+async function fwdOrder(id) {
+  if (!confirm('Forward this request to the artist?')) return;
+  try {
+    await ZX.orders.adminForward(id);
+    alert('✅ Forwarded to artist.');
+    loadRequests(); loadOverview();
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   ACTIVE ORDERS
+   Phase 7 fix: orderDisplayId, orderTierName, totalAmount
+══════════════════════════════════════════════ */
+async function loadActive() {
+  const el = document.getElementById('activeList');
+  el.innerHTML = `<div style="padding:24px;text-align:center;font-size:.74rem;color:var(--text-faint);">Loading…</div>`;
+  try {
+    const statuses = ['waiting','accepted','advance_paid','in_progress'];
+    const results  = await Promise.all(statuses.map(s => ZX.orders.adminAll({ status: s, limit: 20 })));
+    const orders   = results.flatMap(r => r.orders||[]).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+    if (!orders.length) { el.innerHTML = `<div style="padding:32px;text-align:center;font-size:.74rem;color:var(--text-faint);">No active orders.</div>`; return; }
+    el.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Order ID</th><th>Buyer</th><th>Artist</th><th>Category</th><th>Status</th><th>Advance</th><th></th></tr></thead><tbody>${
+      orders.map(o => {
+        const hasArt = !!(o.artworkFile?.url);
+        const btn = hasArt
+          ? `<button class="btn btn-warn" style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();viewArtwork('${o._id}','${esc(o.artworkFile?.url||'')}')">View Art</button>`
+          : `<button class="btn btn-ghost" style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();openOrdModal('${o._id}')">View</button>`;
+        return `<tr onclick="openOrdModal('${o._id}')">
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(o.buyer?.name||'—')}</td>
+          <td>${esc(artistDisplayName(o))}</td>
+          <td>${esc(orderTierName(o))}</td>
+          <td>${pill(o.status)}</td>
+          <td style="color:var(--rose);">${fmt(o.pricing?.advanceAmount)}</td>
+          <td>${btn}</td>
+        </tr>`;
+      }).join('')
+    }</tbody></table></div>`;
+  } catch(e) { el.innerHTML = `<div style="padding:14px;font-size:.74rem;color:var(--err);">${esc(e.message)}</div>`; }
+}
+
+/* ══════════════════════════════════════════════
+   SHIPPING
+   Phase 7 fix: o.shipping?.trackingId (not o.trackingId)
+══════════════════════════════════════════════ */
+async function loadShipping() {
+  const el = document.getElementById('shipList');
+  el.innerHTML = `<div style="padding:24px;text-align:center;font-size:.74rem;color:var(--text-faint);">Loading…</div>`;
+  try {
+    const [compData, shipData] = await Promise.all([
+      ZX.orders.adminAll({ status: 'completed', limit: 30 }),
+      ZX.orders.adminAll({ status: 'shipped',   limit: 30 }),
+    ]);
+    const orders = [
+      ...(compData.orders||[]).filter(o => o.deliveryType === 'physical'),
+      ...(shipData.orders||[]),
+    ];
+    if (!orders.length) { el.innerHTML = `<div style="padding:32px;text-align:center;font-size:.74rem;color:var(--text-faint);">No shipments pending.</div>`; return; }
+    el.innerHTML = `<div class="tbl-wrap"><table><thead><tr><th>Order ID</th><th>Buyer</th><th>Delivery Address</th><th>Status</th><th>Tracking</th><th></th></tr></thead><tbody>${
+      orders.map(o => {
+        const addr      = o.deliveryAddress ? `${esc(o.deliveryAddress.city||'')}, ${esc(o.deliveryAddress.pincode||'')}` : '—';
+        const isShipped = o.status === 'shipped';
+        const btn = !isShipped
+          ? `<button class="btn btn-warn" style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();openShipModal('${o._id}')">Add Tracking</button>`
+          : `<button class="btn btn-ok"   style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();deliverOrder('${o._id}')">Mark Delivered</button>`;
+        // Phase 7 fix: o.shipping?.trackingId
+        return `<tr onclick="openOrdModal('${o._id}')">
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(o.buyer?.name||'—')}</td>
+          <td style="color:var(--text-dim);">${addr}</td>
+          <td>${pill(o.status)}</td>
+          <td style="color:var(--warn);">${esc(o.shipping?.trackingId||'—')}</td>
+          <td>${btn}</td>
+        </tr>`;
+      }).join('')
+    }</tbody></table></div>`;
+  } catch(e) { el.innerHTML = `<div style="padding:14px;font-size:.74rem;color:var(--err);">${esc(e.message)}</div>`; }
+}
+
+let _shipOrderId = null;
+function openShipModal(id) {
+  _shipOrderId = id;
+  document.getElementById('trackInp').value = '';
+  document.getElementById('shipModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeShipModal() {
+  document.getElementById('shipModal').classList.remove('open');
+  document.body.style.overflow = '';
+  _shipOrderId = null;
+}
+
+async function confirmShip() {
+  const tid = document.getElementById('trackInp').value.trim();
+  if (!tid) { alert('Please enter a tracking number.'); return; }
+  const btn = document.getElementById('shipSaveBtn');
+  btn.innerHTML = `<span class="spin"></span>Saving…`; btn.disabled = true;
+  try {
+    // Phase 7 fix: ZX.orders.adminShip(id, trackingId)
+    await ZX.orders.adminShip(_shipOrderId, tid);
+    closeShipModal();
+    alert('✅ Tracking saved. Order marked as Shipped.');
+    loadShipping(); loadOverview();
+  } catch(e) { alert(e.message); }
+  finally { btn.innerHTML = 'Mark as Shipped'; btn.disabled = false; }
+}
+
+async function deliverOrder(id) {
+  if (!confirm('Mark as Delivered?')) return;
+  try {
+    // Phase 7 fix: ZX.orders.adminDeliver(id)
+    await ZX.orders.adminDeliver(id);
+    alert('✅ Marked as Delivered.');
+    loadShipping(); loadOverview();
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   ALL ORDERS
+   Phase 7 fix: data.totalPages (not data.pages), canonical fields
+══════════════════════════════════════════════ */
+let _allPage = 1;
+async function loadAll(resetPage) {
+  if (resetPage) _allPage = 1;
+  const status = document.getElementById('statusFilter')?.value || '';
+  const el     = document.getElementById('allOrdTbl');
+  try {
+    const data   = await ZX.orders.adminAll({ status, page: _allPage, limit: 25 });
+    const orders = data.orders || [];
+    el.innerHTML = orders.length
+      ? orders.map(o => `<tr onclick="openOrdModal('${o._id}')">
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(o.buyer?.name||'—')}</td>
+          <td>${esc(artistDisplayName(o))}</td>
+          <td>${esc(orderTierName(o))}</td>
+          <td>${pill(o.status)}</td>
+          <td style="color:var(--rose);">${fmt(o.pricing?.totalAmount)}</td>
+          <td>${fmtDate(o.createdAt)}</td>
+          <td><button class="btn btn-ghost" style="padding:4px 10px;font-size:.62rem;" onclick="event.stopPropagation();openOrdModal('${o._id}')">View</button></td>
+        </tr>`).join('')
+      : emptyRow(8, 'No orders found');
+    // Phase 7 fix: data.pagination.totalPages (not data.pages)
+    const totalPages = data.pagination?.totalPages || 1;
+    document.getElementById('allPagination').innerHTML = data.pagination?.total > 25
+      ? `<span>Page ${_allPage} of ${totalPages}</span>&nbsp;
+         <button class="btn btn-ghost" style="padding:4px 10px;font-size:.62rem;" onclick="_allPage--;loadAll()" ${_allPage===1?'disabled':''}>← Prev</button>
+         <button class="btn btn-ghost" style="padding:4px 10px;font-size:.62rem;" onclick="_allPage++;loadAll()" ${_allPage>=totalPages?'disabled':''}>Next →</button>` : '';
+  } catch(e) { el.innerHTML = emptyRow(8, esc(e.message)); }
+}
+
+/* ══════════════════════════════════════════════
+   USERS
+══════════════════════════════════════════════ */
+async function loadUsers(role) {
+  const search = document.getElementById('userSearch')?.value.trim() || '';
+  const el     = document.getElementById('usersTbl');
+  el.innerHTML = emptyRow(7, 'Loading…');
+  try {
+    const data  = await ZX.admin.users({ role: role||'', search, limit: 50 });
+    const users = data.users || [];
+    el.innerHTML = users.length
+      ? users.map(u => `<tr>
+          <td>${esc(u.name)}</td>
+          <td style="color:var(--text-dim);">${esc(u.email)}</td>
+          <td style="color:var(--text-dim);">${esc(u.phone||'—')}</td>
+          <td><span style="color:${u.role==='artist'?'var(--rose)':u.role==='admin'?'var(--err)':'var(--ok)'};">${u.role}</span></td>
+          <td>${fmtDate(u.createdAt)}</td>
+          <td><span style="color:${u.isActive!==false?'var(--ok)':'var(--err)'};">${u.isActive!==false?'Active':'Inactive'}</span></td>
+          <td><button class="btn ${u.isActive!==false?'btn-red':'btn-ok'}" style="padding:4px 10px;font-size:.62rem;" onclick="toggleUser('${u._id}')">${u.isActive!==false?'Deactivate':'Activate'}</button></td>
+        </tr>`).join('')
+      : emptyRow(7, 'No users found');
+  } catch(e) { el.innerHTML = emptyRow(7, esc(e.message)); }
+}
+
+async function toggleUser(id) {
+  try { await ZX.admin.toggleUser(id); loadUsers(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   ARTIST VERIFICATION
+══════════════════════════════════════════════ */
+async function loadUnverified() {
+  const el = document.getElementById('unverTbl');
+  el.innerHTML = emptyRow(5, 'Loading…');
+  try {
+    const data     = await ZX.admin.unverifiedArtists();
+    const profiles = data.profiles || [];
+    el.innerHTML = profiles.length
+      ? profiles.map(p => `<tr>
+          <td>${esc(p.user?.name||'—')}</td>
+          <td style="color:var(--text-dim);">${esc(p.user?.email||'—')}</td>
+          <td>${fmtDate(p.user?.createdAt)}</td>
+          <td>${p.pricingTiers?.length||0} packages</td>
+          <td style="display:flex;gap:8px;">
+            <button class="btn btn-ok"   style="padding:4px 10px;font-size:.62rem;" onclick="verifyArtist('${p._id}',false)">Verify</button>
+            <button class="btn btn-gold" style="padding:4px 10px;font-size:.62rem;" onclick="verifyArtist('${p._id}',true)">Verify + Feature</button>
+          </td>
+        </tr>`).join('')
+      : emptyRow(5, 'All artists are verified');
+  } catch(e) { el.innerHTML = emptyRow(5, esc(e.message)); }
+}
+
+async function verifyArtist(id, feature) {
+  try { await ZX.admin.verifyArtist(id, feature); alert('✅ Artist verified.'); loadUnverified(); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   REVENUE
+   Phase 7 fix: o.pricing.totalAmount, o.pricing.platformFee (not platformCommission)
+══════════════════════════════════════════════ */
+async function loadRevenue() {
+  try {
+    const data   = await ZX.orders.adminAll({ limit: 100 });
+    const orders = (data.orders||[]).filter(o =>
+      ['advance_paid','in_progress','completed','shipped','delivered'].includes(o.status)
+    );
+    const totalComm = orders.reduce((a,o) => a + (o.pricing?.platformFee||0), 0);
+    const totalDel  = orders.reduce((a,o) => a + (o.pricing?.deliveryFee||0), 0);
+    const gross     = orders.reduce((a,o) => a + (o.pricing?.totalAmount||0), 0);
+
+    document.getElementById('rComm').textContent  = fmt(totalComm);
+    document.getElementById('rDel').textContent   = fmt(totalDel);
+    document.getElementById('rGross').textContent = fmt(gross);
+    document.getElementById('rOrds').textContent  = orders.length;
+
+    document.getElementById('revTbl').innerHTML = orders.length
+      ? orders.map(o => `<tr>
+          <td>${esc(orderDisplayId(o))}</td>
+          <td>${esc(orderTierName(o))}</td>
+          <td>${fmt(o.pricing?.basePrice)}</td>
+          <td style="color:var(--rose);">${fmt(o.pricing?.platformFee)}</td>
+          <td style="color:var(--warn);">${fmt(o.pricing?.deliveryFee)}</td>
+          <td style="color:var(--ok);">${fmt((o.pricing?.platformFee||0)+(o.pricing?.deliveryFee||0))}</td>
+        </tr>`).join('')
+      : emptyRow(6, 'No paid orders yet');
+  } catch(e) { console.error(e); }
+}
+
+/* ══════════════════════════════════════════════
+   ORDER DETAIL MODAL
+   Phase 7 fixes:
+   - orderDisplayId, orderTierName, artistDisplayName
+   - o.pricing.totalAmount / platformFee
+   - o.shipping.trackingId
+   - o.deliveryAddress.name (not recipientName)
+   - o.deliveryAddress.address (not addressLine)
+   - adminForward, adminShip, adminDeliver
+══════════════════════════════════════════════ */
+async function openOrdModal(id) {
+  document.getElementById('ordModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+  document.getElementById('ordModalBody').innerHTML =
+    `<div style="padding:32px;text-align:center;font-size:.74rem;color:var(--text-faint);">Loading…</div>`;
+  try {
+    const { order } = await ZX.orders.get(id);
+    document.getElementById('ordModalTitle').innerHTML =
+      `Order <em style="color:var(--rose)">${esc(orderDisplayId(order))}</em>`;
+
+    let actionBar = '';
+    if (order.status === 'request_sent') {
+      actionBar = `<div style="padding:14px 0;border-top:1px solid var(--border-soft);margin-top:14px;">
+        <button class="btn btn-gold" onclick="closeOrdModal();fwdOrder('${order._id}')">Forward to Artist</button>
+      </div>`;
+    } else if (order.status === 'completed' && order.deliveryType === 'physical') {
+      actionBar = `<div style="padding:14px 0;border-top:1px solid var(--border-soft);margin-top:14px;">
+        <button class="btn btn-warn" onclick="closeOrdModal();openShipModal('${order._id}')">Add Tracking &amp; Ship</button>
+      </div>`;
+    } else if (order.status === 'shipped') {
+      actionBar = `<div style="padding:14px 0;border-top:1px solid var(--border-soft);margin-top:14px;">
+        <button class="btn btn-ok" onclick="closeOrdModal();deliverOrder('${order._id}')">Mark as Delivered</button>
+      </div>`;
+    } else if (order.status === 'completed' && order.deliveryType === 'digital') {
+      actionBar = `<div style="padding:14px 0;border-top:1px solid var(--border-soft);margin-top:14px;">
+        <button class="btn btn-ok" onclick="closeOrdModal();approveDigital('${order._id}')">Approve &amp; Release to Buyer</button>
+      </div>`;
+    }
+    if (order.artworkFile?.url) {
+      actionBar += `<button class="btn btn-ghost" style="margin-top:8px;" onclick="viewArtwork('${order._id}','${esc(order.artworkFile.url)}')">View Artwork</button>`;
+    }
+
+    const p = order.pricing || {};
+    document.getElementById('ordModalBody').innerHTML = `
+      <div class="ig">
+        <div class="ii"><span class="il">Order ID</span><span class="iv" style="color:var(--rose)">${esc(orderDisplayId(order))}</span></div>
+        <div class="ii"><span class="il">Status</span><span class="iv">${pill(order.status)}</span></div>
+        <div class="ii"><span class="il">Category</span><span class="iv">${esc(orderTierName(order))}</span></div>
+        <div class="ii"><span class="il">Delivery Type</span><span class="iv">${order.deliveryType === 'physical' ? 'Physical Post' : 'Digital File'}</span></div>
+        <div class="ii"><span class="il">Total</span><span class="iv" style="color:var(--rose)">${fmt(p.totalAmount)}</span></div>
+        <div class="ii"><span class="il">Platform Fee</span><span class="iv">${fmt(p.platformFee)}</span></div>
+        <div class="ii"><span class="il">Buyer</span><span class="iv">${esc(order.buyer?.name||'—')} · ${esc(order.buyer?.email||'')}</span></div>
+        <div class="ii"><span class="il">Artist</span><span class="iv">${esc(artistDisplayName(order))}</span></div>
+        <div class="ii"><span class="il">Deadline</span><span class="iv">${fmtDate(order.deadline)}</span></div>
+        <div class="ii"><span class="il">Created</span><span class="iv">${fmtDate(order.createdAt)}</span></div>
+      </div>
+      ${order.deliveryAddress ? `
+      <div style="margin-bottom:14px;padding:14px;background:var(--rose-glow);border:1px solid var(--border);">
+        <div style="font-size:.58rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint);margin-bottom:7px;">Delivery Address (Confidential)</div>
+        <div style="font-size:.78rem;color:var(--text-dim);line-height:1.9;">
+          ${esc(order.deliveryAddress.name||'')} · ${esc(order.buyer?.phone||order.buyerPhone||'—')}<br>
+          ${esc(order.deliveryAddress.address||'')}, ${esc(order.deliveryAddress.city||'')}, ${esc(order.deliveryAddress.state||'')} — ${esc(order.deliveryAddress.pincode||'')}
+        </div>
+      </div>` : ''}
+      ${order.shipping?.trackingId ? `
+      <div style="margin-bottom:14px;padding:10px 14px;background:var(--warn-dim);border:1px solid rgba(245,158,11,.2);font-size:.78rem;color:var(--warn);">
+        Tracking: ${esc(order.shipping.trackingId)} · ${esc(order.shipping.carrier||'India Post')}
+      </div>` : ''}
+      <div style="font-size:.78rem;color:var(--text-dim);line-height:1.9;margin-bottom:14px;">${esc(order.description||'')}</div>
+      ${actionBar}`;
+  } catch(e) {
+    document.getElementById('ordModalBody').innerHTML =
+      `<div style="font-size:.74rem;color:var(--err);padding:16px;">${esc(e.message)}</div>`;
+  }
+}
+function closeOrdModal() {
+  document.getElementById('ordModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ══════════════════════════════════════════════
+   ARTWORK VIEWER
+══════════════════════════════════════════════ */
+let _artOrderId = null;
+function viewArtwork(id, url) {
+  _artOrderId = id;
+  const el = document.getElementById('artContent');
+  if (url && url.startsWith('data:image')) el.innerHTML = `<img class="art-img" src="${url}">`;
+  else if (url) el.innerHTML = `<div style="padding:16px;background:var(--ok-dim);border:1px solid rgba(34,197,94,.2);font-size:.74rem;color:var(--ok);">Artwork file available (non-image format)</div>`;
+  else el.innerHTML = `<div style="padding:16px;font-size:.74rem;color:var(--text-faint);">No artwork uploaded yet.</div>`;
+  document.getElementById('artModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeArtModal() { document.getElementById('artModal').classList.remove('open'); document.body.style.overflow = ''; _artOrderId = null; }
+
+async function approveArtwork() {
+  if (!_artOrderId) return;
+  const btn = document.getElementById('artApproveBtn');
+  btn.innerHTML = `<span class="spin"></span>Processing…`; btn.disabled = true;
+  try {
+    const { order } = await ZX.orders.get(_artOrderId);
+    // Phase 7 fix: ZX.orders.adminDeliver
+    await ZX.orders.adminDeliver(_artOrderId);
+    alert('✅ Artwork approved. Buyer notified.');
+    closeArtModal();
+    loadActive();
+  } catch(e) { alert(e.message); }
+  finally {
+    btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Approve for Delivery`;
+    btn.disabled = false;
+  }
+}
+
+async function approveDigital(id) {
+  if (!confirm('Approve digital artwork and release download link to buyer?')) return;
+  try {
+    await ZX.orders.adminDeliver(id);
+    alert('✅ Digital artwork released to buyer.');
+    loadOverview();
+  } catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   SEED ADMIN (dev only)
+══════════════════════════════════════════════ */
+async function seedAdmin() {
+  if (!confirm('Seed admin user (zorvexinfo@gmail.com)? Only run once.')) return;
+  try { const d = await ZX.admin.seedAdmin(); alert('✅ ' + d.message); }
+  catch(e) { alert(e.message); }
+}
+
+/* ══════════════════════════════════════════════
+   INIT
+══════════════════════════════════════════════ */
+loadOverview();
+</script>
+</body>
+</html>

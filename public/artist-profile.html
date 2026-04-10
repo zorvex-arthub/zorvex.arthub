@@ -1,0 +1,1575 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Artist Profile — ZorvEx</title>
+<meta name="description" content="Commission unique handcrafted art from Kerala's finest artists.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM — Empire Edition
+══════════════════════════════════════════════ */
+:root {
+  --void: #07080c;
+  --surface: #0e1018;
+  --surface-2: #141620;
+  --surface-3: #1a1d2a;
+  --rose: #c8915a;
+  --rose-light: #e0ae7f;
+  --rose-dim: rgba(200,145,90,.12);
+  --rose-glow: rgba(200,145,90,.06);
+  --cream: #f0ebe3;
+  --text: rgba(240,235,227,.88);
+  --text-dim: rgba(240,235,227,.48);
+  --text-faint: rgba(240,235,227,.22);
+  --border: rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  --ok: #22c55e;
+  --warn: #f59e0b;
+  --err: #e05c5c;
+  --nav-h: 56px;
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --ease-out: cubic-bezier(0,0,.2,1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9997;
+  opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CURSOR ── */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width: 8px; height: 8px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform .12s var(--ease), width .2s, height .2s, background .2s;
+  }
+  .cur-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,145,90,.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .35s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover { width: 14px; height: 14px; }
+  .cur-ring.hover { width: 56px; height: 56px; opacity: .5; }
+}
+
+/* ══════════════════════════════════════════════
+   KEYFRAMES
+══════════════════════════════════════════════ */
+@keyframes fadeUp { from { opacity:0; transform:translateY(28px) } to { opacity:1; transform:translateY(0) } }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-10px) } }
+@keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1) } 50% { opacity:.5; transform:scale(.7) } }
+@keyframes shimmer { 0% { background-position:200% 0 } 100% { background-position:-200% 0 } }
+@keyframes revealPanel { from { opacity:0; transform:translateY(40px) } to { opacity:1; transform:translateY(0) } }
+@keyframes rotateSlow { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(360deg) } }
+@keyframes revealWidth { from { transform:scaleX(0) } to { transform:scaleX(1) } }
+
+/* ══════════════════════════════════════════════
+   NAVIGATION
+══════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 800; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px,4vw,64px);
+  transition: background .5s, border-color .5s;
+  border-bottom: 1px solid transparent;
+}
+.nav.scrolled {
+  background: rgba(7,8,12,.94);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom-color: var(--border-soft);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem,2.2vw,1.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+.nav-logo span { color: var(--rose); }
+
+.nav-links {
+  display: flex; gap: clamp(20px,2.5vw,42px);
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color .3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--rose);
+  transition: width .35s var(--ease);
+}
+.nav-links a:hover { color: var(--cream); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.nav-btn {
+  padding: 7px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: .68rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+  transition: all .3s;
+  white-space: nowrap; border: none;
+}
+.nav-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--rose);
+}
+.nav-btn-ghost:hover { border-color: var(--rose); background: var(--rose-dim); }
+.nav-btn-fill {
+  background: var(--rose);
+  color: var(--void);
+}
+.nav-btn-fill:hover { background: var(--rose-light); }
+
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  padding: 6px; background: none; border: none;
+  cursor: pointer; z-index: 810; flex-shrink: 0;
+}
+.hamburger span {
+  width: 22px; height: 1.5px;
+  background: var(--cream); display: block;
+  transition: transform .35s var(--ease), opacity .25s;
+  transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+.mobile-menu {
+  display: none;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 799;
+  background: rgba(7,8,12,.98); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 20px clamp(16px,5vw,40px) 32px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity .38s var(--ease), transform .38s var(--ease);
+  pointer-events: none;
+}
+.mobile-menu.open {
+  display: block; opacity: 1; transform: translateY(0); pointer-events: all;
+}
+.mobile-menu ul { list-style: none; }
+.mobile-menu ul li {
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.mobile-menu.open ul li { opacity: 1; transform: translateX(0); }
+.mobile-menu.open ul li:nth-child(1) { transition-delay: .05s; }
+.mobile-menu.open ul li:nth-child(2) { transition-delay: .1s; }
+.mobile-menu.open ul li:nth-child(3) { transition-delay: .15s; }
+.mobile-menu.open ul li:nth-child(4) { transition-delay: .2s; }
+.mobile-menu.open ul li:nth-child(5) { transition-delay: .25s; }
+.mobile-menu ul li a {
+  display: block; padding: 13px 0;
+  color: var(--text-dim); text-decoration: none;
+  font-size: .78rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border-soft); transition: color .3s;
+}
+.mobile-menu ul li a:hover { color: var(--rose); }
+.mob-btns {
+  margin-top: 20px; display: flex; flex-direction: column; gap: 10px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .3s .25s var(--ease), transform .3s .25s var(--ease);
+}
+.mobile-menu.open .mob-btns { opacity: 1; transform: translateY(0); }
+.mob-btn {
+  display: block; padding: 13px; text-align: center;
+  font-family: 'Outfit', sans-serif; font-size: .7rem;
+  font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; border: none; transition: all .3s;
+}
+.mob-btn-outline { border: 1px solid var(--border) !important; color: var(--rose); background: transparent; }
+.mob-btn-solid { background: var(--rose); color: var(--void); }
+
+/* ══════════════════════════════════════════════
+   COVER CINEMATIC
+══════════════════════════════════════════════ */
+.cover-cinema {
+  position: relative;
+  height: clamp(260px,38vw,520px);
+  margin-top: var(--nav-h);
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--surface), var(--void));
+}
+.cover-cinema-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none;
+  transform: scale(1.04);
+  transition: transform 8s ease;
+}
+.cover-cinema-img.loaded { display: block; }
+.cover-cinema-img.loaded:hover { transform: scale(1.0); }
+/* Subtle gradient fade over artist cover image */
+.cover-cinema-ov {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(7,8,12,.05) 0%, rgba(7,8,12,.18) 55%, rgba(7,8,12,.72) 100%);
+}
+/* Animated ambient orbs in cover */
+.cover-orb-1 {
+  position: absolute; width: 40vw; height: 40vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(200,145,90,.15), transparent 70%);
+  right: 5%; top: 50%; transform: translateY(-50%);
+  filter: blur(80px); pointer-events: none;
+  animation: float 9s ease-in-out infinite;
+}
+/* Grid lines over cover */
+.cover-grid-lines {
+  position: absolute; inset: 0; pointer-events: none;
+  background-image:
+    linear-gradient(rgba(200,145,90,.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,145,90,.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,.5) 0%, transparent 75%);
+}
+/* Placeholder / loading shimmer when no cover */
+.cover-placeholder {
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--surface), var(--surface-2), var(--surface));
+  background-size: 300% 300%;
+  animation: shimmer 4s linear infinite;
+}
+
+/* ══════════════════════════════════════════════
+   HERO — Artist Identity Strip
+══════════════════════════════════════════════ */
+.profile-hero {
+  position: relative;
+  padding: 0 clamp(20px,6vw,96px) clamp(40px,5vw,72px);
+  z-index: 2;
+}
+
+/* Back link */
+.back-link {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: .66rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-faint); text-decoration: none;
+  padding: clamp(10px,1.5vw,16px) 0;
+  transition: color .3s var(--ease);
+  opacity: 0; animation: fadeUp .7s var(--ease) .1s forwards;
+}
+.back-link svg { transition: transform .3s var(--ease); }
+.back-link:hover { color: var(--rose); }
+.back-link:hover svg { transform: translateX(-4px); }
+
+/* Avatar + identity floating card */
+.identity-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: clamp(20px,3vw,48px);
+  align-items: flex-end;
+  margin-top: -clamp(50px,7vw,96px);
+}
+
+.av-block {
+  position: relative; flex-shrink: 0;
+  opacity: 0; animation: fadeUp .8s var(--ease) .2s forwards;
+}
+.artist-av-ring {
+  width: clamp(90px,12vw,148px);
+  height: clamp(90px,12vw,148px);
+  border-radius: 50%;
+  padding: 3px;
+  background: linear-gradient(135deg, var(--rose) 0%, transparent 50%, var(--rose-dim) 100%);
+  position: relative;
+}
+.artist-av {
+  width: 100%; height: 100%;
+  border-radius: 50%;
+  background: var(--surface-3);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem,4vw,3.2rem);
+  font-weight: 500;
+  color: var(--rose);
+  overflow: hidden;
+  position: relative; z-index: 1;
+}
+.artist-av img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  display: none; border-radius: 50%;
+}
+.artist-av img.loaded { display: block; }
+#avInitials { display: block; }
+
+/* Verified badge */
+.verified-badge {
+  position: absolute; bottom: 4px; right: 4px;
+  width: 28px; height: 28px;
+  background: var(--rose);
+  border-radius: 50%;
+  border: 2px solid var(--void);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 2;
+}
+.verified-badge svg { width: 13px; height: 13px; }
+
+/* Availability pulse */
+.av-pulse-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  margin: 8px 0;
+  background: rgba(7,8,12,.9);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.av-pulse-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+.av-pulse-dot.open { background: var(--ok); animation: pulseDot 2s ease-in-out infinite; }
+.av-pulse-dot.busy { background: var(--warn); }
+.av-pulse-dot.closed { background: var(--err); }
+.av-pulse-label {
+  font-size: .56rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+
+/* Identity info */
+.identity-info {
+  padding-bottom: clamp(4px,1vw,10px);
+  opacity: 0; animation: fadeUp .8s var(--ease) .3s forwards;
+}
+.identity-eyebrow {
+  font-size: .6rem; font-weight: 500;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.identity-eyebrow::before {
+  content: '';
+  display: inline-block;
+  width: 24px; height: 1px;
+  background: var(--rose);
+}
+.artist-name-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem,5vw,4rem);
+  font-weight: 700;
+  line-height: .95;
+  letter-spacing: -.02em;
+  color: var(--cream);
+  margin-bottom: clamp(6px,1vw,12px);
+}
+.artist-name-heading em {
+  font-style: italic;
+  font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-light) 60%, var(--rose) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.artist-loc-row {
+  display: flex; align-items: center; gap: 6px;
+  color: var(--text-faint);
+  font-size: .72rem; font-weight: 400;
+  letter-spacing: .06em;
+  margin-bottom: 12px;
+}
+.artist-loc-row svg { color: var(--rose); flex-shrink: 0; }
+
+.artist-tags-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+}
+.a-tag {
+  padding: 4px 11px;
+  border: 1px solid var(--border);
+  font-size: .58rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rose);
+  background: var(--rose-dim);
+  transition: background .3s, border-color .3s;
+}
+.a-tag:hover { background: rgba(200,145,90,.2); border-color: rgba(200,145,90,.4); }
+
+/* Hero-right stats column */
+.hero-stat-col {
+  display: flex; flex-direction: column;
+  gap: 14px; align-items: flex-end;
+  padding-bottom: clamp(4px,1vw,10px);
+  opacity: 0; animation: fadeUp .8s var(--ease) .45s forwards;
+}
+.h-stat {
+  text-align: right;
+}
+.h-stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,2.8vw,2.4rem);
+  font-weight: 500;
+  color: var(--rose);
+  line-height: 1;
+  letter-spacing: -.02em;
+}
+.h-stat-lbl {
+  font-size: .56rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-faint);
+  margin-top: 3px;
+}
+.h-stat-stars {
+  color: var(--rose);
+  font-size: .85rem;
+  letter-spacing: -2px;
+  line-height: 1;
+}
+
+/* ══════════════════════════════════════════════
+   BIO + CTA ROW
+══════════════════════════════════════════════ */
+.bio-cta-band {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: clamp(24px,4vw,60px);
+  align-items: center;
+  padding: clamp(24px,3vw,40px) clamp(20px,6vw,96px);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  background: linear-gradient(135deg, var(--rose-glow), transparent);
+}
+.artist-bio-text {
+  font-size: clamp(.82rem,1.05vw,.92rem);
+  font-weight: 300;
+  line-height: 1.8;
+  color: var(--text-dim);
+  max-width: 560px;
+}
+.cta-actions {
+  display: flex; flex-direction: column; gap: 10px;
+  flex-shrink: 0;
+}
+
+/* Primary button — clipped corner */
+.btn-empire {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: clamp(12px,1.5vw,15px) clamp(22px,2.5vw,32px);
+  font-family: 'Outfit', sans-serif;
+  font-size: .72rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; border: none;
+  white-space: nowrap; position: relative; overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  transition: all .35s var(--ease);
+}
+.btn-empire.primary {
+  background: var(--rose); color: var(--void);
+}
+.btn-empire.primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rose-light), var(--rose));
+  opacity: 0; transition: opacity .35s;
+}
+.btn-empire.primary:hover::after { opacity: 1; }
+.btn-empire.primary span,
+.btn-empire.primary svg { position: relative; z-index: 1; }
+.btn-empire.primary svg { transition: transform .3s var(--ease); }
+.btn-empire.primary:hover svg { transform: translateX(4px); }
+
+.btn-empire.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-empire.ghost:hover {
+  border-color: var(--rose);
+  color: var(--rose);
+  background: var(--rose-dim);
+}
+.btn-empire.ghost svg { transition: transform .3s var(--ease); }
+.btn-empire.ghost:hover svg { transform: translateY(4px); }
+
+/* ══════════════════════════════════════════════
+   METRIC BAR
+══════════════════════════════════════════════ */
+.metric-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-soft);
+  position: relative; z-index: 1;
+}
+.metric-bar::before {
+  content: '';
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  opacity: .4;
+}
+.metric-cell {
+  padding: clamp(14px,2vw,22px) clamp(16px,3vw,32px);
+  border-right: 1px solid var(--border-soft);
+  position: relative;
+  transition: background .3s;
+}
+.metric-cell:last-child { border-right: none; }
+.metric-cell:hover { background: var(--rose-glow); }
+.metric-icon {
+  width: 18px; height: 18px;
+  color: var(--rose); margin-bottom: 6px;
+}
+.metric-lbl {
+  font-size: .56rem; font-weight: 500;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-faint); margin-bottom: 4px;
+}
+.metric-val {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(.9rem,1.3vw,1.1rem);
+  font-weight: 500;
+  color: var(--cream);
+}
+.metric-val.accent { color: var(--rose); }
+
+/* ══════════════════════════════════════════════
+   SECTION — Base
+══════════════════════════════════════════════ */
+.empire-section {
+  padding: clamp(48px,6vw,96px) clamp(20px,6vw,96px);
+  border-top: 1px solid var(--border-soft);
+  position: relative; z-index: 1;
+}
+.empire-section::before {
+  content: '';
+  position: absolute; top: 0; left: clamp(20px,6vw,96px);
+  width: clamp(40px,6vw,80px); height: 1px;
+  background: var(--rose);
+  transform-origin: left;
+  animation: revealWidth .8s var(--ease) both;
+}
+
+.section-eyebrow {
+  font-size: .6rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 8px;
+  display: flex; align-items: center; gap: 10px;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,3vw,2.4rem);
+  font-weight: 500;
+  color: var(--cream);
+  line-height: 1.1;
+  margin-bottom: clamp(24px,3vw,44px);
+  letter-spacing: -.01em;
+}
+.section-title em {
+  font-style: italic; font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose), var(--rose-light));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0; transform: translateY(30px);
+  transition: opacity .8s var(--ease), transform .8s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ══════════════════════════════════════════════
+   PRICING PACKAGES
+══════════════════════════════════════════════ */
+.pkg-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 2px;
+}
+.pkg-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  padding: clamp(20px,2.5vw,32px);
+  position: relative; overflow: hidden;
+  transition: border-color .35s, background .35s;
+}
+.pkg-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--rose-dim), transparent);
+  transition: background .35s;
+}
+.pkg-card:hover {
+  border-color: var(--border);
+  background: var(--surface-2);
+}
+.pkg-card.featured {
+  border-color: var(--border);
+  background: var(--surface-2);
+}
+.pkg-card.featured::before {
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+}
+/* Ambient glow on featured */
+.pkg-card.featured::after {
+  content: '';
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(200,145,90,.08), transparent 70%);
+  pointer-events: none;
+}
+.pkg-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px;
+  background: var(--rose-dim);
+  border: 1px solid var(--border);
+  font-size: .52rem; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--rose);
+  margin-bottom: 14px;
+  min-height: 22px;
+}
+.pkg-badge svg { width: 10px; height: 10px; }
+.pkg-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem; font-weight: 500;
+  color: var(--cream);
+  margin-bottom: 4px;
+}
+.pkg-delivery {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .62rem; color: var(--text-faint);
+  margin-bottom: 16px;
+}
+.pkg-delivery svg { width: 13px; height: 13px; color: var(--rose); }
+.pkg-price {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem; font-weight: 500;
+  color: var(--rose);
+  line-height: 1;
+  margin-bottom: 20px;
+  letter-spacing: -.02em;
+}
+.pkg-price sub {
+  font-family: 'Outfit', sans-serif;
+  font-size: .6rem; font-weight: 400;
+  color: var(--text-faint);
+  letter-spacing: .08em;
+  vertical-align: bottom; margin-left: 4px;
+}
+.pkg-btn {
+  width: 100%;
+  padding: 11px;
+  font-family: 'Outfit', sans-serif;
+  font-size: .66rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; border: none;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: all .3s var(--ease);
+  position: relative; overflow: hidden;
+}
+.pkg-btn.solid {
+  background: var(--rose); color: var(--void);
+}
+.pkg-btn.solid:hover { background: var(--rose-light); }
+.pkg-btn.outline {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+}
+.pkg-btn.outline:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-dim); }
+
+/* ══════════════════════════════════════════════
+   REVIEWS
+══════════════════════════════════════════════ */
+.reviews-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2px;
+}
+.rv-card {
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  padding: clamp(18px,2.5vw,26px);
+  position: relative; overflow: hidden;
+  transition: border-color .3s, transform .3s var(--ease);
+}
+.rv-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(200,145,90,.3), transparent);
+  opacity: 0; transition: opacity .3s;
+}
+.rv-card:hover { border-color: var(--border); transform: translateY(-2px); }
+.rv-card:hover::before { opacity: 1; }
+
+.rv-head {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 12px;
+}
+.rv-av {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--rose-dim);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .9rem; font-weight: 500;
+  color: var(--rose); flex-shrink: 0;
+}
+.rv-name {
+  font-size: .76rem; font-weight: 500; color: var(--cream);
+  margin-bottom: 2px;
+}
+.rv-date {
+  font-size: .6rem; color: var(--text-faint);
+}
+.rv-stars {
+  color: var(--rose);
+  font-size: .78rem;
+  letter-spacing: -1px;
+  margin-bottom: 10px;
+}
+.rv-text {
+  font-size: .76rem;
+  color: var(--text-dim);
+  line-height: 1.75;
+}
+.rv-tag {
+  margin-top: 12px;
+  display: inline-flex;
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  font-size: .52rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--rose);
+}
+
+/* Empty / loading state */
+.empty-state {
+  padding: clamp(32px,5vw,60px);
+  text-align: center;
+  color: var(--text-faint);
+  font-size: .8rem;
+  grid-column: 1 / -1;
+}
+
+/* ══════════════════════════════════════════════
+   STICKY CTA BAR
+══════════════════════════════════════════════ */
+.sticky-cta-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 700;
+  background: rgba(7,8,12,.96);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-top: 1px solid var(--border-soft);
+  padding: clamp(10px,1.5vw,14px) clamp(20px,6vw,96px);
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px;
+  transform: translateY(100%);
+  transition: transform .45s var(--ease);
+}
+.sticky-cta-bar.up { transform: translateY(0); }
+.sticky-cta-bar::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  opacity: .3;
+}
+.sticky-artist-info {
+  display: flex; align-items: center; gap: 12px;
+}
+.sticky-av {
+  width: 38px; height: 38px; border-radius: 50%;
+  background: var(--rose-dim);
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .9rem; color: var(--rose);
+  overflow: hidden; flex-shrink: 0;
+}
+.sticky-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+.sticky-av img.loaded { display: block; }
+#stickyAvInit { display: block; }
+
+.sticky-name {
+  font-size: .78rem; font-weight: 500; color: var(--cream);
+  margin-bottom: 2px;
+}
+.sticky-from {
+  font-size: .64rem; color: var(--text-faint);
+}
+.sticky-from strong { color: var(--rose); font-weight: 500; }
+
+/* ══════════════════════════════════════════════
+   COMMISSION MODAL
+══════════════════════════════════════════════ */
+.modal-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 2000;
+  background: rgba(5,6,9,.92);
+  backdrop-filter: blur(18px);
+  overflow-y: auto;
+  opacity: 0;
+  transition: opacity .35s var(--ease);
+}
+.modal-overlay.open { display: block; opacity: 1; }
+
+.modal-box {
+  max-width: 580px;
+  margin: clamp(20px,5vw,72px) auto;
+  background: var(--surface);
+  border: 1px solid var(--border-soft);
+  position: relative; overflow: hidden;
+  animation: revealPanel .45s var(--ease) both;
+}
+.modal-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+}
+.modal-header {
+  padding: clamp(16px,2.5vw,24px) clamp(20px,3vw,30px);
+  border-bottom: 1px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.modal-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem,2vw,1.5rem);
+  font-weight: 500; color: var(--cream);
+}
+.modal-title em { font-style: italic; color: var(--rose); }
+.modal-close {
+  width: 34px; height: 34px;
+  background: transparent; border: 1px solid var(--border-soft);
+  color: var(--text-dim); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .3s;
+}
+.modal-close:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-dim); }
+.modal-body { padding: clamp(16px,2.5vw,24px) clamp(20px,3vw,30px); }
+
+.modal-info-box {
+  padding: clamp(12px,2vw,16px) clamp(14px,2vw,18px);
+  border-left: 2px solid var(--rose);
+  background: var(--rose-glow);
+  font-size: .76rem;
+  line-height: 1.7;
+  color: var(--text-dim);
+  margin-bottom: 14px;
+}
+.modal-info-box strong { color: var(--rose); font-weight: 500; }
+
+.modal-err {
+  padding: 10px 14px;
+  border-left: 2px solid var(--err);
+  background: rgba(224,92,92,.05);
+  font-size: .72rem; color: var(--err);
+  margin-bottom: 14px;
+  display: none;
+}
+.modal-err.show { display: block; }
+
+.modal-step {
+  display: flex; align-items: flex-start; gap: 12px;
+  margin-bottom: 10px;
+}
+.modal-step-num {
+  width: 22px; height: 22px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: .58rem; font-weight: 600;
+  color: var(--rose);
+  flex-shrink: 0; margin-top: 2px;
+}
+.modal-step-text { font-size: .74rem; color: var(--text-dim); line-height: 1.55; }
+
+.modal-divider {
+  height: 1px; background: var(--border-soft);
+  margin: 16px 0;
+}
+
+/* ══════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════ */
+footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border-soft);
+  padding: clamp(40px,6vw,80px) clamp(20px,6vw,96px) clamp(24px,3vw,36px);
+  position: relative; overflow: hidden;
+}
+footer::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  opacity: .3;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr;
+  gap: clamp(24px,5vw,60px);
+  margin-bottom: clamp(24px,3vw,40px);
+}
+.f-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem; font-weight: 700;
+  color: var(--cream); letter-spacing: .04em;
+  margin-bottom: 10px;
+}
+.f-logo span { color: var(--rose); }
+.f-tagline {
+  font-size: .72rem; color: var(--text-faint);
+  line-height: 1.8; max-width: 200px;
+}
+.f-col-title {
+  font-size: .6rem; font-weight: 600;
+  letter-spacing: .16em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 14px;
+}
+.f-col a {
+  display: block;
+  font-size: .72rem; color: var(--text-faint);
+  text-decoration: none; margin-bottom: 8px;
+  transition: color .3s;
+}
+.f-col a:hover { color: var(--cream); }
+.footer-bottom {
+  border-top: 1px solid var(--border-soft);
+  padding-top: 16px;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  font-size: .64rem; color: var(--text-faint);
+}
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .identity-row {
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto auto;
+  }
+  .hero-stat-col {
+    grid-column: 1 / -1;
+    flex-direction: row; flex-wrap: wrap;
+    align-items: center; justify-content: flex-start;
+    gap: clamp(20px,4vw,44px);
+  }
+  .h-stat { text-align: left; }
+  .bio-cta-band {
+    grid-template-columns: 1fr;
+  }
+  .cta-actions {
+    flex-direction: row; flex-wrap: wrap;
+  }
+  .metric-bar { grid-template-columns: repeat(2, 1fr); }
+  .metric-cell:nth-child(2) { border-right: none; }
+  .metric-cell:nth-child(3) { border-top: 1px solid var(--border-soft); }
+  .metric-cell:nth-child(4) { border-top: 1px solid var(--border-soft); }
+}
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .nav-actions { display: none; }
+  .hamburger { display: flex; }
+  .identity-row { grid-template-columns: 1fr; align-items: flex-start; }
+  .av-block { margin: 0 auto; }
+  .identity-info { text-align: center; }
+  .identity-eyebrow { justify-content: center; }
+  .artist-tags-row { justify-content: center; }
+  .artist-loc-row { justify-content: center; }
+  .pkg-grid { grid-template-columns: 1fr; }
+  .reviews-grid { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .sticky-cta-bar { padding: 10px 16px; }
+  .metric-bar { grid-template-columns: 1fr 1fr; }
+  .cover-cinema { height: clamp(180px,50vw,280px); }
+}
+@media (max-width: 400px) {
+  .footer-grid { grid-template-columns: 1fr; }
+  .metric-bar { grid-template-columns: 1fr; }
+  .metric-cell { border-right: none; border-bottom: 1px solid var(--border-soft); }
+}
+</style>
+</head>
+<body>
+
+<!-- Custom Cursor -->
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ═══════════════════ NAVIGATION ═══════════════════ -->
+<nav class="nav" id="mainNav">
+  <a class="nav-logo" href="/index.html">Zorv<span>Ex</span></a>
+
+  <ul class="nav-links">
+    <li><a href="/index.html">Home</a></li>
+    <li><a href="/browse.html">Browse</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+  </ul>
+
+  <div class="nav-actions" id="navAuth"></div>
+
+  <button class="hamburger" id="hamBtn" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobMenu">
+  <ul>
+    <li><a href="/index.html" onclick="closeMob()">Home</a></li>
+    <li><a href="/browse.html" onclick="closeMob()">Browse Artists</a></li>
+    <li><a href="#services" onclick="closeMob()">Services</a></li>
+    <li><a href="#reviews" onclick="closeMob()">Reviews</a></li>
+    <li><a href="/login.html" id="mobLogin">Sign In</a></li>
+  </ul>
+  <div class="mob-btns">
+    <a href="/order.html" class="mob-btn mob-btn-outline">Commission Art</a>
+    <a href="/login.html?mode=register&role=artist" class="mob-btn mob-btn-solid">Join as Artist</a>
+  </div>
+</div>
+
+<!-- ═══════════════════ COVER ═══════════════════ -->
+<div class="cover-cinema" id="coverEl">
+  <div class="cover-placeholder"></div>
+  <img id="coverImg" class="cover-cinema-img" src="" alt="Artist Cover">
+  <div class="cover-orb-1"></div>
+  <div class="cover-grid-lines"></div>
+  <div class="cover-cinema-ov"></div>
+</div>
+
+<!-- ═══════════════════ PROFILE HERO ═══════════════════ -->
+<section class="profile-hero" id="artistProfile">
+  <a href="/browse.html" class="back-link">
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M10 12L6 8l4-4"/>
+    </svg>
+    Back to Artists
+  </a>
+
+  <div class="identity-row">
+    <!-- Avatar -->
+    <div class="av-block">
+      <div class="artist-av-ring">
+        <div class="artist-av" id="artistAv">
+          <span id="avInitials">A</span>
+          <img id="avImg" src="" alt="">
+        </div>
+      </div>
+      <!-- Verified -->
+      <div class="verified-badge" title="Verified Artist">
+        <svg viewBox="0 0 16 16" fill="none" stroke="var(--void)" stroke-width="2.5">
+          <path d="M3 8l3.5 3.5L13 4"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="identity-info">
+      <div class="identity-eyebrow">Verified Artist</div>
+      <h1 class="artist-name-heading" id="artistName">Loading…</h1>
+      <div class="artist-loc-row">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M8 2a4 4 0 0 1 4 4c0 3-4 8-4 8S4 9 4 6a4 4 0 0 1 4-4Z"/>
+          <circle cx="8" cy="6" r="1.5"/>
+        </svg>
+        <span id="artistLoc">Kerala, India</span>
+      </div>
+      <!-- Availability -->
+      <div class="av-pulse-badge">
+        <div class="av-pulse-dot" id="avDot"></div>
+        <span class="av-pulse-label" id="avLbl">Loading…</span>
+      </div>
+      <div class="artist-tags-row" id="artistTags"></div>
+    </div>
+
+    <!-- Stat Column -->
+    <div class="hero-stat-col">
+      <div class="h-stat">
+        <div class="h-stat-val" id="statOrds">0</div>
+        <div class="h-stat-lbl">Completed</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-val" id="statResp">—</div>
+        <div class="h-stat-lbl">Response</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-stars" id="starsEl">★★★★★</div>
+        <div style="display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:2px;">
+          <span style="font-family:'Playfair Display',serif;font-size:1rem;color:var(--rose);" id="rNum">5.0</span>
+          <span style="font-size:.62rem;color:var(--text-faint);" id="rCnt">(0)</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════ BIO + CTA ═══════════════════ -->
+<div class="bio-cta-band reveal">
+  <p class="artist-bio-text" id="artistBio">Loading artist bio…</p>
+  <div class="cta-actions">
+    <a href="#" class="btn-empire primary" id="mainCommBtn" onclick="openCommModal(event)">
+      <span>Commission This Artist</span>
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 8h10M9 4l4 4-4 4"/>
+      </svg>
+    </a>
+    <button class="btn-empire ghost" onclick="document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M8 3v10M4 9l4 4 4-4"/>
+      </svg>
+      See Reviews
+    </button>
+  </div>
+</div>
+
+<!-- ═══════════════════ METRIC BAR ═══════════════════ -->
+<div class="metric-bar reveal">
+  <div class="metric-cell">
+    <svg class="metric-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+      <circle cx="9" cy="9" r="7"/><path d="M9 5v4l2.5 2.5"/>
+    </svg>
+    <div class="metric-lbl">Speciality</div>
+    <div class="metric-val accent" id="iSpec">—</div>
+  </div>
+  <div class="metric-cell">
+    <svg class="metric-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M3 3h12v10H3z"/><path d="M3 6h12M7 3v3M11 3v3"/>
+    </svg>
+    <div class="metric-lbl">Avg. Delivery</div>
+    <div class="metric-val" id="iDel">—</div>
+  </div>
+  <div class="metric-cell">
+    <svg class="metric-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M2 9l4.5-4.5L9 7l4.5-4.5L16 5"/><circle cx="9" cy="13" r="1.5"/>
+    </svg>
+    <div class="metric-lbl">Starting From</div>
+    <div class="metric-val accent" id="iFrom">₹—</div>
+  </div>
+  <div class="metric-cell">
+    <svg class="metric-icon" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.5">
+      <rect x="3" y="3" width="12" height="12" rx="1"/><path d="M6 9h6M6 12h4M6 6h6"/>
+    </svg>
+    <div class="metric-lbl">Member Since</div>
+    <div class="metric-val" id="iSince">—</div>
+  </div>
+</div>
+
+<!-- ═══════════════════ PACKAGES ═══════════════════ -->
+<section class="empire-section reveal" id="services">
+  <div class="section-eyebrow">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M8 2l1.5 3 3.5.5-2.5 2.4.6 3.5L8 9.8 4.9 11.4l.6-3.5L3 5.5l3.5-.5z"/>
+    </svg>
+    Services & Pricing
+  </div>
+  <div class="section-title">Commission <em>Packages</em></div>
+  <div class="pkg-grid" id="pkgGrid">
+    <div class="empty-state">Loading packages…</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ REVIEWS ═══════════════════ -->
+<section class="empire-section reveal" id="reviews">
+  <div class="section-eyebrow">
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+      <path d="M2 3h12v8H9l-3 3V11H2z"/>
+    </svg>
+    Testimonials
+  </div>
+  <div class="section-title">Buyer <em>Feedback</em></div>
+  <div class="reviews-grid" id="reviewsGrid">
+    <div class="empty-state">Loading reviews…</div>
+  </div>
+</section>
+
+<!-- ═══════════════════ FOOTER ═══════════════════ -->
+<footer>
+  <div class="footer-grid">
+    <div>
+      <div class="f-logo">Zorv<span>Ex</span></div>
+      <p class="f-tagline">Kerala's premium art marketplace — connecting buyers with exceptional artists.</p>
+    </div>
+    <div class="f-col">
+      <div class="f-col-title">Platform</div>
+      <a href="/browse.html">Browse Artists</a>
+      <a href="/order.html">Commission Art</a>
+      <a href="/login.html">Sign In</a>
+    </div>
+    <div class="f-col">
+      <div class="f-col-title">Contact</div>
+      <a href="https://instagram.com/zorve.xe" target="_blank">@zorve.xe</a>
+      <a href="tel:+919946301939">+91 9946301939</a>
+      <a href="/cdn-cgi/l/email-protection#ea9085989c8f9283848c85aa8d878b8386c4898587"><span class="__cf_email__" data-cfemail="4e34213c382b36272028210e29232f2722602d2123">[email&#160;protected]</span></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 ZorvEx. All rights reserved.</span>
+    <span>India Post · Razorpay · Secure Payments</span>
+  </div>
+</footer>
+
+<!-- ═══════════════════ STICKY CTA ═══════════════════ -->
+<div class="sticky-cta-bar" id="stickyCta">
+  <div class="sticky-artist-info">
+    <div class="sticky-av" id="stickyAv">
+      <span id="stickyAvInit">A</span>
+      <img id="stickyAvImg" src="" alt="">
+    </div>
+    <div>
+      <div class="sticky-name" id="stickyName">Artist</div>
+      <div class="sticky-from">Starting from <strong id="stickyFrom">₹—</strong></div>
+    </div>
+  </div>
+  <a href="#" class="btn-empire primary" onclick="openCommModal(event)">
+    <span>Commission Now</span>
+    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 8h10M9 4l4 4-4 4"/>
+    </svg>
+  </a>
+</div>
+
+<!-- ═══════════════════ COMMISSION MODAL ═══════════════════ -->
+<div class="modal-overlay" id="commModal">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Commission <em id="modName">Artist</em></div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 3l10 10M13 3L3 13"/>
+        </svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-info-box">
+        <strong>How it works</strong><br>
+        <div class="modal-step" style="margin-top:10px;">
+          <div class="modal-step-num">1</div>
+          <div class="modal-step-text">Fill the order form below with your requirements and vision.</div>
+        </div>
+        <div class="modal-step">
+          <div class="modal-step-num">2</div>
+          <div class="modal-step-text">Admin reviews and forwards it <strong>to this specific artist only</strong>.</div>
+        </div>
+        <div class="modal-step">
+          <div class="modal-step-num">3</div>
+          <div class="modal-step-text">Artist accepts → Pay 50% advance → Work begins.</div>
+        </div>
+      </div>
+      <div class="modal-err" id="commErr">Please sign in to place a commission request.</div>
+      <div class="modal-divider"></div>
+      <button class="btn-empire primary" style="width:100%;justify-content:center;" id="commGoBtn" onclick="goToOrder()">
+        <span>Proceed to Order Form</span>
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M3 8h10M9 4l4 4-4 4"/>
+        </svg>
+      </button>
+      <button class="btn-empire ghost" style="width:100%;justify-content:center;margin-top:8px;" onclick="closeModal()">
+        Cancel
+      </button>
+    </div>
+  </div>
+</div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="/zorvex-api.js"></script>
+<script>
+/* ════════════════════════════════════════════
+   CUSTOM CURSOR
+════════════════════════════════════════════ */
+const cur = document.getElementById('cur');
+const curRing = document.getElementById('curRing');
+if (cur && curRing) {
+  document.addEventListener('mousemove', e => {
+    cur.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+    curRing.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%,-50%)`;
+  });
+  document.querySelectorAll('a, button, .pkg-card, .rv-card, .metric-cell').forEach(el => {
+    el.addEventListener('mouseenter', () => { cur.classList.add('hover'); curRing.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { cur.classList.remove('hover'); curRing.classList.remove('hover'); });
+  });
+}
+
+/* ════════════════════════════════════════════
+   NAVIGATION — scroll + hamburger
+════════════════════════════════════════════ */
+const nav = document.getElementById('mainNav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive: true });
+
+ZX.buildNavAuth('navAuth');
+
+const hamBtn  = document.getElementById('hamBtn');
+const mobMenu = document.getElementById('mobMenu');
+hamBtn.addEventListener('click', () => {
+  hamBtn.classList.toggle('open');
+  mobMenu.classList.toggle('open');
+});
+document.addEventListener('click', e => {
+  if (mobMenu.classList.contains('open') && !mobMenu.contains(e.target) && e.target !== hamBtn) {
+    hamBtn.classList.remove('open');
+    mobMenu.classList.remove('open');
+  }
+});
+function closeMob() {
+  hamBtn.classList.remove('open');
+  mobMenu.classList.remove('open');
+}
+
+/* ════════════════════════════════════════════
+   ARTIST ID / REDIRECT
+════════════════════════════════════════════ */
+const urlP = new URLSearchParams(window.location.search);
+const artistId = urlP.get('id');
+if (!artistId) window.location.href = '/browse.html';
+
+/* ════════════════════════════════════════════
+   LOAD PROFILE — all backend IDs preserved
+════════════════════════════════════════════ */
+async function loadProfile() {
+  try {
+    const data = await ZX.artists.get(artistId);
+    const p = data.profile;
+    document.title = (p.displayName || p.user?.name || 'Artist') + ' — ZorvEx';
+
+    // ── Avatar ──
+    if (p.avatarUrl) {
+      const img = document.getElementById('avImg');
+      img.src = p.avatarUrl; img.classList.add('loaded');
+      document.getElementById('avInitials').style.display = 'none';
+      const si = document.getElementById('stickyAvImg');
+      si.src = p.avatarUrl; si.classList.add('loaded');
+      document.getElementById('stickyAvInit').style.display = 'none';
+    } else {
+      const init = (p.displayName || p.user?.name || 'A').split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      document.getElementById('avInitials').textContent = init;
+      document.getElementById('stickyAvInit').textContent = init[0];
+    }
+
+    // ── Cover ──
+    if (p.coverUrl) {
+      const ci = document.getElementById('coverImg');
+      ci.src = p.coverUrl;
+      ci.onload = () => ci.classList.add('loaded');
+    }
+
+    // ── Name ──
+    const nameParts = (p.displayName || p.user?.name || 'Artist').trim().split(' ');
+    document.getElementById('artistName').innerHTML =
+      nameParts.slice(0, -1).join(' ') + ' <em>' + nameParts[nameParts.length - 1] + '</em>';
+    document.getElementById('artistLoc').textContent =
+      [p.location?.city, p.location?.state].filter(Boolean).join(', ') || 'Kerala, India';
+    document.getElementById('artistBio').textContent = p.bio || 'Artist on ZorvEx.';
+    document.getElementById('artistTags').innerHTML =
+      (p.tags || []).map(t => `<span class="a-tag">${t}</span>`).join('');
+
+    // ── Stats ──
+    document.getElementById('statOrds').textContent = p.completedOrders || 0;
+    document.getElementById('statResp').textContent = p.responseTime || '—';
+    document.getElementById('rNum').textContent     = p.avgRating || 'New';
+    document.getElementById('rCnt').textContent     = '(' + (p.totalReviews || 0) + ')';
+    const r = Math.round(p.avgRating || 0);
+    document.getElementById('starsEl').textContent  = '★'.repeat(r) + '☆'.repeat(5 - r);
+
+    // ── Metric Bar ──
+    document.getElementById('iSpec').textContent  = p.speciality || '—';
+    document.getElementById('iDel').textContent   = p.responseTime || '—';
+    document.getElementById('iSince').textContent = p.memberSince
+      ? new Date(p.memberSince).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })
+      : '2024';
+
+    // ── Availability ──
+    const av = p.availability || 'open';
+    const avDot = document.getElementById('avDot');
+    const avLbl = document.getElementById('avLbl');
+    avDot.classList.add(av);
+    const avTxt = { open: 'Open for commissions', busy: 'Limited availability', closed: 'Currently unavailable' };
+    avLbl.textContent = avTxt[av] || 'Open for commissions';
+
+    // ── Modal + Sticky name ──
+    document.getElementById('modName').textContent   = p.displayName || p.user?.name || 'Artist';
+    document.getElementById('stickyName').textContent = p.displayName || p.user?.name || 'Artist';
+
+    // ── Pricing ──
+    const tiers = p.pricingTiers || [];
+    if (tiers.length) {
+      const min = Math.min(...tiers.map(t => t.price));
+      document.getElementById('iFrom').textContent    = '₹' + min;
+      document.getElementById('stickyFrom').textContent = '₹' + min;
+      document.getElementById('pkgGrid').innerHTML = tiers.map(t => `
+        <div class="pkg-card ${t.isPopular ? 'featured' : ''}">
+          <div class="pkg-badge">
+            ${t.isPopular
+              ? `<svg width="10" height="10" viewBox="0 0 16 16" fill="currentColor"><path d="M8 2l1.5 3 3.5.5-2.5 2.4.6 3.5L8 9.8 4.9 11.4l.6-3.5L3 5.5l3.5-.5z"/></svg>Most Popular`
+              : '&nbsp;'}
+          </div>
+          <div class="pkg-name">${t.name}</div>
+          <div class="pkg-delivery">
+            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="8" cy="8" r="6"/><path d="M8 4v4l2.5 2.5"/>
+            </svg>
+            ${t.delivery || '—'}
+          </div>
+          <div class="pkg-price">₹${t.price}<sub>fixed</sub></div>
+          <button class="pkg-btn ${t.isPopular ? 'solid' : 'outline'}" onclick="openCommModal(event)">
+            Commission — ₹${t.price}
+          </button>
+        </div>`).join('');
+    } else {
+      document.getElementById('pkgGrid').innerHTML =
+        `<div class="empty-state">No packages set yet. Contact the artist directly.</div>`;
+    }
+
+    // ── Reviews ──
+    const revs = data.reviews || [];
+    document.getElementById('reviewsGrid').innerHTML = revs.length
+      ? revs.map(rv => `
+        <div class="rv-card">
+          <div class="rv-head">
+            <div class="rv-av">${(rv.buyer?.name || 'B')[0].toUpperCase()}</div>
+            <div>
+              <div class="rv-name">${rv.buyer?.name || 'Buyer'}</div>
+              <div class="rv-date">${new Date(rv.createdAt).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' })}</div>
+            </div>
+          </div>
+          <div class="rv-stars">${'★'.repeat(rv.rating)}${'☆'.repeat(5 - rv.rating)}</div>
+          <div class="rv-text">${rv.text}</div>
+          ${rv.tag ? `<div class="rv-tag">${rv.tag}</div>` : ''}
+        </div>`).join('')
+      : `<div class="empty-state">No reviews yet. Be the first to commission this artist!</div>`;
+
+  } catch (e) {
+    document.getElementById('artistName').textContent = 'Artist not found';
+    document.getElementById('artistBio').textContent  = e.message;
+  }
+}
+loadProfile();
+
+/* ════════════════════════════════════════════
+   COMMISSION MODAL — all ZX.auth logic preserved
+════════════════════════════════════════════ */
+function openCommModal(e) {
+  e.preventDefault();
+  const user   = ZX.auth.getUser();
+  const errBox = document.getElementById('commErr');
+  const goBtn  = document.getElementById('commGoBtn');
+
+  if (!user) {
+    errBox.classList.add('show');
+    errBox.textContent = 'Please sign in to place a commission request.';
+    goBtn.querySelector('span').textContent = 'Sign In to Commission';
+    goBtn.onclick = () => {
+      window.location.href = '/login.html?redirect=' + encodeURIComponent('/order.html?artist=' + artistId);
+    };
+  } else if (user.role !== 'buyer') {
+    errBox.classList.add('show');
+    errBox.textContent = 'Only buyers can place commission requests.';
+    goBtn.style.display = 'none';
+    document.getElementById('commModal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+    return;
+  } else {
+    errBox.classList.remove('show');
+    goBtn.style.display = '';
+    goBtn.querySelector('span').textContent = 'Proceed to Order Form';
+    goBtn.onclick = goToOrder;
+  }
+  document.getElementById('commModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function goToOrder() {
+  window.location.href = '/order.html?artist=' + encodeURIComponent(artistId);
+}
+
+function closeModal() {
+  document.getElementById('commModal').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.getElementById('commModal').addEventListener('click', e => {
+  if (e.target === document.getElementById('commModal')) closeModal();
+});
+
+/* ════════════════════════════════════════════
+   STICKY CTA — appears after cover scrolls away
+════════════════════════════════════════════ */
+const stickyEl = document.getElementById('stickyCta');
+const coverEl  = document.getElementById('coverEl');
+const stickyObs = new IntersectionObserver(entries => {
+  entries.forEach(x => {
+    stickyEl.classList.toggle('up', !x.isIntersecting);
+  });
+}, { threshold: 0 });
+stickyObs.observe(coverEl);
+
+/* ════════════════════════════════════════════
+   SCROLL REVEAL
+════════════════════════════════════════════ */
+const revEls = document.querySelectorAll('.reveal');
+const revObs = new IntersectionObserver(entries => {
+  entries.forEach(x => {
+    if (x.isIntersecting) { x.target.classList.add('visible'); revObs.unobserve(x.target); }
+  });
+}, { threshold: .08 });
+revEls.forEach(el => revObs.observe(el));
+</script>
+</body>
+</html>

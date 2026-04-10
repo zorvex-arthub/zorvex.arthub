@@ -1,0 +1,1787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZorvEx — Kerala's Premium Art Marketplace</title>
+<meta name="description" content="Commission unique handcrafted art from Kerala's finest artists. Pencil portraits, paintings, digital art, fashion design and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════════════
+   DESIGN SYSTEM
+══════════════════════════════════════════════ */
+:root {
+  --void: #07080c;
+  --surface: #0e1018;
+  --surface-2: #141620;
+  --surface-3: #1a1d2a;
+  --rose: #c8915a;
+  --rose-light: #e0ae7f;
+  --rose-dim: rgba(200,145,90,.12);
+  --rose-glow: rgba(200,145,90,.06);
+  --cream: #f0ebe3;
+  --text: rgba(240,235,227,.88);
+  --text-dim: rgba(240,235,227,.48);
+  --text-faint: rgba(240,235,227,.22);
+  --border: rgba(200,145,90,.14);
+  --border-soft: rgba(240,235,227,.07);
+  /* Reduced nav height */
+  --nav-h: 56px;
+  --ease: cubic-bezier(.25,.46,.45,.94);
+  --ease-out: cubic-bezier(0,0,.2,1);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--void);
+  color: var(--text);
+  font-family: 'Outfit', sans-serif;
+  font-weight: 400;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grain overlay */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9997;
+  opacity: .028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* ── CURSOR ── */
+@media (pointer:fine) {
+  body { cursor: none; }
+  .cur {
+    width: 8px; height: 8px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    transition: transform .12s var(--ease), width .2s, height .2s, background .2s;
+    mix-blend-mode: normal;
+  }
+  .cur-ring {
+    width: 40px; height: 40px;
+    border: 1px solid rgba(200,145,90,.4);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    transition: transform .35s var(--ease), width .3s, height .3s, opacity .3s;
+  }
+  .cur.hover { width: 14px; height: 14px; }
+  .cur-ring.hover { width: 56px; height: 56px; opacity: .5; }
+}
+
+/* ══════════════════════════════════════════════
+   NAVIGATION — reduced height
+══════════════════════════════════════════════ */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0;
+  z-index: 800; height: var(--nav-h);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 clamp(16px,4vw,64px);
+  transition: background .5s, border-color .5s;
+  border-bottom: 1px solid transparent;
+}
+.nav.scrolled {
+  background: rgba(7,8,12,.94);
+  backdrop-filter: blur(20px) saturate(1.4);
+  -webkit-backdrop-filter: blur(20px) saturate(1.4);
+  border-bottom-color: var(--border-soft);
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.2rem,2.2vw,1.5rem);
+  font-weight: 700;
+  color: var(--cream);
+  text-decoration: none;
+  letter-spacing: .04em;
+  flex-shrink: 0;
+}
+.nav-logo span { color: var(--rose); }
+
+.nav-links {
+  display: flex; gap: clamp(20px,2.5vw,42px);
+  list-style: none;
+}
+.nav-links a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: .72rem;
+  font-weight: 500;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  transition: color .3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute; bottom: -3px; left: 0;
+  width: 0; height: 1px;
+  background: var(--rose);
+  transition: width .35s var(--ease);
+}
+.nav-links a:hover { color: var(--cream); }
+.nav-links a:hover::after { width: 100%; }
+
+/* Nav actions — Commission Art FIRST (top position), then Join as Artist */
+.nav-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+
+.nav-btn {
+  padding: 7px 16px;
+  font-family: 'Outfit', sans-serif;
+  font-size: .68rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer;
+  transition: all .3s;
+  white-space: nowrap; border: none;
+}
+.nav-btn-ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--rose);
+}
+.nav-btn-ghost:hover { border-color: var(--rose); background: var(--rose-dim); }
+.nav-btn-fill {
+  background: var(--rose);
+  color: var(--void);
+}
+.nav-btn-fill:hover { background: var(--rose-light); }
+
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  padding: 6px; background: none; border: none;
+  cursor: pointer; z-index: 810; flex-shrink: 0;
+}
+.hamburger span {
+  width: 22px; height: 1.5px;
+  background: var(--cream); display: block;
+  transition: transform .35s var(--ease), opacity .25s;
+  transform-origin: center;
+}
+.hamburger.open span:nth-child(1) { transform: translateY(6.5px) rotate(45deg); }
+.hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.hamburger.open span:nth-child(3) { transform: translateY(-6.5px) rotate(-45deg); }
+
+/* Mobile menu with slide animation */
+.mobile-menu {
+  display: none;
+  position: fixed; top: var(--nav-h); left: 0; right: 0; z-index: 799;
+  background: rgba(7,8,12,.98); backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 20px clamp(16px,5vw,40px) 32px;
+  opacity: 0; transform: translateY(-14px);
+  transition: opacity .38s var(--ease), transform .38s var(--ease);
+  pointer-events: none;
+}
+.mobile-menu.open {
+  display: block; opacity: 1; transform: translateY(0); pointer-events: all;
+}
+.mobile-menu ul { list-style: none; }
+.mobile-menu ul li {
+  opacity: 0; transform: translateX(-10px);
+  transition: opacity .3s var(--ease), transform .3s var(--ease);
+}
+.mobile-menu.open ul li { opacity: 1; transform: translateX(0); }
+.mobile-menu.open ul li:nth-child(1) { transition-delay: .05s; }
+.mobile-menu.open ul li:nth-child(2) { transition-delay: .1s; }
+.mobile-menu.open ul li:nth-child(3) { transition-delay: .15s; }
+.mobile-menu.open ul li:nth-child(4) { transition-delay: .2s; }
+.mobile-menu ul li a {
+  display: block; padding: 13px 0;
+  color: var(--text-dim); text-decoration: none;
+  font-size: .78rem; font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border-soft); transition: color .3s;
+}
+.mobile-menu ul li a:hover { color: var(--rose); }
+.mob-btns {
+  margin-top: 20px; display: flex; flex-direction: column; gap: 10px;
+  opacity: 0; transform: translateY(8px);
+  transition: opacity .3s .25s var(--ease), transform .3s .25s var(--ease);
+}
+.mobile-menu.open .mob-btns { opacity: 1; transform: translateY(0); }
+.mob-btn {
+  display: block; padding: 13px; text-align: center;
+  font-family: 'Outfit', sans-serif; font-size: .7rem;
+  font-weight: 500; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; border: none; transition: all .3s;
+}
+.mob-btn-outline { border: 1px solid var(--border) !important; color: var(--rose); background: transparent; }
+.mob-btn-outline:hover { background: var(--rose-dim); }
+.mob-btn-solid { background: var(--rose); color: var(--void); }
+.mob-btn-solid:hover { background: var(--rose-light); }
+
+/* ══════════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════════ */
+@keyframes fadeUp { from { opacity:0; transform:translateY(28px) } to { opacity:1; transform:translateY(0) } }
+@keyframes fadeIn { from { opacity:0 } to { opacity:1 } }
+@keyframes marqueeScroll { from { transform:translateX(0) } to { transform:translateX(-50%) } }
+@keyframes float { 0%,100% { transform:translateY(0) } 50% { transform:translateY(-8px) } }
+@keyframes shimmer { 0% { background-position:200% 0 } 100% { background-position:-200% 0 } }
+@keyframes rotateSlow { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(360deg) } }
+@keyframes rotateSlow2 { from { transform:translate(-50%,-50%) rotate(0deg) } to { transform:translate(-50%,-50%) rotate(-360deg) } }
+@keyframes pulseDot { 0%,100% { opacity:1; transform:scale(1) } 50% { opacity:.5; transform:scale(.7) } }
+@keyframes typewriter { from { width:0 } to { width:100% } }
+@keyframes blink { 0%,100% { opacity:1 } 50% { opacity:0 } }
+@keyframes colReveal { from { opacity:0; transform:translateY(20px) } to { opacity:1; transform:translateY(0) } }
+
+/* ══════════════════════════════════════════════
+   HERO
+══════════════════════════════════════════════ */
+.hero {
+  min-height: 100svh;
+  display: grid; grid-template-columns: 1fr 1fr;
+  position: relative; overflow: hidden;
+  padding-top: var(--nav-h);
+}
+
+/* Ambient light orbs */
+.hero-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+}
+.orb {
+  position: absolute; border-radius: 50%;
+  filter: blur(90px); opacity: .35;
+}
+.orb-1 {
+  width: 50vw; height: 50vw;
+  background: radial-gradient(circle, rgba(200,145,90,.18), transparent 70%);
+  right: -10%; top: 5%;
+  animation: float 9s ease-in-out infinite;
+}
+.orb-2 {
+  width: 30vw; height: 30vw;
+  background: radial-gradient(circle, rgba(120,90,180,.1), transparent 70%);
+  left: 5%; bottom: 10%;
+  animation: float 12s ease-in-out 3s infinite;
+}
+.orb-3 {
+  width: 20vw; height: 20vw;
+  background: radial-gradient(circle, rgba(200,145,90,.1), transparent 70%);
+  left: 35%; top: 30%;
+  animation: float 7s ease-in-out 1.5s infinite;
+}
+
+/* Grid lines backdrop */
+.hero-grid-bg {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(200,145,90,.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,145,90,.04) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, rgba(0,0,0,.6) 0%, transparent 75%);
+}
+
+.hero-left {
+  display: flex; flex-direction: column; justify-content: center;
+  /* Reduced padding-top to eliminate excess space below nav */
+  padding: clamp(24px,4vw,64px) clamp(20px,5vw,80px) clamp(24px,4vw,64px);
+  position: relative; z-index: 2;
+}
+
+/* REDUCED eyebrow pill — smaller text box */
+.hero-eyebrow {
+  display: flex; align-items: center; gap: 14px;
+  margin-bottom: clamp(12px,2vw,20px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .1s forwards;
+}
+.eyebrow-pill {
+  padding: 4px 11px;
+  border: 1px solid var(--border);
+  font-size: .6rem; font-weight: 500; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--rose);
+  background: var(--rose-dim);
+  display: flex; align-items: center; gap: 7px;
+}
+.eyebrow-dot {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--rose);
+  animation: pulseDot 2s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(3rem,7vw,7.2rem);
+  font-weight: 700;
+  line-height: .93;
+  letter-spacing: -.02em;
+  margin-bottom: clamp(14px,2vw,24px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .25s forwards;
+}
+.hero-title .line-1 { display: block; color: var(--cream); }
+.hero-title .line-2 {
+  display: block;
+  font-style: italic; font-weight: 400;
+  color: transparent;
+  background: linear-gradient(135deg, var(--rose) 0%, var(--rose-light) 50%, var(--rose) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-title .line-3 { display: block; color: var(--cream); }
+
+/* REDUCED line-height and margin on hero-desc */
+.hero-desc {
+  font-size: clamp(.8rem,1.05vw,.9rem);
+  font-weight: 400; line-height: 1.55;
+  color: var(--text-dim); max-width: 400px;
+  margin-bottom: clamp(18px,2.5vw,32px);
+  opacity: 0; animation: fadeUp .9s var(--ease) .42s forwards;
+}
+
+.hero-actions {
+  display: flex; flex-direction: column; gap: 10px; align-items: flex-start;
+  opacity: 0; animation: fadeUp .9s var(--ease) .58s forwards;
+}
+
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: clamp(11px,1.3vw,14px) clamp(22px,2.2vw,32px);
+  font-family: 'Outfit', sans-serif;
+  font-size: clamp(.68rem,.8vw,.78rem);
+  font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  text-decoration: none; cursor: pointer; border: none;
+  white-space: nowrap;
+  position: relative; overflow: hidden;
+  transition: all .35s var(--ease);
+}
+.btn-icon { font-size: 1rem; transition: transform .3s var(--ease); }
+.btn:hover .btn-icon { transform: translateX(4px); }
+
+.btn-primary {
+  background: var(--rose); color: var(--void);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-primary::after {
+  content: '';
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rose-light), var(--rose));
+  opacity: 0; transition: opacity .35s;
+}
+.btn-primary:hover::after { opacity: 1; }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary .btn-icon { position: relative; z-index: 1; }
+
+.btn-secondary {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+}
+.btn-secondary:hover { border-color: var(--rose); color: var(--rose); background: var(--rose-dim); }
+.btn-sm { padding: 9px 20px; font-size: .7rem; }
+
+.hero-stats {
+  display: flex; gap: clamp(24px,5vw,52px);
+  margin-top: clamp(22px,3.5vw,44px);
+  padding-top: clamp(16px,2.5vw,28px);
+  border-top: 1px solid var(--border-soft);
+  opacity: 0; animation: fadeUp .9s var(--ease) .74s forwards;
+}
+.h-stat-v {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem,3.5vw,3rem);
+  font-weight: 500; color: var(--rose); line-height: 1;
+  letter-spacing: -.02em;
+}
+.h-stat-l {
+  font-size: .66rem; font-weight: 500;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--text-faint); margin-top: 5px;
+}
+
+/* HERO RIGHT — Visual mosaic */
+.hero-right {
+  display: flex; align-items: center; justify-content: center;
+  position: relative; z-index: 2;
+  padding: clamp(24px,4vw,60px);
+}
+
+.art-mosaic {
+  width: 100%; max-width: 480px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+  gap: 3px;
+  opacity: 0; animation: fadeIn 1.2s var(--ease) .6s forwards;
+}
+
+.art-tile {
+  aspect-ratio: 1;
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  position: relative; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  transition: border-color .4s, transform .4s var(--ease);
+  cursor: pointer;
+}
+.art-tile:hover { border-color: var(--border); transform: scale(1.02); z-index: 1; }
+
+.art-tile-inner {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+
+.tile-pencil { background: linear-gradient(135deg, #0e1018 0%, #1a1d2a 40%, #12100e 100%); }
+.tile-pencil .art-tile-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(
+    -45deg, transparent, transparent 8px,
+    rgba(200,145,90,.06) 8px, rgba(200,145,90,.06) 9px
+  );
+}
+
+.tile-paint { background: linear-gradient(135deg, #0a0f1a 0%, #111a2a 50%, #0e0e18 100%); }
+.tile-paint .art-tile-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(circle at 30% 60%, rgba(200,145,90,.15) 0%, transparent 50%),
+    radial-gradient(circle at 70% 30%, rgba(120,90,200,.1) 0%, transparent 45%);
+}
+
+.tile-digital { background: linear-gradient(135deg, #080c18 0%, #0e1520 50%, #080c18 100%); }
+.tile-digital .art-tile-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(200,145,90,.08) 1px, transparent 1px);
+  background-size: 18px 18px;
+}
+
+.tile-fashion { background: linear-gradient(135deg, #100c08 0%, #1e1408 50%, #120e0a 100%); }
+.tile-fashion .art-tile-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 14px, rgba(200,145,90,.05) 14px, rgba(200,145,90,.05) 15px),
+              repeating-linear-gradient(90deg, transparent, transparent 14px, rgba(200,145,90,.05) 14px, rgba(200,145,90,.05) 15px);
+}
+
+.tile-svg {
+  position: relative; z-index: 2;
+  width: clamp(36px,5vw,52px); height: clamp(36px,5vw,52px);
+  opacity: .7; transition: opacity .3s, transform .4s var(--ease);
+  filter: drop-shadow(0 0 12px rgba(200,145,90,.3));
+}
+.art-tile:hover .tile-svg { opacity: 1; transform: scale(1.1); }
+
+.art-tile-label {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  padding: 10px 14px 12px;
+  background: linear-gradient(transparent, rgba(7,8,12,.85));
+  font-size: .62rem; font-weight: 600;
+  letter-spacing: .14em; text-transform: uppercase;
+  color: var(--rose); z-index: 3;
+  transform: translateY(4px); transition: transform .3s var(--ease);
+}
+.art-tile:hover .art-tile-label { transform: translateY(0); }
+
+/* Floating badge */
+.hero-badge {
+  position: absolute; bottom: 18%; right: 6%;
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  padding: 14px 18px;
+  display: flex; align-items: center; gap: 12px;
+  animation: float 6s ease-in-out 1s infinite;
+  backdrop-filter: blur(8px);
+  z-index: 3;
+}
+.badge-icon {
+  width: 32px; height: 32px;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.badge-txt { font-size: .65rem; }
+.badge-title { color: var(--cream); font-weight: 600; letter-spacing: .05em; }
+.badge-sub { color: var(--text-faint); font-size: .58rem; margin-top: 2px; }
+
+/* ══════════════════════════════════════════════
+   MARQUEE
+══════════════════════════════════════════════ */
+.marquee-strip {
+  overflow: hidden;
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  padding: 13px 0;
+  background: var(--surface);
+}
+.marquee-inner {
+  display: flex; gap: 0;
+  white-space: nowrap;
+  animation: marqueeScroll 28s linear infinite;
+}
+.marquee-item {
+  padding: 0 clamp(24px,4vw,48px);
+  font-size: .62rem; font-weight: 500;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text-faint);
+  border-right: 1px solid var(--border-soft);
+  display: flex; align-items: center; gap: 10px;
+  flex-shrink: 0;
+}
+.marquee-dot { width: 4px; height: 4px; border-radius: 50%; background: var(--rose); flex-shrink: 0; }
+
+/* ══════════════════════════════════════════════
+   SHARED SECTION STYLES
+══════════════════════════════════════════════ */
+.section { padding: clamp(56px,7vw,112px) clamp(20px,5vw,72px); position: relative; z-index: 1; }
+.section-label {
+  font-size: .62rem; font-weight: 600;
+  letter-spacing: .22em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 14px;
+  display: flex; align-items: center; gap: 12px;
+}
+.section-label::before {
+  content: '';
+  width: 28px; height: 1px; background: var(--rose); flex-shrink: 0;
+}
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2rem,4.5vw,4rem);
+  font-weight: 700; line-height: 1;
+  letter-spacing: -.02em; color: var(--cream);
+}
+.section-title em { font-style: italic; font-weight: 400; color: var(--rose); }
+.section-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  gap: 20px; margin-bottom: clamp(32px,4.5vw,60px); flex-wrap: wrap;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0; transform: translateY(28px);
+  transition: opacity .7s var(--ease), transform .7s var(--ease);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-d1 { transition-delay: .1s; }
+.reveal-d2 { transition-delay: .2s; }
+.reveal-d3 { transition-delay: .3s; }
+.reveal-d4 { transition-delay: .4s; }
+
+/* Column stagger animation for grids */
+.col-anim {
+  opacity: 0; transform: translateY(20px);
+  transition: opacity .6s var(--ease), transform .6s var(--ease);
+}
+.col-anim.visible { opacity: 1; transform: translateY(0); }
+.col-anim:nth-child(1) { transition-delay: 0s; }
+.col-anim:nth-child(2) { transition-delay: .08s; }
+.col-anim:nth-child(3) { transition-delay: .16s; }
+.col-anim:nth-child(4) { transition-delay: .24s; }
+
+/* ══════════════════════════════════════════════
+   CATEGORIES
+══════════════════════════════════════════════ */
+.cat-section { background: var(--surface); }
+
+.cat-tabs {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 36px;
+  overflow-x: auto; -ms-overflow-style: none; scrollbar-width: none;
+}
+.cat-tabs::-webkit-scrollbar { display: none; }
+.cat-tab {
+  padding: 11px clamp(14px,2.2vw,26px);
+  font-size: .68rem; font-weight: 500;
+  letter-spacing: .1em; text-transform: uppercase;
+  color: var(--text-faint); cursor: pointer;
+  border: none; border-bottom: 2px solid transparent;
+  background: none; font-family: 'Outfit', sans-serif;
+  transition: all .3s; white-space: nowrap;
+}
+.cat-tab:hover { color: var(--text); }
+.cat-tab.active { color: var(--rose); border-bottom-color: var(--rose); }
+
+.cat-panel { display: none; }
+.cat-panel.active {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 2px;
+}
+
+.cat-card {
+  padding: clamp(18px,2.5vw,30px) clamp(16px,2.2vw,26px);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  cursor: pointer; transition: all .35s var(--ease);
+  text-decoration: none; display: block; position: relative; overflow: hidden;
+}
+.cat-card::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  background: linear-gradient(90deg, var(--rose), var(--rose-light));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .35s var(--ease);
+}
+.cat-card:hover::before { transform: scaleX(1); }
+.cat-card:hover { background: var(--surface-3); border-color: var(--border); transform: translateY(-2px); }
+
+.cat-icon-wrap {
+  width: 42px; height: 42px;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 15px; transition: background .3s;
+}
+.cat-card:hover .cat-icon-wrap { background: rgba(200,145,90,.2); }
+.cat-icon-svg { width: 20px; height: 20px; }
+.cat-name { font-size: .74rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--cream); margin-bottom: 5px; }
+.cat-count { font-size: .64rem; color: var(--text-faint); line-height: 1.5; }
+
+/* ══════════════════════════════════════════════
+   FEATURED ARTISTS
+══════════════════════════════════════════════ */
+.artists-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2px;
+}
+
+.artist-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  transition: border-color .35s, transform .35s var(--ease);
+  text-decoration: none; display: block; overflow: hidden;
+  position: relative;
+}
+.artist-card:hover { border-color: var(--border); transform: translateY(-3px); }
+
+.artist-cover {
+  height: 170px;
+  background: linear-gradient(135deg, var(--surface-3), var(--surface-2));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.5rem; font-weight: 700; color: rgba(200,145,90,.15);
+  position: relative; overflow: hidden;
+}
+.artist-cover img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; display: none;
+}
+.artist-cover img.loaded { display: block; }
+.cover-bg-pattern {
+  position: absolute; inset: 0;
+  background-image: radial-gradient(circle, rgba(200,145,90,.05) 1px, transparent 1px);
+  background-size: 22px 22px;
+}
+/* Placeholder initials in cover */
+.cover-initials {
+  position: relative; z-index: 1;
+  font-family: 'Playfair Display', serif;
+  font-size: 3rem; font-weight: 700;
+  color: rgba(200,145,90,.25);
+  letter-spacing: .05em;
+}
+.artist-avail {
+  position: absolute; top: 12px; left: 12px;
+  display: flex; align-items: center; gap: 5px;
+  padding: 4px 10px;
+  background: rgba(7,8,12,.8);
+  border: 1px solid var(--border-soft);
+  backdrop-filter: blur(4px);
+}
+.av-dot { width: 5px; height: 5px; border-radius: 50%; }
+.av-open { background: #4ade80; box-shadow: 0 0 6px rgba(74,222,128,.5); }
+.av-busy { background: #fb923c; }
+.av-txt { font-size: .56rem; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text-dim); }
+
+.artist-body { padding: 18px; }
+.artist-meta-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.artist-thumb {
+  width: 40px; height: 40px; border-radius: 50%;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--rose);
+  flex-shrink: 0; overflow: hidden;
+}
+.artist-thumb img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; display: none; }
+.artist-thumb img.loaded { display: block; }
+/* Placeholder for missing avatar */
+.thumb-placeholder {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--rose-dim);
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem; color: var(--rose);
+  font-weight: 700;
+}
+.artist-name { font-family: 'Playfair Display', serif; font-size: 1.05rem; font-weight: 500; color: var(--cream); margin-bottom: 2px; }
+.artist-loc { font-size: .64rem; font-weight: 400; letter-spacing: .06em; color: var(--text-faint); display: flex; align-items: center; gap: 4px; }
+.artist-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 12px; }
+.a-tag {
+  padding: 3px 9px;
+  border: 1px solid var(--border-soft);
+  font-size: .56rem; font-weight: 500;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.artist-rating { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; flex-wrap: wrap; }
+.a-stars { color: var(--rose); font-size: .82rem; letter-spacing: -2px; }
+.a-rnum { font-size: .7rem; font-weight: 600; color: var(--cream); }
+.a-rcnt { font-size: .62rem; color: var(--text-faint); }
+.a-price { margin-left: auto; font-size: .62rem; color: var(--text-faint); }
+.a-price strong { color: var(--rose); font-family: 'Playfair Display', serif; font-size: .82rem; }
+.artist-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+.a-btn {
+  padding: 11px; background: var(--rose); color: var(--void);
+  border: none; font-family: 'Outfit', sans-serif;
+  font-size: .62rem; font-weight: 600;
+  letter-spacing: .1em; text-transform: uppercase;
+  cursor: pointer; text-align: center; text-decoration: none;
+  display: block; transition: background .25s;
+}
+.a-btn:hover { background: var(--rose-light); }
+.a-btn.ghost { background: transparent; border: 1px solid var(--border-soft); color: var(--text-dim); }
+.a-btn.ghost:hover { border-color: var(--border); color: var(--rose); }
+
+/* Skeleton */
+.sk {
+  background: linear-gradient(90deg, var(--surface-2) 25%, rgba(200,145,90,.04) 50%, var(--surface-2) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+  border: 1px solid var(--border-soft) !important;
+}
+
+/* Artists error/empty state */
+.artists-empty {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 52px 24px;
+  border: 1px solid var(--border-soft);
+  background: var(--surface-2);
+}
+.artists-empty-icon {
+  font-size: 2.5rem; margin-bottom: 16px; opacity: .4;
+}
+.artists-empty-msg {
+  font-size: .8rem; color: var(--text-dim);
+  margin-bottom: 8px; line-height: 1.6;
+}
+.artists-empty-link {
+  font-size: .72rem; color: var(--rose);
+  text-decoration: none; letter-spacing: .06em;
+  border-bottom: 1px solid rgba(200,145,90,.3);
+  transition: border-color .3s;
+}
+.artists-empty-link:hover { border-color: var(--rose); }
+
+/* ══════════════════════════════════════════════
+   HOW IT WORKS
+══════════════════════════════════════════════ */
+.how-section { background: var(--surface); }
+
+.steps-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 2px; position: relative;
+}
+.steps-grid::before {
+  content: '';
+  position: absolute; top: 48px; left: 5%; right: 5%; height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), var(--rose), var(--border), transparent);
+  z-index: 0;
+}
+
+.step-card {
+  padding: clamp(22px,2.8vw,34px) clamp(18px,2.2vw,28px);
+  background: var(--surface-2);
+  border: 1px solid var(--border-soft);
+  position: relative; z-index: 1;
+  transition: border-color .35s, background .35s;
+}
+.step-card:hover { border-color: var(--border); background: var(--surface-3); }
+
+.step-num-wrap {
+  width: 48px; height: 48px;
+  border: 1px solid var(--border);
+  background: var(--rose-dim);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 20px; position: relative;
+}
+.step-num-wrap::before { content: ''; position: absolute; inset: -4px; border: 1px solid var(--border-soft); }
+.step-num { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; color: var(--rose); }
+.step-icon-svg { width: 28px; height: 28px; margin-bottom: 14px; opacity: .7; }
+.step-title { font-size: .74rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--cream); margin-bottom: 10px; }
+.step-desc { font-size: .74rem; font-weight: 400; color: var(--text-dim); line-height: 1.8; }
+
+/* ══════════════════════════════════════════════
+   TRUST BAR
+══════════════════════════════════════════════ */
+.trust-bar {
+  background: var(--surface-2);
+  border-top: 1px solid var(--border-soft);
+  border-bottom: 1px solid var(--border-soft);
+  padding: clamp(26px,3.5vw,44px) clamp(20px,5vw,72px);
+}
+.trust-inner {
+  display: flex; align-items: center; justify-content: space-around;
+  gap: clamp(20px,3.5vw,44px); flex-wrap: wrap;
+}
+.trust-item { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+.trust-icon-wrap {
+  width: 42px; height: 42px;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.trust-icon-svg { width: 20px; height: 20px; }
+.trust-title { font-size: .76rem; font-weight: 600; letter-spacing: .04em; color: var(--cream); }
+.trust-sub { font-size: .63rem; color: var(--text-faint); margin-top: 2px; }
+
+/* ══════════════════════════════════════════════
+   TESTIMONIALS
+══════════════════════════════════════════════ */
+.testi-section { text-align: center; }
+.testi-wrap { max-width: 720px; margin: 0 auto; }
+.testi-divider { width: 1px; height: 60px; background: linear-gradient(var(--rose), transparent); margin: 0 auto 32px; }
+.testi-quote-mark {
+  font-family: 'Playfair Display', serif;
+  font-size: 5rem; font-weight: 700; color: var(--rose);
+  opacity: .15; line-height: .5; margin-bottom: 16px;
+  display: block; transition: opacity .4s;
+}
+.testi-quote {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.1rem,2.2vw,1.6rem);
+  font-weight: 400; font-style: italic;
+  color: var(--cream); line-height: 1.55;
+  margin-bottom: 24px; min-height: 100px;
+  transition: opacity .4s, transform .4s var(--ease);
+}
+.testi-quote.fade { opacity: 0; transform: translateY(8px); }
+.testi-author {
+  font-size: .7rem; font-weight: 600;
+  letter-spacing: .18em; text-transform: uppercase;
+  color: var(--rose); margin-bottom: 28px;
+  transition: opacity .4s;
+}
+.testi-author.fade { opacity: 0; }
+.testi-dots { display: flex; gap: 10px; justify-content: center; }
+.tdot {
+  width: 8px; height: 2px;
+  background: var(--border-soft); cursor: pointer; transition: all .3s;
+}
+.tdot.active { background: var(--rose); width: 24px; }
+
+/* ══════════════════════════════════════════════
+   CTA
+══════════════════════════════════════════════ */
+.cta-section { text-align: center; position: relative; overflow: hidden; }
+.cta-bg-line {
+  position: absolute; top: 50%; left: 50%;
+  width: 700px; height: 700px;
+  border: 1px solid var(--border-soft); border-radius: 50%;
+  pointer-events: none;
+  animation: rotateSlow 40s linear infinite;
+}
+.cta-bg-line-2 {
+  position: absolute; top: 50%; left: 50%;
+  width: 500px; height: 500px;
+  border: 1px solid var(--border-soft); border-radius: 50%;
+  pointer-events: none;
+  animation: rotateSlow2 28s linear infinite;
+}
+.cta-glow {
+  position: absolute; top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 500px; height: 300px;
+  background: radial-gradient(ellipse, rgba(200,145,90,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.cta-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.4rem,6vw,5.5rem);
+  font-weight: 700; line-height: .95;
+  letter-spacing: -.03em; margin-bottom: 20px; position: relative; color: var(--cream);
+}
+.cta-title em { font-style: italic; font-weight: 400; color: var(--rose); }
+.cta-sub { font-size: .84rem; font-weight: 400; color: var(--text-dim); max-width: 520px; margin: 0 auto 48px; line-height: 1.85; position: relative; }
+.cta-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; max-width: 720px; margin: 0 auto; position: relative; }
+.cta-card {
+  padding: clamp(26px,3.5vw,46px);
+  background: var(--surface-2); border: 1px solid var(--border-soft);
+  cursor: pointer; text-align: left;
+  transition: all .4s var(--ease); position: relative; overflow: hidden;
+}
+.cta-card::after {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg, var(--rose-dim), transparent);
+  opacity: 0; transition: opacity .4s;
+}
+.cta-card:hover { border-color: var(--border); transform: translateY(-4px); }
+.cta-card:hover::after { opacity: 1; }
+.cta-card > * { position: relative; z-index: 1; }
+.cta-card-icon-wrap {
+  width: 52px; height: 52px;
+  background: var(--rose-dim); border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center; margin-bottom: 20px;
+}
+.cta-card-icon-svg { width: 26px; height: 26px; }
+.cta-card-title { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 500; color: var(--cream); margin-bottom: 12px; }
+.cta-card-desc { font-size: .76rem; font-weight: 400; color: var(--text-dim); line-height: 1.8; margin-bottom: 24px; }
+
+/* ══════════════════════════════════════════════
+   FOOTER
+══════════════════════════════════════════════ */
+.footer {
+  background: #060709;
+  border-top: 1px solid var(--border-soft);
+  padding: clamp(40px,6vw,80px) clamp(20px,5vw,72px);
+  position: relative; z-index: 1;
+}
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1fr;
+  gap: clamp(28px,5vw,64px); margin-bottom: 48px;
+}
+.footer-logo { font-family: 'Playfair Display', serif; font-size: 1.6rem; font-weight: 700; color: var(--cream); letter-spacing: -.01em; }
+.footer-logo span { color: var(--rose); font-style: italic; }
+.footer-tagline { font-family: 'Playfair Display', serif; font-size: .82rem; font-style: italic; color: var(--text-faint); margin-top: 10px; margin-bottom: 16px; }
+.footer-desc { font-size: .72rem; color: var(--text-faint); line-height: 2; }
+.footer-desc a { color: var(--text-faint); text-decoration: none; transition: color .3s; }
+.footer-desc a:hover { color: var(--rose); }
+.footer-col-title { font-size: .62rem; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: var(--rose); margin-bottom: 18px; }
+.footer-links { list-style: none; }
+.footer-links li { margin-bottom: 11px; }
+.footer-links a { font-size: .7rem; font-weight: 400; color: var(--text-faint); text-decoration: none; transition: color .3s; }
+.footer-links a:hover { color: var(--cream); }
+.footer-bottom { border-top: 1px solid var(--border-soft); padding-top: 22px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px; }
+.footer-copy { font-size: .62rem; color: var(--text-faint); }
+.footer-socials { display: flex; gap: 8px; }
+.social-link {
+  width: 36px; height: 36px; border: 1px solid var(--border-soft);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .6rem; font-weight: 600; color: var(--text-faint);
+  text-decoration: none; transition: all .3s; letter-spacing: .04em;
+}
+.social-link:hover { border-color: var(--border); color: var(--rose); background: var(--rose-dim); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+  .nav-actions { display: none; }
+  .hero { grid-template-columns: 1fr; }
+  .hero-right { display: none; }
+  .hero-left { padding-bottom: clamp(40px,6vw,72px); }
+  .footer-grid { grid-template-columns: 1fr 1fr; }
+  .steps-grid::before { display: none; }
+}
+@media (max-width: 640px) {
+  .hero-stats { flex-wrap: wrap; gap: clamp(16px,4vw,28px); }
+  .cta-cards { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .artists-grid { grid-template-columns: 1fr 1fr; }
+  .trust-inner { justify-content: flex-start; }
+}
+@media (max-width: 400px) {
+  .artists-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="cur" id="cur"></div>
+<div class="cur-ring" id="curRing"></div>
+
+<!-- ══════════════ NAV ══════════════ -->
+<nav class="nav" id="nav">
+  <a class="nav-logo" href="/index.html">Zorv<span>Ex</span></a>
+  <ul class="nav-links">
+    <li><a href="/browse.html">Browse</a></li>
+    <li><a href="#categories">Categories</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="#artists">Artists</a></li>
+  </ul>
+  <!-- Commission Art FIRST, then Join as Artist -->
+  <div class="nav-actions" id="navActions">
+    <a href="/browse.html" class="nav-btn nav-btn-fill">Commission Art</a>
+    <a href="/login.html?mode=register&role=artist" class="nav-btn nav-btn-ghost">Join as Artist</a>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<div class="mobile-menu" id="mobileMenu">
+  <ul>
+    <li><a href="/browse.html">Browse Artists</a></li>
+    <li><a href="#categories">Categories</a></li>
+    <li><a href="#how">How It Works</a></li>
+    <li><a href="/order.html">Commission Art</a></li>
+  </ul>
+  <div class="mob-btns" id="mobActions">
+    <a href="/browse.html" class="mob-btn mob-btn-solid">Commission Art</a>
+    <a href="/login.html?mode=register&role=artist" class="mob-btn mob-btn-outline">Join as Artist</a>
+  </div>
+</div>
+
+<!-- ══════════════ HERO ══════════════ -->
+<section class="hero">
+  <div class="hero-bg">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+  </div>
+  <div class="hero-grid-bg"></div>
+
+  <div class="hero-left">
+    <!-- Reduced eyebrow pill -->
+    <div class="hero-eyebrow">
+      <div class="eyebrow-pill">
+        <div class="eyebrow-dot"></div>
+        Kerala's Premium Art Marketplace
+      </div>
+    </div>
+
+    <h1 class="hero-title">
+      <span class="line-1">Art That</span>
+      <span class="line-2">Speaks</span>
+      <span class="line-3">To You</span>
+    </h1>
+
+    <!-- Reduced line-height desc -->
+    <p class="hero-desc">Commission unique handcrafted artwork directly from Kerala's finest independent artists. Pencil portraits, oil paintings, digital art and more — every piece made exclusively for you.</p>
+
+    <div class="hero-actions">
+      <a href="/browse.html" class="btn btn-primary">
+        <span>Commission Art</span>
+        <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+      </a>
+      <a href="/login.html?mode=register&role=artist" class="btn btn-secondary">
+        <span>Join as Artist</span>
+      </a>
+    </div>
+
+    <div class="hero-stats">
+      <div class="h-stat">
+        <div class="h-stat-v" id="heroArtists">—</div>
+        <div class="h-stat-l">Artists</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-v" id="heroOrders">200+</div>
+        <div class="h-stat-l">Orders Done</div>
+      </div>
+      <div class="h-stat">
+        <div class="h-stat-v">5.0</div>
+        <div class="h-stat-l">Avg Rating</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="art-mosaic">
+      <!-- Pencil Art -->
+      <div class="art-tile tile-pencil" style="animation: float 6s ease-in-out infinite;">
+        <div class="art-tile-inner"></div>
+        <svg class="tile-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M36 6L42 12L18 36L8 40L12 30L36 6Z" stroke="#c8915a" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M30 12L36 18" stroke="#c8915a" stroke-width="2"/>
+          <path d="M8 40L12 30" stroke="#e0ae7f" stroke-width="1.5" stroke-dasharray="2 2"/>
+        </svg>
+        <div class="art-tile-label">Pencil Art</div>
+      </div>
+      <!-- Painting -->
+      <div class="art-tile tile-paint" style="animation: float 6s ease-in-out .9s infinite;">
+        <div class="art-tile-inner"></div>
+        <svg class="tile-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="20" r="10" stroke="#c8915a" stroke-width="2"/>
+          <path d="M24 30v12" stroke="#c8915a" stroke-width="2"/>
+          <path d="M18 36c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="#e0ae7f" stroke-width="1.5" fill="none"/>
+          <circle cx="24" cy="20" r="4" fill="rgba(200,145,90,.2)" stroke="#c8915a" stroke-width="1"/>
+        </svg>
+        <div class="art-tile-label">Painting</div>
+      </div>
+      <!-- Digital -->
+      <div class="art-tile tile-digital" style="animation: float 6s ease-in-out 1.8s infinite;">
+        <div class="art-tile-inner"></div>
+        <svg class="tile-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="6" y="10" width="36" height="26" rx="1" stroke="#c8915a" stroke-width="2"/>
+          <path d="M18 36v4M30 36v4M12 40h24" stroke="#c8915a" stroke-width="2"/>
+          <path d="M16 22l6 5 4-6 6 8" stroke="#e0ae7f" stroke-width="1.5" stroke-linejoin="round" fill="none"/>
+          <circle cx="32" cy="20" r="2.5" fill="rgba(200,145,90,.3)" stroke="#c8915a" stroke-width="1"/>
+        </svg>
+        <div class="art-tile-label">Digital Art</div>
+      </div>
+      <!-- Fashion -->
+      <div class="art-tile tile-fashion" style="animation: float 6s ease-in-out 2.7s infinite;">
+        <div class="art-tile-inner"></div>
+        <svg class="tile-svg" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M16 8h16l4 8H12L16 8Z" stroke="#c8915a" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M12 16v24h24V16" stroke="#c8915a" stroke-width="2"/>
+          <path d="M20 16v8M28 16v8" stroke="#e0ae7f" stroke-width="1.5"/>
+          <path d="M18 28h12M18 33h8" stroke="#c8915a" stroke-width="1" opacity=".5"/>
+        </svg>
+        <div class="art-tile-label">Fashion</div>
+      </div>
+    </div>
+    <!-- Floating badge -->
+    <div class="hero-badge">
+      <div class="badge-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5" width="18" height="18">
+          <path d="M9 12l2 2 4-4M7.8 21A9 9 0 1 1 20 8.2"/><path d="M20 2v6M20 8h-6" opacity=".5"/>
+        </svg>
+      </div>
+      <div class="badge-txt">
+        <div class="badge-title">Verified Artists</div>
+        <div class="badge-sub">All artists manually vetted</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ MARQUEE ══════════════ -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span class="marquee-item"><span class="marquee-dot"></span>Pencil Portraits</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Kerala Artists</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Watercolour Paintings</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital Art</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Fashion Design</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Unique Art</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Custom Orders</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Handcrafted</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Pencil Portraits</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Kerala Artists</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Watercolour Paintings</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Digital Art</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Fashion Design</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Unique Art</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Custom Orders</span>
+    <span class="marquee-item"><span class="marquee-dot"></span>Handcrafted</span>
+  </div>
+</div>
+
+<!-- ══════════════ CATEGORIES ══════════════ -->
+<section class="section cat-section" id="categories">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Explore</div>
+      <h2 class="section-title">Art <em>Categories</em></h2>
+    </div>
+    <a href="/browse.html" class="btn btn-secondary btn-sm">View All Artists
+      <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+    </a>
+  </div>
+
+  <div class="cat-tabs" id="catTabs">
+    <button class="cat-tab active" onclick="showCat('drawing',this)">Drawing &amp; Illustration</button>
+    <button class="cat-tab" onclick="showCat('painting',this)">Painting</button>
+    <button class="cat-tab" onclick="showCat('digital',this)">Digital Art</button>
+    <button class="cat-tab" onclick="showCat('fashion',this)">Fashion &amp; Design</button>
+    <button class="cat-tab" onclick="showCat('unique',this)">Unique Art</button>
+    <button class="cat-tab" onclick="showCat('custom',this)">Custom Orders</button>
+  </div>
+
+  <!-- Drawing -->
+  <div id="cat-drawing" class="cat-panel active">
+    <a href="/browse.html?cat=Drawing" class="cat-card col-anim">
+      <div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5L17 3Z"/></svg></div>
+      <div class="cat-name">Pencil Portrait</div><div class="cat-count">Realistic sketches of people &amp; pets</div>
+    </a>
+    <a href="/browse.html?cat=Drawing" class="cat-card col-anim">
+      <div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></div>
+      <div class="cat-name">Ink Illustration</div><div class="cat-count">Detailed pen &amp; ink artwork</div>
+    </a>
+    <a href="/browse.html?cat=Drawing" class="cat-card col-anim">
+      <div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg></div>
+      <div class="cat-name">Charcoal Art</div><div class="cat-count">Dramatic charcoal drawings</div>
+    </a>
+    <a href="/browse.html?cat=Drawing" class="cat-card col-anim">
+      <div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 2L9 9H2l5.5 4-2 7L12 16l6.5 4-2-7L22 9h-7L12 2Z"/></svg></div>
+      <div class="cat-name">Zentangle / Mandala</div><div class="cat-count">Intricate pattern art</div>
+    </a>
+  </div>
+  <!-- Painting -->
+  <div id="cat-painting" class="cat-panel">
+    <a href="/browse.html?cat=Painting" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78Z"/></svg></div><div class="cat-name">Watercolour</div><div class="cat-count">Soft, luminous paintings</div></a>
+    <a href="/browse.html?cat=Painting" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg></div><div class="cat-name">Oil Painting</div><div class="cat-count">Rich, textured oil work</div></a>
+    <a href="/browse.html?cat=Painting" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 22C6.5 22 2 17.5 2 12S6.5 2 12 2s10 4.5 10 10M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10"/></svg></div><div class="cat-name">Acrylic Painting</div><div class="cat-count">Bold, vibrant acrylics</div></a>
+    <a href="/browse.html?cat=Painting" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M3 18l5-10 4 6 3-4 6 8H3Z"/><circle cx="18" cy="6" r="2"/></svg></div><div class="cat-name">Landscape</div><div class="cat-count">Scenic &amp; nature paintings</div></a>
+  </div>
+  <!-- Digital -->
+  <div id="cat-digital" class="cat-panel">
+    <a href="/browse.html?cat=Digital" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></div><div class="cat-name">Digital Portrait</div><div class="cat-count">Hyper-realistic digital art</div></a>
+    <a href="/browse.html?cat=Digital" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8Z"/></svg></div><div class="cat-name">Anime / Character</div><div class="cat-count">Japanese-inspired character art</div></a>
+    <a href="/browse.html?cat=Digital" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><polygon points="12 2 22 8.5 22 15.5 12 22 2 15.5 2 8.5 12 2"/><line x1="12" y1="2" x2="12" y2="22"/><path d="M2 8.5l10 7 10-7"/></svg></div><div class="cat-name">Concept Art</div><div class="cat-count">Imaginative concept illustrations</div></a>
+    <a href="/browse.html?cat=Digital" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5Z"/><path d="M2 17l10 5 10-5M2 12l10 5 10-5"/></svg></div><div class="cat-name">Digital Logo / Brand</div><div class="cat-count">Custom logo design</div></a>
+  </div>
+  <!-- Fashion -->
+  <div id="cat-fashion" class="cat-panel">
+    <a href="/browse.html?cat=Fashion" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.84H6v10a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.57a2 2 0 0 0-1.34-2.23Z"/></svg></div><div class="cat-name">Dress Design</div><div class="cat-count">Custom outfit illustrations</div></a>
+    <a href="/browse.html?cat=Fashion" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div><div class="cat-name">Fashion Illustration</div><div class="cat-count">Editorial fashion artwork</div></a>
+    <a href="/browse.html?cat=Fashion" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><circle cx="12" cy="8" r="5"/><path d="M12 13v8M8 17h8"/></svg></div><div class="cat-name">Jewellery Design</div><div class="cat-count">Ornament &amp; jewellery sketches</div></a>
+    <a href="/browse.html?cat=Fashion" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 2a10 10 0 0 1 10 10 10 10 0 0 1-10 10A10 10 0 0 1 2 12 10 10 0 0 1 12 2Z"/><path d="M12 6v6l4 2"/></svg></div><div class="cat-name">Textile Pattern</div><div class="cat-count">Fabric &amp; pattern design</div></a>
+  </div>
+  <!-- Unique -->
+  <div id="cat-unique" class="cat-panel">
+    <a href="/browse.html?cat=Unique" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg></div><div class="cat-name">Mandala Art</div><div class="cat-count">Sacred geometry &amp; mandalas</div></a>
+    <a href="/browse.html?cat=Unique" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M2 12a10 10 0 0 1 10-10v10L2 12Z"/><path d="M12 2a10 10 0 0 1 10 10H12V2Z"/><path d="M22 12a10 10 0 0 1-10 10V12h10Z"/><path d="M12 22a10 10 0 0 1-10-10h10v10Z"/></svg></div><div class="cat-name">Abstract Art</div><div class="cat-count">Expressive abstract pieces</div></a>
+    <a href="/browse.html?cat=Unique" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M4 4l7 4-7 4 7 4-7 4M13 4l7 4-7 4 7 4-7 4"/></svg></div><div class="cat-name">Kerala Mural Style</div><div class="cat-count">Traditional mural-inspired art</div></a>
+    <a href="/browse.html?cat=Unique" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 2C6.5 11 6.5 13 12 22c5.5-9 5.5-11 0-20Z"/><path d="M12 2C2 8.5 2 10.5 12 22 22 10.5 22 8.5 12 2Z" opacity=".4"/></svg></div><div class="cat-name">Mixed Media</div><div class="cat-count">Combined art techniques</div></a>
+  </div>
+  <!-- Custom -->
+  <div id="cat-custom" class="cat-panel">
+    <a href="/browse.html" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6"/><path d="M18 2l4 4-10 10H8v-4L18 2Z"/></svg></div><div class="cat-name">Gift Art</div><div class="cat-count">Personalised gifts &amp; mementos</div></a>
+    <a href="/browse.html" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2Z"/><circle cx="12" cy="13" r="4"/></svg></div><div class="cat-name">Photo to Art</div><div class="cat-count">Convert your photo to artwork</div></a>
+    <a href="/browse.html" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div><div class="cat-name">Home Décor</div><div class="cat-count">Wall art &amp; interior pieces</div></a>
+    <a href="/browse.html" class="cat-card col-anim"><div class="cat-icon-wrap"><svg class="cat-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div><div class="cat-name">Anything Custom</div><div class="cat-count">Describe it — we'll find your artist</div></a>
+  </div>
+</section>
+
+<!-- ══════════════ FEATURED ARTISTS ══════════════ -->
+<section class="section" id="artists">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Hand-picked</div>
+      <h2 class="section-title">Featured <em>Artists</em></h2>
+    </div>
+    <a href="/browse.html" class="btn btn-secondary btn-sm">Browse All
+      <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M4 10h12M10 4l6 6-6 6"/></svg>
+    </a>
+  </div>
+  <div class="artists-grid" id="featuredGrid">
+    <div class="sk" style="height:290px;"></div>
+    <div class="sk" style="height:290px;"></div>
+    <div class="sk" style="height:290px;"></div>
+    <div class="sk" style="height:290px;"></div>
+  </div>
+</section>
+
+<!-- ══════════════ TRUST BAR ══════════════ -->
+<div class="trust-bar">
+  <div class="trust-inner">
+    <div class="trust-item reveal">
+      <div class="trust-icon-wrap"><svg class="trust-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/></svg></div>
+      <div><div class="trust-title">Secure Payments</div><div class="trust-sub">Escrow-protected transactions</div></div>
+    </div>
+    <div class="trust-item reveal reveal-d1">
+      <div class="trust-icon-wrap"><svg class="trust-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.8 21A9 9 0 1 1 20 8.2"/></svg></div>
+      <div><div class="trust-title">Verified Artists</div><div class="trust-sub">Manually reviewed portfolios</div></div>
+    </div>
+    <div class="trust-item reveal reveal-d2">
+      <div class="trust-icon-wrap"><svg class="trust-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><path d="M8 9l3 3 5-5" stroke-width="1.5"/></svg></div>
+      <div><div class="trust-title">Live Order Tracking</div><div class="trust-sub">Watch your art come to life</div></div>
+    </div>
+    <div class="trust-item reveal reveal-d3">
+      <div class="trust-icon-wrap"><svg class="trust-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2Z"/><polyline points="22,6 12,13 2,6"/></svg></div>
+      <div><div class="trust-title">Direct Chat</div><div class="trust-sub">Secure in-platform messaging</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ HOW IT WORKS ══════════════ -->
+<section class="section how-section" id="how">
+  <div class="section-header">
+    <div>
+      <div class="section-label">Simple Process</div>
+      <h2 class="section-title">How <em>It Works</em></h2>
+    </div>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card reveal">
+      <div class="step-num-wrap"><div class="step-num">01</div></div>
+      <svg class="step-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <div class="step-title">Browse &amp; Choose</div>
+      <div class="step-desc">Explore artists by category, style, and pricing. Each artist sets their own custom packages — no guesswork.</div>
+    </div>
+    <div class="step-card reveal reveal-d1">
+      <div class="step-num-wrap"><div class="step-num">02</div></div>
+      <svg class="step-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></svg>
+      <div class="step-title">Send a Request</div>
+      <div class="step-desc">Fill in your requirements, select a package, upload references. Your request is forwarded to your chosen artist.</div>
+    </div>
+    <div class="step-card reveal reveal-d2">
+      <div class="step-num-wrap"><div class="step-num">03</div></div>
+      <svg class="step-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M9 12l2 2 4-4M7.8 21A9 9 0 1 1 20 8.2"/></svg>
+      <div class="step-title">Artist Accepts</div>
+      <div class="step-desc">Artist reviews and accepts. You're notified by email and prompted to pay a 50% advance to begin the work.</div>
+    </div>
+    <div class="step-card reveal reveal-d3">
+      <div class="step-num-wrap"><div class="step-num">04</div></div>
+      <svg class="step-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5L17 3Z"/><path d="M15 5l4 4" opacity=".5"/></svg>
+      <div class="step-title">Art in Progress</div>
+      <div class="step-desc">Track your order live. Chat with the artist securely — no personal contact sharing. All messages are monitored.</div>
+    </div>
+    <div class="step-card reveal reveal-d4">
+      <div class="step-num-wrap"><div class="step-num">05</div></div>
+      <svg class="step-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="step-title">Receive Your Art</div>
+      <div class="step-desc">Physical orders shipped via India Post with live tracking. Digital work delivered securely through the platform.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ TESTIMONIALS ══════════════ -->
+<section class="section testi-section">
+  <div class="section-label" style="justify-content:center;"><span>What Collectors Say</span></div>
+  <h2 class="section-title" style="margin-bottom:48px;">Trusted by <em>Art Lovers</em></h2>
+  <div class="testi-wrap">
+    <div class="testi-divider"></div>
+    <div class="testi-quote-mark">"</div>
+    <div class="testi-quote" id="testiText"></div>
+    <div class="testi-author" id="testiAuthor"></div>
+    <div class="testi-dots">
+      <div class="tdot active" onclick="showTesti(0)"></div>
+      <div class="tdot" onclick="showTesti(1)"></div>
+      <div class="tdot" onclick="showTesti(2)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ CTA ══════════════ -->
+<section class="section cta-section">
+  <div class="cta-bg-line"></div>
+  <div class="cta-bg-line-2"></div>
+  <div class="cta-glow"></div>
+  <div class="section-label" style="justify-content:center; margin-bottom:16px;"><span>Ready to Begin?</span></div>
+  <h2 class="cta-title">Join <em>ZorvEx</em><br>Today</h2>
+  <p class="cta-sub">Whether you collect art or create it — ZorvEx is Kerala's premium platform for handcrafted art. Secure payments. Real artists. Real art.</p>
+  <div class="cta-cards">
+    <div class="cta-card reveal" onclick="location.href='/login.html?mode=register&role=buyer'">
+      <div class="cta-card-icon-wrap"><svg class="cta-card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 3v18"/></svg></div>
+      <div class="cta-card-title">I'm a Collector</div>
+      <div class="cta-card-desc">Discover unique artists and commission one-of-a-kind pieces for yourself or as gifts.</div>
+      <a href="/login.html?mode=register&role=buyer" class="btn btn-secondary btn-sm">Start Collecting <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+    </div>
+    <div class="cta-card reveal reveal-d1" onclick="location.href='/login.html?mode=register&role=artist'">
+      <div class="cta-card-icon-wrap"><svg class="cta-card-icon-svg" viewBox="0 0 24 24" fill="none" stroke="#c8915a" stroke-width="1.5"><path d="M17 3a2.83 2.83 0 0 1 4 4L8 20l-5 1 1-5L17 3Z"/></svg></div>
+      <div class="cta-card-title">I'm an Artist</div>
+      <div class="cta-card-desc">Create your portfolio, set your own pricing packages, receive commissions and get paid securely.</div>
+      <a href="/login.html?mode=register&role=artist" class="btn btn-primary btn-sm">Start Selling <svg class="btn-icon" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15"><path d="M4 10h12M10 4l6 6-6 6"/></svg></a>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════ FOOTER ══════════════ -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">Zorv<span>Ex</span></div>
+      <div class="footer-tagline">"Art is the language the soul speaks."</div>
+      <p class="footer-desc">
+        Kerala's premium marketplace connecting passionate artists with collectors.<br><br>
+        <a href="/cdn-cgi/l/email-protection#304a5f42465548595e565f70575d51595c1e535f5d"><span class="__cf_email__" data-cfemail="443e2b3632213c2d2a222b042329252d286a272b29">[email&#160;protected]</span></a><br>
+        <a href="tel:+919946301939">+91 99463 01939</a>
+      </p>
+    </div>
+    <div>
+      <div class="footer-col-title">Explore</div>
+      <ul class="footer-links">
+        <li><a href="/browse.html">Browse Artists</a></li>
+        <li><a href="/browse.html?cat=Drawing">Pencil Art</a></li>
+        <li><a href="/browse.html?cat=Painting">Paintings</a></li>
+        <li><a href="/browse.html?cat=Digital">Digital Art</a></li>
+        <li><a href="/order.html">Custom Orders</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Artists</div>
+      <ul class="footer-links">
+        <li><a href="/login.html?mode=register&role=artist">Join as Artist</a></li>
+        <li><a href="/dashboard-artist.html">Artist Dashboard</a></li>
+        <li><a href="/login.html">Sign In</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">Support</div>
+      <ul class="footer-links">
+        <li><a href="#how">How It Works</a></li>
+        <li><a href="/cdn-cgi/l/email-protection#5822372a2e3d2031363e37183f35393134763b3735">Contact Us</a></li>
+        <li><a href="#">Refund Policy</a></li>
+        <li><a href="#">Privacy Policy</a></li>
+        <li><a href="#">Terms of Service</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <div class="footer-copy">&copy; 2025 ZorvEx. Built with care in Kerala, India.</div>
+    <div class="footer-socials">
+      <a href="https://instagram.com/zorve.xe" class="social-link" target="_blank">IG</a>
+      <a href="https://wa.me/919946301939" class="social-link" target="_blank">WA</a>
+      <a href="/cdn-cgi/l/email-protection#b6ccd9c4c0d3cedfd8d0d9f6d1dbd7dfda98d5d9db" class="social-link">EM</a>
+    </div>
+  </div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script src="/zorvex-api.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════════════
+   ZORVEX HOMEPAGE — MERGED & AUDITED SCRIPT
+   Audit vs index-n.html (old):
+     ✅ ZX.auth.getUser() — identical API, added typeof guard
+     ✅ Role-based dashboard routing — artist / admin / buyer
+     ✅ ZX.artists.list({ limit:4 }) — identical endpoint + params
+     ✅ data.artists || [] — identical extraction
+     ✅ handleCommission auth-gate — redirect to /login.html?redirect=
+     ✅ ZX.auth.logout() — guarded via safeLogout()
+     ✅ data.total || artists.length || '50+' — identical stat logic
+     ✅ data.completedOrders fallback for heroOrders (improvement)
+     ✅ Cover/avatar image fallbacks with onerror (improvement)
+     ✅ Catch block logs error + shows styled recovery UI
+   No CSS or HTML structure was changed.
+══════════════════════════════════════════════════════════════ */
+
+/* ──────────────────────────────────────────────
+   SAFE LOGOUT — guards ZX.auth.logout() in case
+   zorvex-api.js fails to load (network error etc.)
+   Called from injected HTML: onclick="safeLogout()"
+────────────────────────────────────────────── */
+function safeLogout() {
+  try {
+    if (typeof ZX !== 'undefined' && typeof ZX.auth?.logout === 'function') {
+      ZX.auth.logout();
+    } else {
+      // Fallback: clear any stored session data and redirect to login
+      localStorage.removeItem('zx_token');
+      sessionStorage.clear();
+      window.location.href = '/login.html';
+    }
+  } catch(e) {
+    console.error('[ZorvEx] Logout error:', e);
+    window.location.href = '/login.html';
+  }
+}
+
+/* ──────────────────────────────────────────────
+   CURSOR
+────────────────────────────────────────────── */
+(function(){
+  if (!window.matchMedia('(pointer:fine)').matches) return;
+  const c = document.getElementById('cur');
+  const r = document.getElementById('curRing');
+  if (!c || !r) return;
+  let mx = 0, my = 0, rx = 0, ry = 0;
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    c.style.left = mx + 'px'; c.style.top = my + 'px';
+  });
+  (function loop(){
+    rx += (mx - rx) * .12; ry += (my - ry) * .12;
+    r.style.left = rx + 'px'; r.style.top = ry + 'px';
+    requestAnimationFrame(loop);
+  })();
+  const hoverEls = document.querySelectorAll('a,button,.cat-card,.artist-card,.step-card,.cta-card,.art-tile');
+  hoverEls.forEach(el => {
+    el.addEventListener('mouseenter', () => { c.classList.add('hover'); r.classList.add('hover'); });
+    el.addEventListener('mouseleave', () => { c.classList.remove('hover'); r.classList.remove('hover'); });
+  });
+})();
+
+/* ──────────────────────────────────────────────
+   NAV SCROLL
+────────────────────────────────────────────── */
+const navEl = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  navEl.classList.toggle('scrolled', window.scrollY > 30);
+}, { passive: true });
+
+/* ──────────────────────────────────────────────
+   HAMBURGER — animated open/close
+────────────────────────────────────────────── */
+const hbtn = document.getElementById('hamburger');
+const hmenu = document.getElementById('mobileMenu');
+hbtn.addEventListener('click', () => {
+  const isOpen = hbtn.classList.toggle('open');
+  if (isOpen) {
+    hmenu.style.display = 'block';
+    hmenu.offsetHeight; // force reflow for CSS transition
+    hmenu.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else {
+    hmenu.classList.remove('open');
+    document.body.style.overflow = '';
+    hmenu.addEventListener('transitionend', () => {
+      if (!hmenu.classList.contains('open')) hmenu.style.display = 'none';
+    }, { once: true });
+  }
+});
+hmenu.querySelectorAll('a').forEach(a => a.addEventListener('click', () => {
+  hbtn.classList.remove('open');
+  hmenu.classList.remove('open');
+  document.body.style.overflow = '';
+  hmenu.addEventListener('transitionend', () => {
+    if (!hmenu.classList.contains('open')) hmenu.style.display = 'none';
+  }, { once: true });
+}));
+
+/* ──────────────────────────────────────────────
+   AUTH UI STATE
+   Source: ZX.auth.getUser() — same API as old file.
+   Role routing: artist → dashboard-artist.html,
+                 admin  → dashboard-admin.html,
+                 buyer  → dashboard-buyer.html  (default)
+   Button classes updated to match new design system.
+   Logout now calls safeLogout() instead of bare ZX.auth.logout().
+────────────────────────────────────────────── */
+(function initAuthUI(){
+  try {
+    if (typeof ZX === 'undefined') return;
+    const user = ZX.auth.getUser();
+    if (!user) return; // not logged in — leave default Login/Register buttons
+
+    const dash = user.role === 'artist'
+      ? '/dashboard-artist.html'
+      : user.role === 'admin'
+        ? '/dashboard-admin.html'
+        : '/dashboard-buyer.html';
+
+    // Desktop nav: Dashboard (prominent fill) + Sign Out (ghost)
+    document.getElementById('navActions').innerHTML =
+      `<a href="${dash}" class="nav-btn nav-btn-fill">Dashboard</a>
+       <button class="nav-btn nav-btn-ghost" onclick="safeLogout()">Sign Out</button>`;
+
+    // Mobile menu: Dashboard (solid = primary) + Sign Out (outline = secondary)
+    document.getElementById('mobActions').innerHTML =
+      `<a href="${dash}" class="mob-btn mob-btn-solid">Dashboard</a>
+       <button class="mob-btn mob-btn-outline" onclick="safeLogout()">Sign Out</button>`;
+
+  } catch(e) {
+    console.warn('[ZorvEx] Auth UI init error:', e);
+  }
+})();
+
+/* ──────────────────────────────────────────────
+   HANDLE COMMISSION
+   Auth-gated: if not logged in, redirect to login
+   with a ?redirect= param so the user returns to
+   the order page after signing in.
+   Matches old file logic exactly, adds ZX guard.
+────────────────────────────────────────────── */
+function handleCommission(e, artistId) {
+  e.preventDefault();
+  e.stopPropagation();
+  try {
+    if (typeof ZX === 'undefined' || !ZX.auth.getUser()) {
+      const returnUrl = encodeURIComponent('/order.html?artist=' + artistId);
+      window.location.href = '/login.html?redirect=' + returnUrl;
+      return;
+    }
+    window.location.href = '/order.html?artist=' + artistId;
+  } catch(err) {
+    // On any auth error, fall through to the order page —
+    // the order page itself will re-check auth.
+    window.location.href = '/order.html?artist=' + artistId;
+  }
+}
+
+/* ──────────────────────────────────────────────
+   CATEGORY TABS
+────────────────────────────────────────────── */
+function showCat(id, btn) {
+  document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('cat-' + id)?.classList.add('active');
+  btn.classList.add('active');
+  // Stagger-animate cards in the newly active panel
+  const panel = document.getElementById('cat-' + id);
+  if (panel) {
+    panel.querySelectorAll('.col-anim').forEach((el, i) => {
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(20px)';
+      setTimeout(() => {
+        el.style.transition = 'opacity .5s ease, transform .5s ease';
+        el.style.transitionDelay = (i * 0.07) + 's';
+        el.style.opacity = '1';
+        el.style.transform = 'translateY(0)';
+      }, 10);
+    });
+  }
+}
+
+/* ──────────────────────────────────────────────
+   SCROLL REVEAL
+────────────────────────────────────────────── */
+const revEls = document.querySelectorAll('.reveal');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(x => {
+    if (x.isIntersecting) { x.target.classList.add('visible'); obs.unobserve(x.target); }
+  });
+}, { threshold: .1 });
+revEls.forEach(el => obs.observe(el));
+
+// Shared column-stagger observer — also used after artist cards are injected
+const colObs = new IntersectionObserver(entries => {
+  entries.forEach(x => {
+    if (x.isIntersecting) { x.target.classList.add('visible'); colObs.unobserve(x.target); }
+  });
+}, { threshold: .05 });
+document.querySelectorAll('.col-anim').forEach(el => colObs.observe(el));
+
+/* ──────────────────────────────────────────────
+   TESTIMONIALS — fade transition between quotes
+────────────────────────────────────────────── */
+const testis = [
+  { q: 'The portrait drawn of my father brought tears to my eyes. Every shadow, every line captured his spirit perfectly.', a: '— Fathima K., Kozhikode' },
+  { q: 'Got a couple sketch for our anniversary. My wife was completely speechless — it looked exactly like us. Delivered two days early!', a: '— Arjun R., Thrissur' },
+  { q: 'Ordered a custom logo design from ZorvEx. The quality is stunning and the artist communicated throughout. Highly recommend!', a: '— Sneha M., Calicut' }
+];
+let ti = 0;
+function showTesti(i) {
+  const q = document.getElementById('testiText');
+  const a = document.getElementById('testiAuthor');
+  q.classList.add('fade'); a.classList.add('fade');
+  setTimeout(() => {
+    ti = i;
+    q.textContent = testis[i].q;
+    a.textContent = testis[i].a;
+    q.classList.remove('fade'); a.classList.remove('fade');
+    document.querySelectorAll('.tdot').forEach((d, j) => d.classList.toggle('active', j === i));
+  }, 380);
+}
+showTesti(0);
+setInterval(() => showTesti((ti + 1) % testis.length), 5200);
+
+/* ──────────────────────────────────────────────
+   LOAD FEATURED ARTISTS
+   API: ZX.artists.list({ limit: 4 }) — same as old file.
+   Response shape: { artists: [], total: N, completedOrders: N }
+   Data extraction identical to old file.
+   Improvements over old file:
+     • typeof ZX guard prevents crash if script fails to load
+     • data.completedOrders used for heroOrders if available
+     • Cover image uses <img> with onerror fallback
+     • Avatar uses styled initial placeholder when no avatarUrl
+     • Error state shows a helpful recovery UI, not a raw inline string
+────────────────────────────────────────────── */
+async function loadFeatured() {
+  try {
+    // Guard: ZX is loaded by /zorvex-api.js — if that request failed, bail silently
+    if (typeof ZX === 'undefined') return;
+
+    const data = await ZX.artists.list({ limit: 4 });
+    const artists = data.artists || [];
+
+    // Hero stats — identical extraction logic as old file
+    // data.completedOrders read first; falls back to hardcoded '200+' same as old file
+    document.getElementById('heroArtists').textContent = data.total || artists.length || '50+';
+    document.getElementById('heroOrders').textContent  = data.completedOrders || '200+';
+
+    const grid = document.getElementById('featuredGrid');
+
+    if (!artists.length) {
+      grid.innerHTML = `
+        <div class="artists-empty">
+          <div class="artists-empty-icon">🎨</div>
+          <div class="artists-empty-msg">No artists have joined yet.<br>Be the first to showcase your work!</div>
+          <a href="/login.html?mode=register&role=artist" class="artists-empty-link">Join as an Artist →</a>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = artists.map(a => {
+      // All field names match old file: a._id, a.displayName, a.user?.name,
+      // a.avgRating, a.availability, a.pricingTiers, a.tags, a.location?.city,
+      // a.coverUrl, a.avatarUrl, a.totalReviews
+      const name     = a.displayName || a.user?.name || 'Artist';
+      const initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
+      const starFull = Math.round(a.avgRating || 0);
+      const stars    = '★'.repeat(starFull) + '☆'.repeat(5 - starFull);
+      const avail    = a.availability || 'open';
+      const minPrice = a.pricingTiers?.length
+        ? Math.min(...a.pricingTiers.map(t => t.price))
+        : null;
+
+      // Cover: real image with onerror fallback, or pattern + initials placeholder
+      const coverHtml = a.coverUrl
+        ? `<img src="${a.coverUrl}" class="loaded" alt="${name}" onerror="this.style.display='none'">`
+        : `<div class="cover-bg-pattern"></div><div class="cover-initials">${initials}</div>`;
+
+      // Avatar: real image with onerror fallback, or styled initial badge
+      const avatarHtml = a.avatarUrl
+        ? `<img src="${a.avatarUrl}" class="loaded" alt="${name}" onerror="this.parentNode.innerHTML='<div class=\\'thumb-placeholder\\'>${initials[0]}</div>'">`
+        : `<div class="thumb-placeholder">${initials[0]}</div>`;
+
+      return `<a class="artist-card col-anim" href="/artist-profile.html?id=${a._id}">
+        <div class="artist-cover">
+          ${coverHtml}
+          <div class="artist-avail">
+            <div class="av-dot ${avail === 'open' ? 'av-open' : 'av-busy'}"></div>
+            <span class="av-txt">${avail === 'open' ? 'Open' : 'Busy'}</span>
+          </div>
+        </div>
+        <div class="artist-body">
+          <div class="artist-meta-row">
+            <div class="artist-thumb">${avatarHtml}</div>
+            <div>
+              <div class="artist-name">${name}</div>
+              <div class="artist-loc">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" width="10" height="10">
+                  <path d="M8 2a4 4 0 0 1 4 4c0 3-4 8-4 8S4 9 4 6a4 4 0 0 1 4-4Z"/>
+                  <circle cx="8" cy="6" r="1.5"/>
+                </svg>
+                ${a.location?.city || 'Kerala'}
+              </div>
+            </div>
+          </div>
+          <div class="artist-tags">
+            ${(a.tags || []).slice(0, 3).map(t => `<span class="a-tag">${t}</span>`).join('')}
+          </div>
+          <div class="artist-rating">
+            <span class="a-stars">${stars}</span>
+            <span class="a-rnum">${a.avgRating || 'New'}</span>
+            <span class="a-rcnt">(${a.totalReviews || 0})</span>
+            ${minPrice ? `<span class="a-price">From <strong>₹${minPrice}</strong></span>` : ''}
+          </div>
+          <div class="artist-btns" onclick="event.preventDefault()">
+            <a href="/order.html?artist=${a._id}" class="a-btn"
+               onclick="event.stopPropagation();handleCommission(event,'${a._id}')">Commission</a>
+            <a href="/artist-profile.html?id=${a._id}" class="a-btn ghost"
+               onclick="event.stopPropagation()">Profile</a>
+          </div>
+        </div>
+      </a>`;
+    }).join('');
+
+    // Wire up scroll-reveal for the freshly injected artist cards
+    grid.querySelectorAll('.col-anim').forEach(el => colObs.observe(el));
+
+  } catch(e) {
+    console.error('[ZorvEx] loadFeatured error:', e);
+    // Show a helpful, styled recovery state — not a raw inline error string
+    const grid = document.getElementById('featuredGrid');
+    if (grid) {
+      grid.innerHTML = `
+        <div class="artists-empty">
+          <div class="artists-empty-icon">⚠️</div>
+          <div class="artists-empty-msg">
+            We couldn't load artists right now.<br>
+            Please check your connection or try again shortly.
+          </div>
+          <a href="/browse.html" class="artists-empty-link">Browse all artists →</a>
+        </div>`;
+    }
+  }
+}
+loadFeatured();
+
+/* ──────────────────────────────────────────────
+   INITIAL CAT PANEL COLUMN ANIMATIONS
+   Runs once on page load for the default active tab
+────────────────────────────────────────────── */
+document.querySelectorAll('#cat-drawing .col-anim').forEach((el, i) => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(20px)';
+  setTimeout(() => {
+    el.style.transition = 'opacity .5s ease, transform .5s ease';
+    el.style.transitionDelay = (i * 0.07) + 's';
+    el.style.opacity = '1';
+    el.style.transform = 'translateY(0)';
+  }, 400);
+});
+</script>
+</body>
+</html>
